@@ -286,7 +286,7 @@ exports.handler = async function (event) {
     // Record the per-person acknowledgement at the same time.
     await db.from('acknowledgements').insert({
       person_id: session.sub, org_agreement_id: orgAgreement.id, at: now.toISOString(), ip
-    }).catch(() => {});
+    }).then(() => {}, () => {});
 
     // Email signer + airem@blendxr.online with the PDF.
     try {
@@ -308,7 +308,7 @@ exports.handler = async function (event) {
     const token = await makeSession(Object.assign({}, session, { agreement_ok: true }));
 
     await db.from('events').insert({ grant_id: session.grant_id, kind: 'agreement_executed',
-      meta: { pdf: storagePath, ip } }).catch(() => {});
+      meta: { pdf: storagePath, ip } }).then(() => {}, () => {});
 
     return {
       statusCode: 200,

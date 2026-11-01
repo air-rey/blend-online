@@ -37,7 +37,7 @@ exports.handler = async function (event) {
     await db.from('events').insert({
       grant_id: session.grant_id, kind: 'asset_downloaded',
       meta: { file: name, ip, ua: h['user-agent'] || null }
-    }).catch(() => {});
+    }).then(() => {}, () => {});
   }
   return jsonResponse(200, { url: data.signedUrl, expires_in: 600 });
 };

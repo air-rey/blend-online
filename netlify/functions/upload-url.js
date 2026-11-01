@@ -40,7 +40,7 @@ exports.handler = async function (event) {
   await db.from('events').insert({
     grant_id: session.grant_id, kind: 'upload_started',
     meta: { day, path, filename, size: payload.size || null }
-  }).catch(() => {});
+  }).then(() => {}, () => {});
 
   return jsonResponse(200, {
     uploadUrl: data.signedUrl,

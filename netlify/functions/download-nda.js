@@ -46,7 +46,7 @@ exports.handler = async function (event) {
     grant_id: session.grant_id || null,
     kind: 'nda_downloaded',
     meta: { pdf_ref: sig.pdf_ref, version: sig.agreement_version }
-  }).catch(() => {});
+  }).then(() => {}, () => {});
 
   return redirectResponse(signed.signedUrl);
 };

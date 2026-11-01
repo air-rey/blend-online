@@ -376,7 +376,7 @@ exports.handler = async function (event) {
     await db.from('events').insert({
       grant_id: session.grant_id, kind: 'brief_viewed',
       meta: { version, ip, ua: h['user-agent'] || null }
-    }).catch(() => {});
+    }).then(() => {}, () => {});
   }
 
   return htmlResponse(html);

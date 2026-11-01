@@ -232,7 +232,7 @@ exports.handler = async function (event) {
 
     // Also persist the counterparty's legal name on the org row if blank.
     await db.from('orgs').update({ legal_name: form.counterparty_legal_name })
-      .eq('id', session.org_id).is('legal_name', null).catch(() => {});
+      .eq('id', session.org_id).is('legal_name', null).then(() => {}, () => {});
 
     try {
       const b64 = pdf.toString('base64');
@@ -255,7 +255,7 @@ exports.handler = async function (event) {
       grant_id: session.grant_id || null,
       kind: 'nda_executed',
       meta: { pdf: storagePath, ip, version: NDA_VERSION }
-    }).catch(() => {});
+    }).then(() => {}, () => {});
 
     return {
       statusCode: 200,

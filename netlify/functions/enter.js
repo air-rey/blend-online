@@ -80,7 +80,7 @@ exports.handler = async function (event) {
     if (!/^\d{5}$/.test(code)) {
       await db.from('events').insert({
         kind: 'gate_code_bad', meta: { ip, ua, reason: 'format' }
-      }).catch(() => {});
+      }).then(() => {}, () => {});
       return jsonResponse(403, { error: 'Not quite.' });
     }
 
@@ -100,7 +100,7 @@ exports.handler = async function (event) {
     if (!ec) {
       await db.from('events').insert({
         kind: 'gate_code_bad', meta: { ip, ua }
-      }).catch(() => {});
+      }).then(() => {}, () => {});
       return jsonResponse(403, { error: 'Not quite.' });
     }
 
@@ -120,7 +120,7 @@ exports.handler = async function (event) {
 
     await db.from('events').insert({
       event_code_id: ec.id, kind: 'gate_code_ok', meta: { ip, ua }
-    }).catch(() => {});
+    }).then(() => {}, () => {});
 
     return {
       statusCode: 200,
@@ -160,7 +160,7 @@ exports.handler = async function (event) {
       .catch(err => console.warn('access_requests insert failed', err));
     await db.from('events').insert({
       kind: 'gate_email_unknown', meta: { email, ip, ua }
-    }).catch(() => {});
+    }).then(() => {}, () => {});
     return jsonResponse(202, { ok: true });
   }
 
@@ -199,7 +199,7 @@ exports.handler = async function (event) {
   await db.from('events').insert({
     grant_id: live.id, kind: 'gate_entered',
     meta: { ip, ua, agreement_ok: agreementOk, agreement_type: resource.agreement_type }
-  }).catch(() => {});
+  }).then(() => {}, () => {});
 
   const target = agreementOk ? '/r' : signTarget;
   return {

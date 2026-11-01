@@ -40,7 +40,7 @@ exports.handler = async function (event) {
 
     await db.from('events').insert({
       grant_id: session.grant_id, kind: 'day0_started', meta: { at: now }
-    }).catch(() => {});
+    }).then(() => {}, () => {});
 
     try {
       await send({
@@ -74,7 +74,7 @@ exports.handler = async function (event) {
   await db.from('events').insert({
     grant_id: session.grant_id, kind: 'upload_received',
     meta: { day, filename, size, path: storagePath, upload_id: row.id }
-  }).catch(() => {});
+  }).then(() => {}, () => {});
 
   try {
     await send({

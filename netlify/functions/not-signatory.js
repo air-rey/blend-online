@@ -24,7 +24,7 @@ exports.handler = async function (event) {
     await supa().from('events').insert({
       grant_id: session.grant_id, kind: 'not_signatory',
       meta: { email: session.email }
-    }).catch(() => {});
+    }).then(() => {}, () => {});
   }
 
   return htmlResponse(page({

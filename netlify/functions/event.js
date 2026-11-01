@@ -27,6 +27,6 @@ exports.handler = async function (event) {
     const v = payload[k];
     if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') meta[k] = v;
   }
-  await supa().from('events').insert({ grant_id: session.grant_id, kind, meta }).catch(() => {});
+  await supa().from('events').insert({ grant_id: session.grant_id, kind, meta }).then(() => {}, () => {});
   return jsonResponse(204, {});
 };
