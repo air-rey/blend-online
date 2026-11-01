@@ -361,9 +361,8 @@ exports.handler = async function (event) {
   <div class="just-signed" role="status">
     <div>
       <strong>Mutual NDA signed.</strong>
-      <span style="color:var(--body);">A copy has been retained; download yours any time.</span>
+      <span style="color:var(--body);">A countersigned PDF will be sent to your email shortly.</span>
     </div>
-    <a class="btn btn--ghost" href="/my-nda">Download your signed NDA</a>
   </div>` : ''}
 
   <article class="brief">

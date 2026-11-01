@@ -21,6 +21,11 @@ const { send } = require('./_lib/email');
 const NDA_PATH    = path.join(__dirname, '..', '..', 'private-content', 'mutual-nda', 'nda.txt');
 const NDA_VERSION = '2026-11-01';
 
+// Fixed date when Vedika pre-authorised BlendXR's side of the mutual NDA.
+// The counterparty's date comes from their actual signing time; BlendXR's
+// date stays constant across all generated PDFs.
+const BLENDXR_SIGN_DATE = 'Fri, 30 Oct 2026 17:54:06 GMT';
+
 function readNda () {
   const text = fs.readFileSync(NDA_PATH, 'utf-8');
   const sha  = crypto.createHash('sha256').update(text).digest('hex');
@@ -199,7 +204,7 @@ exports.handler = async function (event) {
           country:   'India'
         },
         signer:  { name: form.signer_name, title: form.signer_title },
-        blendxr: { name: 'Vedika Bhasin', title: 'Founder', date: now.toUTCString() },
+        blendxr: { name: 'Vedika Bhasin', title: 'Founder', date: BLENDXR_SIGN_DATE },
         auditRecord
       });
     } catch (err) {

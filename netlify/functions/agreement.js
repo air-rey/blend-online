@@ -19,6 +19,10 @@ const { send } = require('./_lib/email');
 const AGREEMENT_PATH = path.join(__dirname, '..', '..', 'private-content', 'volga-test-scene', 'agreement.txt');
 const AGREEMENT_VERSION = '2026-11-01';
 
+// Fixed date when Vedika pre-authorised BlendXR's side of the contractor
+// agreement. The contractor's date comes from their actual signing time.
+const BLENDXR_SIGN_DATE = 'Fri, 30 Oct 2026 17:54:06 GMT';
+
 function readAgreement () {
   const text = fs.readFileSync(AGREEMENT_PATH, 'utf-8');
   const sha  = crypto.createHash('sha256').update(text).digest('hex');
@@ -237,7 +241,7 @@ exports.handler = async function (event) {
         },
         exhibitB: { none: exhibitNone, items: exhibitItems },
         signer:   { name: form.signer_name, title: form.signer_title },
-        blendxr:  { name: 'Vedika Bhasin', title: 'Founder', date: now.toUTCString() },
+        blendxr:  { name: 'Vedika Bhasin', title: 'Founder', date: BLENDXR_SIGN_DATE },
         auditRecord
       });
     } catch (err) {

@@ -122,19 +122,17 @@ async function buildExecutedPdf ({ agreementText, agreementVersion, agreementSha
   // the whole signature section stays together.
   drawLine('', { gap: 12 });
   drawLine('SIGNATURES', { font: bold, size: H2_SIZE, gap: 20 });
-  drawLine('On behalf of BlendXR:', { gap: LINE_HEIGHT });
+  drawLine('On behalf of Blendtobases OU, represented as BlendXR:', { gap: LINE_HEIGHT });
   drawLine(`Name:  ${blendxr.name}`, { gap: LINE_HEIGHT });
   drawLine(`Title: ${blendxr.title}`, { gap: LINE_HEIGHT });
   drawLine(`Date:  ${blendxr.date}`, { gap: LINE_HEIGHT });
-  drawLine(`Signed electronically pursuant to Section 21 (Miscellaneous).`,
-    { font: italic, size: 9, gap: 18 });
+  drawLine('Signed electronically.', { font: italic, size: 9, gap: 18 });
 
   drawLine(`On behalf of ${contractor.legalName}:`, { gap: LINE_HEIGHT });
   drawLine(`Name:  ${signer.name}`, { gap: LINE_HEIGHT });
   drawLine(`Title: ${signer.title}`, { gap: LINE_HEIGHT });
   drawLine(`Date:  ${new Date(auditRecord.signedAt).toUTCString()}`, { gap: LINE_HEIGHT });
-  drawLine(`Signed electronically pursuant to Section 21 (Miscellaneous).`,
-    { font: italic, size: 9, gap: 18 });
+  drawLine('Signed electronically.', { font: italic, size: 9, gap: 18 });
 
   // Contractor fields
   hr();
@@ -263,19 +261,17 @@ async function buildMutualNdaPdf ({ ndaText, ndaVersion, ndaSha256,
   // the whole signature section stays together.
   drawLine('', { gap: 12 });
   drawLine('SIGNATURES', { font: bold, size: H2_SIZE, gap: 20 });
-  drawLine('On behalf of BlendXR:', { gap: LINE_HEIGHT });
+  drawLine('On behalf of Blendtobases OU, represented as BlendXR:', { gap: LINE_HEIGHT });
   drawLine(`Name:  ${blendxr.name}`, { gap: LINE_HEIGHT });
   drawLine(`Title: ${blendxr.title}`, { gap: LINE_HEIGHT });
   drawLine(`Date:  ${blendxr.date}`, { gap: LINE_HEIGHT });
-  drawLine('Signed electronically pursuant to Section 14 (Electronic execution).',
-    { font: italic, size: 9, gap: 18 });
+  drawLine('Signed electronically.', { font: italic, size: 9, gap: 18 });
 
   drawLine(`On behalf of ${counterparty.legalName}:`, { gap: LINE_HEIGHT });
   drawLine(`Name:  ${signer.name}`, { gap: LINE_HEIGHT });
   drawLine(`Title: ${signer.title}`, { gap: LINE_HEIGHT });
   drawLine(`Date:  ${new Date(auditRecord.signedAt).toUTCString()}`, { gap: LINE_HEIGHT });
-  drawLine('Signed electronically pursuant to Section 14 (Electronic execution).',
-    { font: italic, size: 9, gap: 18 });
+  drawLine('Signed electronically.', { font: italic, size: 9, gap: 18 });
 
   hr();
   drawLine('COUNTERPARTY DETAILS', { font: bold, size: H2_SIZE, gap: 16 });
