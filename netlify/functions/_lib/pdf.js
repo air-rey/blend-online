@@ -103,9 +103,13 @@ async function buildExecutedPdf ({ agreementText, agreementVersion, agreementSha
       drawLine('', { gap: 4 });
       continue;
     }
-    // All-caps PART headers
+    // All-caps PART headers. PART A flows inline below the cover block;
+    // any later PART (e.g. PART B: SIGNATURES) renders on a fresh page so
+    // its attestation text stays together with the signature data block
+    // rendered after this loop — no orphaned half pages.
     if (/^PART [A-Z]:/.test(clean)) {
-      ensureSpace(LINE_HEIGHT + 8);
+      if (/^PART A:/.test(clean)) ensureSpace(LINE_HEIGHT + 8);
+      else newPage();
       drawLine(clean, { font: bold, size: H2_SIZE + 1, gap: LINE_HEIGHT + 6 });
       continue;
     }
@@ -113,8 +117,10 @@ async function buildExecutedPdf ({ agreementText, agreementVersion, agreementSha
     drawLine('', { gap: 4 });
   }
 
-  // Signature blocks
-  newPage();
+  // Signature data block. Flows directly after the Part B attestation
+  // text above (which starts on a fresh page via the PART handler), so
+  // the whole signature section stays together.
+  drawLine('', { gap: 12 });
   drawLine('SIGNATURES', { font: bold, size: H2_SIZE, gap: 20 });
   drawLine('On behalf of BlendXR:', { gap: LINE_HEIGHT });
   drawLine(`Name:  ${blendxr.name}`, { gap: LINE_HEIGHT });
@@ -239,8 +245,12 @@ async function buildMutualNdaPdf ({ ndaText, ndaVersion, ndaSha256,
       drawLine('', { gap: 4 });
       continue;
     }
+    // PART A flows inline below the cover block; any later PART (e.g.
+    // PART B: SIGNATURES) renders on a fresh page so its attestation text
+    // stays together with the signature data block below.
     if (/^PART [A-Z]:/.test(clean)) {
-      ensureSpace(LINE_HEIGHT + 8);
+      if (/^PART A:/.test(clean)) ensureSpace(LINE_HEIGHT + 8);
+      else newPage();
       drawLine(clean, { font: bold, size: H2_SIZE + 1, gap: LINE_HEIGHT + 6 });
       continue;
     }
@@ -248,8 +258,10 @@ async function buildMutualNdaPdf ({ ndaText, ndaVersion, ndaSha256,
     drawLine('', { gap: 4 });
   }
 
-  // Signatures
-  newPage();
+  // Signature data block. Flows directly after the Part B attestation
+  // text above (which starts on a fresh page via the PART handler), so
+  // the whole signature section stays together.
+  drawLine('', { gap: 12 });
   drawLine('SIGNATURES', { font: bold, size: H2_SIZE, gap: 20 });
   drawLine('On behalf of BlendXR:', { gap: LINE_HEIGHT });
   drawLine(`Name:  ${blendxr.name}`, { gap: LINE_HEIGHT });
