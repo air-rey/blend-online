@@ -122,7 +122,7 @@ async function buildExecutedPdf ({ agreementText, agreementVersion, agreementSha
   // the whole signature section stays together.
   drawLine('', { gap: 12 });
   drawLine('SIGNATURES', { font: bold, size: H2_SIZE, gap: 20 });
-  drawLine('On behalf of Blendtobases OU, represented as BlendXR:', { gap: LINE_HEIGHT });
+  drawLine('On behalf of Blendtobases OÜ, represented as BlendXR:', { gap: LINE_HEIGHT });
   drawLine(`Name:  ${blendxr.name}`, { gap: LINE_HEIGHT });
   drawLine(`Title: ${blendxr.title}`, { gap: LINE_HEIGHT });
   drawLine(`Date:  ${blendxr.date}`, { gap: LINE_HEIGHT });
@@ -168,6 +168,7 @@ async function buildExecutedPdf ({ agreementText, agreementVersion, agreementSha
   drawParagraph(`This copy was executed electronically on blendxr.online, in accordance with Section 21 (Miscellaneous) of the Agreement, which permits electronic execution and counterparts.`);
   drawLine('', { gap: 10 });
   const audit = [
+    ['Signer legal name', contractor.legalName],
     ['Signer name',       signer.name],
     ['Signer title',      signer.title],
     ['Signer email',      auditRecord.email],
@@ -261,7 +262,7 @@ async function buildMutualNdaPdf ({ ndaText, ndaVersion, ndaSha256,
   // the whole signature section stays together.
   drawLine('', { gap: 12 });
   drawLine('SIGNATURES', { font: bold, size: H2_SIZE, gap: 20 });
-  drawLine('On behalf of Blendtobases OU, represented as BlendXR:', { gap: LINE_HEIGHT });
+  drawLine('On behalf of Blendtobases OÜ, represented as BlendXR:', { gap: LINE_HEIGHT });
   drawLine(`Name:  ${blendxr.name}`, { gap: LINE_HEIGHT });
   drawLine(`Title: ${blendxr.title}`, { gap: LINE_HEIGHT });
   drawLine(`Date:  ${blendxr.date}`, { gap: LINE_HEIGHT });
@@ -288,6 +289,7 @@ async function buildMutualNdaPdf ({ ndaText, ndaVersion, ndaSha256,
   drawParagraph('This copy was executed electronically on blendxr.online, in accordance with Section 14 (Electronic execution), which permits electronic execution and counterparts.');
   drawLine('', { gap: 10 });
   const audit = [
+    ['Signer legal name', counterparty.legalName],
     ['Signer name',    signer.name],
     ['Signer title',   signer.title],
     ['Signer email',   auditRecord.email],

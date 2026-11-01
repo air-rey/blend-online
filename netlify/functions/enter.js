@@ -25,7 +25,7 @@ const { makeSession, setCookieHeader } = require('./_lib/cookie');
 const { jsonResponse } = require('./_lib/html');
 
 // Keep in sync with NDA_VERSION in netlify/functions/nda.js.
-const CURRENT_NDA_VERSION = '2026-11-01';
+const CURRENT_NDA_VERSION = '2026-11-02';
 
 function parseForm (body) {
   const out = {};

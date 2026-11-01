@@ -1,6 +1,6 @@
-PART A: PARTIES AND PURPOSE
+PART A — PARTIES AND PURPOSE
 
-This Mutual Non-Disclosure Agreement (the "Agreement") is entered into between Blendtobases OU, trading as BlendXR, an Estonian company with its registered office at Pärnu mnt 20, 10141 Tallinn, Estonia ("BlendXR"), and the counterparty identified in the signature block below (the "Counterparty"), each a "Party" and together the "Parties". The Parties intend to discuss, demonstrate and evaluate the possible use of BlendXR's virtual-reality training and simulation products and related professional services (the "Purpose") and will, for that Purpose, exchange information that each considers confidential and proprietary.
+This Mutual Non-Disclosure Agreement (the "Agreement") is entered into between Blendtobases OÜ, trading as BlendXR, an Estonian company with its registered office at Pärnu mnt 20, 10141 Tallinn, Estonia ("BlendXR"), and the counterparty identified in the signature block below (the "Counterparty"), each a "Party" and together the "Parties". The Parties intend to discuss, demonstrate and evaluate the possible use of BlendXR's virtual-reality training and simulation products and related professional services (the "Purpose") and will, for that Purpose, exchange information that each considers confidential and proprietary.
 
 1. Confidential Information. "Confidential Information" means any non-public information disclosed by one Party (the "Discloser") to the other (the "Recipient") in any form (oral, visual, written, electronic, interactive, in-person, or embedded in software, hardware, media or demonstrations) that is identified as confidential at the time of disclosure, or that a reasonable person would understand to be confidential given its nature and the circumstances of disclosure. Without limitation, Confidential Information includes product designs and roadmaps; software, source code, binaries, APKs, builds and build pipelines; three-dimensional assets, environments, scenarios, voiceovers and audio design; training scenarios, pedagogical frameworks and assessment logic; interaction mechanics and gesture libraries; business plans, pricing, pipeline, customer lists and partner relationships; and the fact of and content of the Parties' discussions.
 
@@ -24,14 +24,16 @@ This Mutual Non-Disclosure Agreement (the "Agreement") is entered into between B
 
 11. Equitable relief. The Parties acknowledge that money damages may not be a sufficient remedy for a breach of this Agreement and that the Discloser may seek injunctive and other equitable relief without the requirement to post bond, in addition to any other remedy available at law or in equity.
 
-12. Governing law and jurisdiction. This Agreement is governed by the laws of India, without regard to its conflict-of-laws rules. The Parties submit to the exclusive jurisdiction of the courts at Bangalore for any dispute arising out of or in connection with this Agreement.
+12. Governing law and jurisdiction. This Agreement is governed by the laws of the Republic of Estonia. Any dispute arising out of or in connection with it shall be finally resolved by arbitration at the Arbitration Court of the Estonian Chamber of Commerce and Industry in Tallinn, in English, before a sole arbitrator. Either Party may seek interim or injunctive relief from any court of competent jurisdiction.
 
 13. General. This Agreement is the entire agreement of the Parties with respect to its subject matter and supersedes any prior understandings on the same subject. It may be amended only in a writing signed by both Parties. If any provision is held unenforceable, the remaining provisions remain in full force. Neither Party may assign this Agreement without the other's prior written consent, except to an affiliate or in connection with a merger or sale of substantially all of its assets. Headings are for convenience only. A failure to enforce any right is not a waiver of that right.
 
 14. Electronic execution. The Parties agree that this Agreement may be executed electronically and in counterparts, each of which when so executed is deemed an original and all of which together constitute one and the same instrument. Electronic signatures and electronically delivered copies are valid and binding to the same extent as original wet-ink signatures delivered by hand.
 
-PART B: SIGNATURES
+15. Feedback. Any feedback or suggestions the Counterparty provides about BlendXR's products may be used by BlendXR freely and without obligation, and are not the Counterparty's Confidential Information.
 
-On behalf of Blendtobases OU, trading as BlendXR: Vedika Bhasin, Founder. Signed electronically pursuant to Section 14 on the date shown on the audit record.
+PART B — SIGNATURES
+
+On behalf of Blendtobases OÜ, trading as BlendXR: Vedika Bhasin, Founder. Signed electronically pursuant to Section 14 on the date shown on the audit record.
 
 On behalf of the Counterparty: as recorded in the signature block and audit record attached. The individual signing confirms they are authorised to bind the Counterparty to this Agreement.

@@ -44,8 +44,8 @@ exports.handler = async function (event) {
 
     try {
       await send({
-        to: 'airem@blendxr.online',
-        subject: `BlendXR x Volga: Day 0 started by ${session.email}`,
+        to: ['airem@blendxr.online', 'vedika@blendxr.online'],
+        subject: `BlendXR x Volga — Day 0 started by ${session.email}`,
         text: `${session.name || session.email} ticked the Day 0 confirmation at ${now}.\nDay 4 is now unlocked.`
       });
     } catch (err) { console.warn('day0 email failed', err); }

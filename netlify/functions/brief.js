@@ -30,7 +30,7 @@ const md = require('./_lib/markdown');
 const BRIEF_PATH = path.join(__dirname, '..', '..', 'private-content', 'volga-test-scene', 'brief.md');
 
 // Keep in sync with NDA_VERSION in netlify/functions/nda.js.
-const CURRENT_NDA_VERSION = '2026-11-01';
+const CURRENT_NDA_VERSION = '2026-11-02';
 
 // Downloads list drives the panel UI. Each file is stored at
 // `volga/<key>` in the `downloads` private bucket. The upload step is a
@@ -56,7 +56,8 @@ function fmtDate (d) {
   try { return new Date(d).toUTCString(); } catch (_) { return String(d); }
 }
 
-function panelHtml (which) {
+function panelHtml (which, state = {}) {
+  const day0TickedAt = state.day0TickedAt || null;
   if (which === 'DOWNLOADS') {
     const rows = DOWNLOADS.map(d => `
       <tr>
@@ -82,21 +83,27 @@ function panelHtml (which) {
   if (which === 'UPLOADS') {
     const rows = CHECKPOINTS.map((cp, idx) => {
       if (cp.day === 0) {
+        const alreadyTicked = !!day0TickedAt;
+        const stampedAt = alreadyTicked ? new Date(day0TickedAt).toUTCString() : '';
         return `
           <tr data-day="0">
             <td><strong>Day 0</strong></td>
             <td>${esc(cp.label)}<div style="color:var(--muted); font-size:12px; margin-top:4px;">${esc(cp.hint)}</div></td>
             <td style="text-align:right;">
               <label class="check" style="justify-content:flex-end;">
-                <input type="checkbox" class="day0-check">
+                <input type="checkbox" class="day0-check"${alreadyTicked ? ' checked disabled' : ''}>
                 <span>We can access every asset and the setup works</span>
               </label>
-              <div class="up-status" data-day="0"></div>
+              <div class="up-status" data-day="0"${alreadyTicked ? ' style="color:var(--success); font-size:12px; margin-top:6px;"' : ''}>${alreadyTicked ? 'Day 0 confirmed on ' + esc(stampedAt) + '. Clock started.' : ''}</div>
             </td>
           </tr>`;
       }
+      // After Day 0 is ticked, downstream rows unlock automatically. Before
+      // that, Day 4/9/14 start locked and the Day 0 checkbox handler peels
+      // the lock off Day 4 on success.
+      const locked = (idx > 0) && !day0TickedAt;
       return `
-        <tr data-day="${cp.day}" class="up-row" ${idx > 0 ? 'data-locked="1"' : ''}>
+        <tr data-day="${cp.day}" class="up-row"${locked ? ' data-locked="1"' : ''}>
           <td><strong>Day ${cp.day}</strong></td>
           <td>${esc(cp.label)}<div style="color:var(--muted); font-size:12px; margin-top:4px;">${esc(cp.hint)}</div></td>
           <td style="text-align:right;">
@@ -152,21 +159,32 @@ function uploadsScript () {
   });
 
   var day0 = document.querySelector('.day0-check');
-  if (day0) {
+  if (day0 && !day0.disabled) {
     day0.addEventListener('change', function () {
       if (!day0.checked) return;
+      // Lock the input immediately so the viewer can't un-tick between the
+      // click and the server response. The server stamps checkpoint_status
+      // and emails the BlendXR side; the server-render on next page load
+      // will keep it checked/disabled.
+      day0.disabled = true;
       fetch('/.netlify/functions/upload-notify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
         body: JSON.stringify({ day: 0, kind: 'day0-start' })
-      }).then(function () {
+      }).then(function (r) {
+        if (!r.ok) throw new Error('day0 notify failed');
         var s = document.querySelector('.up-status[data-day="0"]');
-        if (s) { s.textContent = 'Confirmed. Day 0 clock started.'; s.style.color = 'var(--success)'; }
+        if (s) { s.textContent = 'Day 0 confirmed. Clock started.'; s.style.color = 'var(--success)'; }
         var next = document.querySelector('.up-row[data-day="4"]');
         if (next) next.removeAttribute('data-locked');
       }).catch(function () {
+        // Server didn't accept — undo the lock and the tick so the viewer
+        // can retry.
         day0.checked = false;
+        day0.disabled = false;
+        var s = document.querySelector('.up-status[data-day="0"]');
+        if (s) { s.textContent = 'Could not confirm. Please try again.'; s.style.color = 'var(--muted)'; }
       });
     });
   }
@@ -292,6 +310,21 @@ exports.handler = async function (event) {
   const version = fm.version || '';
   const contact = fm.contact || 'airem@blendxr.online';
 
+  // Look up whether this viewer's grant has already ticked Day 0, so the
+  // uploads panel can render the checkbox as checked+disabled and unlock
+  // downstream rows across page reloads.
+  let day0TickedAt = null;
+  if (session.grant_id && session.resource_id) {
+    const { data: cp0 } = await db.from('checkpoints')
+      .select('id').eq('resource_id', session.resource_id).eq('day', 0).maybeSingle();
+    if (cp0) {
+      const { data: cs } = await db.from('checkpoint_status')
+        .select('ticked_at').eq('grant_id', session.grant_id)
+        .eq('checkpoint_id', cp0.id).maybeSingle();
+      if (cs && cs.ticked_at) day0TickedAt = cs.ticked_at;
+    }
+  }
+
   const bodyHtml = md.render(briefMd, {
     onImage: (alt, src) => {
       // media/path.png -> /media/path.png with watermark overlay
@@ -302,7 +335,7 @@ exports.handler = async function (event) {
       const url = '/media/' + src.replace(/^media\//, '').replace(/^\/+/, '');
       return `<span class="wm-shell"><video src="${esc(url)}" muted autoplay loop playsinline controlslist="nodownload" disablepictureinpicture></video><span class="wm--img" aria-hidden="true"></span></span>`;
     },
-    onPanel: (which) => panelHtml(which)
+    onPanel: (which) => panelHtml(which, { day0TickedAt })
   });
 
   // Watermark data URL baked in server-side.

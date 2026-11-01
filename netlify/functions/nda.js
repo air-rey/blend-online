@@ -19,7 +19,7 @@ const { buildMutualNdaPdf } = require('./_lib/pdf');
 const { send } = require('./_lib/email');
 
 const NDA_PATH    = path.join(__dirname, '..', '..', 'private-content', 'mutual-nda', 'nda.txt');
-const NDA_VERSION = '2026-11-01';
+const NDA_VERSION = '2026-11-02';
 
 // Fixed date when Vedika pre-authorised BlendXR's side of the mutual NDA.
 // The counterparty's date comes from their actual signing time; BlendXR's

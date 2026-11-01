@@ -1,12 +1,12 @@
 ---
-title: "BlendXR x Volga: Test Scene Brief"
-version: "2026-11-01"
+title: "BlendXR x Volga — Test Scene Brief"
+version: "2026-11-02"
 resource_type: brief
 partner: Volga Infosys
 contact: airem@blendxr.online
 ---
 
-# BlendXR x Volga: Test Scene Brief
+# BlendXR x Volga — Test Scene Brief
 
 ## Required setup
 
@@ -45,7 +45,7 @@ If time runs short, cut visual detail, not frame rate, project hygiene or sequen
 - The scenario, interaction logic and this brief are confidential. Do not share, reuse or show them, including in your portfolio, without written permission. The contractor agreement you signed to open this page covers everything in it.
 - All work produced for this test belongs to BlendXR.
 
-## Scene concept: Electrical Room, Before the Fire
+## Scene concept — Electrical Room, Before the Fire
 
 The trainee stands in a switchgear room at dawn. Nothing happens at first. Then a panel starts to fail: smoke at a vent, a spark, and boxes stacked against the panel. The scene directs what the trainee should notice next, one cue at a time, and logs where they look. Then they move to the door, which opens onto a corridor with an extinguisher: in a longer scenario, the next step would be to bring it back to the panel.
 
@@ -216,7 +216,7 @@ Download the Hospital Generator & Utility Room pack and the Realistic Gloves Pac
 - Keep-clear floor markings: simple planes with a flat yellow material. No asset needed.
 - Corridor, lighting and the window frame, using the packs above where they fit.
 
-This build stays private, so free and non-commercial assets are fine. The 14-day clock starts when you confirm by email that you can access every asset linked here. Please confirm by Tuesday, November 3.
+This build stays private, so free and non-commercial assets are fine. The 14-day clock starts when you tick Day 0 in the uploads panel below to confirm you can access every asset linked here. Please tick Day 0 by Tuesday, November 3.
 
 <!-- DOWNLOADS PANEL: rendered here by the page (see page-spec.md) -->
 
@@ -226,7 +226,7 @@ The project matters as much as the APK. We are testing how you build, solve prob
 
 | Day | Checkpoint | What we receive |
 | --- | --- | --- |
-| 0 | Start | Email confirming you can open all assets and the setup above works |
+| 0 | Start | Tick Day 0 below to confirm you can open all assets and the setup above works. Clock starts on tick. |
 | 4 | Gray box | Headset capture video: room blocked out, gaze working on all 4 targets with debug reticle on. |
 | 9 | First APK | Full flow from fade-in to app exit, pulses and session file working, placeholder art acceptable |
 | 14 | Final | Final APK, zipped project with full Git history, README, one sample session file |

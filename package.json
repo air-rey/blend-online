@@ -2,7 +2,7 @@
   "name": "blendxr-deal-room",
   "version": "1.0.0",
   "private": true,
-  "description": "Private per-person deal room for BlendXR (Blendtobases OU)",
+  "description": "Private per-person deal room for BlendXR (Blendtobases OÜ)",
   "scripts": {
     "build": "bash scripts/post-build-check.sh",
     "dev": "netlify dev"

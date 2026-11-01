@@ -17,7 +17,7 @@ const { buildExecutedPdf } = require('./_lib/pdf');
 const { send } = require('./_lib/email');
 
 const AGREEMENT_PATH = path.join(__dirname, '..', '..', 'private-content', 'volga-test-scene', 'agreement.txt');
-const AGREEMENT_VERSION = '2026-11-01';
+const AGREEMENT_VERSION = '2026-11-02';
 
 // Fixed date when Vedika pre-authorised BlendXR's side of the contractor
 // agreement. The contractor's date comes from their actual signing time.

@@ -137,13 +137,13 @@ function watermarkCss () {
     background-image: var(--wm-url);
     background-repeat: repeat;
     background-size: 440px 240px;
-    opacity: 0.09;
+    opacity: 0.22;
     mix-blend-mode: screen;
   }
   .wm--img {
     position: absolute; inset: 0; pointer-events: none;
     background-image: var(--wm-url); background-repeat: repeat; background-size: 300px 170px;
-    opacity: 0.18; mix-blend-mode: screen;
+    opacity: 0.35; mix-blend-mode: screen;
   }
   .wm-shell { position: relative; display: inline-block; max-width: 100%; }
   .wm-shell > img, .wm-shell > video { display: block; max-width: 100%; height: auto; border-radius: 8px; }
