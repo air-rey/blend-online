@@ -1,8 +1,9 @@
 // GET /media/<filename>
-// Returns a 303 redirect to a short-lived (5 min) signed Supabase URL for
-// the image or video inside the `media` private bucket. Session cookie
-// required; the resource_slug on the session scopes which media path can
-// be fetched (volga-test-scene/<filename>).
+// Returns a 303 redirect to a 24-hour signed Supabase URL for the image or
+// video inside the `media` private bucket. Session cookie required; the
+// session's resource_slug gates which brief can request media at all.
+// Files live at the bucket root (no slug subfolder) in this single-resource
+// MVP; add a prefix here when a second resource is onboarded.
 
 const { supa } = require('./_lib/supa');
 const { readSession } = require('./_lib/cookie');
@@ -18,10 +19,10 @@ exports.handler = async function (event) {
   const name = decodeURIComponent(raw).replace(/\\/g, '').replace(/\.\./g, '');
   if (!name) return jsonResponse(400, { error: 'missing filename' });
 
-  // All media for this resource lives at media/<slug>/<file>
-  const key = `${session.resource_slug}/${name}`;
+  // Files are stored at the bucket root for this MVP (see upload-content.js).
+  const key = name;
   const db  = supa();
-  const { data, error } = await db.storage.from('media').createSignedUrl(key, 5 * 60);
+  const { data, error } = await db.storage.from('media').createSignedUrl(key, 24 * 60 * 60);
   if (error || !data || !data.signedUrl) {
     console.error('media signed-url failed', error, key);
     return jsonResponse(404, { error: 'not found' });

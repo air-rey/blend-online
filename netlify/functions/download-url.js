@@ -1,7 +1,8 @@
 // GET /download/<key>
-// Returns JSON: { url } where url is a 10-minute signed Supabase URL for
-// the file in the `downloads` private bucket under volga-test-scene/<key>.
-// Also logs the download in `events`.
+// Returns a 302 redirect to a 24-hour signed Supabase URL for the file in
+// the `downloads` private bucket. Also logs the download in `events`.
+// Files live at the bucket root (no slug subfolder) in this single-resource
+// MVP; add a prefix here when a second resource is onboarded.
 
 const { supa } = require('./_lib/supa');
 const { readSession } = require('./_lib/cookie');
@@ -24,8 +25,8 @@ exports.handler = async function (event) {
   if (!name || !ALLOWED.has(name)) return jsonResponse(404, { error: 'not found' });
 
   const db = supa();
-  const key = `${session.resource_slug}/${name}`;
-  const { data, error } = await db.storage.from('downloads').createSignedUrl(key, 10 * 60);
+  const key = name;
+  const { data, error } = await db.storage.from('downloads').createSignedUrl(key, 24 * 60 * 60);
   if (error || !data || !data.signedUrl) {
     console.error('download signed-url failed', error, key);
     return jsonResponse(404, { error: 'not found' });
@@ -39,5 +40,5 @@ exports.handler = async function (event) {
       meta: { file: name, ip, ua: h['user-agent'] || null }
     }).then(() => {}, () => {});
   }
-  return jsonResponse(200, { url: data.signedUrl, expires_in: 600 });
+  return jsonResponse(200, { url: data.signedUrl, expires_in: 24 * 60 * 60 });
 };

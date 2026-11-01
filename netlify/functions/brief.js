@@ -124,6 +124,18 @@ function panelHtml (which) {
 function uploadsScript () {
   return `
 (function () {
+  // Soft copy protection: block clipboard copy/cut, right-click, and image
+  // drag inside the brief. Pairs with user-select:none in CSS. Won't stop a
+  // determined viewer with devtools, but keeps the brief from being casually
+  // selected or dragged out as a screenshot replacement.
+  var brief = document.querySelector('.brief');
+  if (brief) {
+    brief.addEventListener('copy',       function (e) { e.preventDefault(); });
+    brief.addEventListener('cut',        function (e) { e.preventDefault(); });
+    brief.addEventListener('contextmenu',function (e) { e.preventDefault(); });
+    brief.addEventListener('dragstart',  function (e) { e.preventDefault(); });
+  }
+
   var picks = document.querySelectorAll('.up-pick');
   picks.forEach(function (btn) {
     var row = btn.closest('tr');
@@ -326,9 +338,9 @@ exports.handler = async function (event) {
         .brief { display: none; }
         body::before { content: 'Not available offline. See blendxr.online/r.'; display: block; padding: 40px; font-family: sans-serif; }
       }
-      body { -webkit-user-select: none; user-select: none; }
-      .brief { -webkit-user-select: text; user-select: text; }
-      .brief img, .brief video { -webkit-user-select: none; user-select: none; pointer-events: auto; }
+      body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+      .brief { -webkit-user-select: none; user-select: none; }
+      .brief img, .brief video { -webkit-user-select: none; user-select: none; pointer-events: auto; -webkit-user-drag: none; user-drag: none; }
     `,
     bodyHtml: `
 <div class="layout" style="--wm-url: ${wmUrl};">
@@ -342,7 +354,6 @@ exports.handler = async function (event) {
     </g></svg>
     <span class="ver">BlendXR brief &middot; v${esc(version)}</span>
     <span class="spacer"></span>
-    <a class="mast-link" href="/my-nda">Download signed NDA</a>
     <span class="who">${esc(session.email || 'viewer')}</span>
   </div>
 
@@ -361,7 +372,7 @@ exports.handler = async function (event) {
 
   <p class="footer-note">
     Key contact: <a href="mailto:${esc(contact)}">${esc(contact)}</a>. The site provides no chat or messaging. Email is the only channel during the test.<br>
-    Blendtobases OU, trading as BlendXR. Confidential. &nbsp; Last updated ${esc(version)}.
+    Last updated ${esc(version)}.
   </p>
 </div>
 <div class="wm" style="--wm-url: ${wmUrl};" aria-hidden="true"></div>

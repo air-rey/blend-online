@@ -163,7 +163,7 @@ values (
 
 ## Working rules (do not change without a note)
 - Never use em dashes in UI copy, comments, or docs. Use periods, commas or colons.
-- Legal entity: Blendtobases OU, trading as BlendXR.
+- Legal entity: BlendXR.
 - `public/` is the only directory that ships. `scripts/post-build-check.sh`
   fails the build if a private filename slips in.
 - Session cookies are HttpOnly, Secure, SameSite=Lax, resource-scoped. One

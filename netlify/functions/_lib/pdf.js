@@ -82,7 +82,7 @@ async function buildExecutedPdf ({ agreementText, agreementVersion, agreementSha
   drawLine('Independent Contractor, Confidentiality and', { font: bold, size: H1_SIZE, gap: 20 });
   drawLine('Intellectual Property Assignment Agreement',   { font: bold, size: H1_SIZE, gap: 24 });
 
-  drawLine(`Between:  Blendtobases OU, trading as BlendXR  ("Company")`, { gap: LINE_HEIGHT });
+  drawLine(`Between:  BlendXR  ("Company")`, { gap: LINE_HEIGHT });
   drawLine(`And:      ${contractor.legalName || '[Contractor]'}  ("Contractor")`, { gap: LINE_HEIGHT });
   drawLine(`Dated:    ${new Date(auditRecord.signedAt).toUTCString()}`, { gap: LINE_HEIGHT });
   drawLine(`Version:  ${agreementVersion}`, { gap: LINE_HEIGHT });
@@ -116,7 +116,7 @@ async function buildExecutedPdf ({ agreementText, agreementVersion, agreementSha
   // Signature blocks
   newPage();
   drawLine('SIGNATURES', { font: bold, size: H2_SIZE, gap: 20 });
-  drawLine('On behalf of Blendtobases OU, trading as BlendXR:', { gap: LINE_HEIGHT });
+  drawLine('On behalf of BlendXR:', { gap: LINE_HEIGHT });
   drawLine(`Name:  ${blendxr.name}`, { gap: LINE_HEIGHT });
   drawLine(`Title: ${blendxr.title}`, { gap: LINE_HEIGHT });
   drawLine(`Date:  ${blendxr.date}`, { gap: LINE_HEIGHT });
@@ -219,7 +219,7 @@ async function buildMutualNdaPdf ({ ndaText, ndaVersion, ndaSha256,
   drawLine('EXECUTED COPY', { font: bold, size: 9, gap: 18 });
   drawLine('Mutual Non-Disclosure Agreement', { font: bold, size: H1_SIZE, gap: 24 });
 
-  drawLine(`Between:  Blendtobases OU, trading as BlendXR  ("BlendXR")`, { gap: LINE_HEIGHT });
+  drawLine(`Between:  BlendXR  ("BlendXR")`, { gap: LINE_HEIGHT });
   drawLine(`And:      ${counterparty.legalName || '[Counterparty]'}  ("Counterparty")`, { gap: LINE_HEIGHT });
   drawLine(`Dated:    ${new Date(auditRecord.signedAt).toUTCString()}`, { gap: LINE_HEIGHT });
   drawLine(`Version:  ${ndaVersion}`, { gap: LINE_HEIGHT });
@@ -251,7 +251,7 @@ async function buildMutualNdaPdf ({ ndaText, ndaVersion, ndaSha256,
   // Signatures
   newPage();
   drawLine('SIGNATURES', { font: bold, size: H2_SIZE, gap: 20 });
-  drawLine('On behalf of Blendtobases OU, trading as BlendXR:', { gap: LINE_HEIGHT });
+  drawLine('On behalf of BlendXR:', { gap: LINE_HEIGHT });
   drawLine(`Name:  ${blendxr.name}`, { gap: LINE_HEIGHT });
   drawLine(`Title: ${blendxr.title}`, { gap: LINE_HEIGHT });
   drawLine(`Date:  ${blendxr.date}`, { gap: LINE_HEIGHT });

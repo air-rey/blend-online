@@ -119,7 +119,7 @@ function renderAgreementPage (session, agreementText, agreementVersion) {
   </form>
 
   <p class="footer-note">
-    Governed by the laws of India. The Agreement takes effect on execution by both parties and may be executed electronically and in counterparts (Section 21). Blendtobases OU, trading as BlendXR. Confidential.
+    Governed by the laws of India. The Agreement takes effect on execution by both parties and may be executed electronically and in counterparts (Section 21).
   </p>
 </div>
 
