@@ -17,7 +17,7 @@ const { buildExecutedPdf } = require('./_lib/pdf');
 const { send } = require('./_lib/email');
 
 const AGREEMENT_PATH = path.join(__dirname, '..', '..', 'private-content', 'volga-test-scene', 'agreement.txt');
-const AGREEMENT_VERSION = '2026-11-02';
+const AGREEMENT_VERSION = '2026-11-03';
 
 // Fixed date when Vedika pre-authorised BlendXR's side of the contractor
 // agreement. The contractor's date comes from their actual signing time.
@@ -38,8 +38,14 @@ function userAgent (event) { return (event.headers || {})['user-agent'] || null;
 function renderAgreementPage (session, agreementText, agreementVersion) {
   const paragraphs = agreementText.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
   const bodyHtml = paragraphs.map(p => {
-    if (/^PART [A-Z]:/.test(p)) return `<h2>${esc(p)}</h2>`;
-    if (/^On behalf of /.test(p)) return `<p class="sig-line">${esc(p)}</p>`;
+    // All-caps paragraphs (the v3 title line, and any residual PART header
+    // from older versions) render as h2. Everything else is a paragraph.
+    if (/^(PART [A-Z]\b|[A-Z][A-Z0-9 ,.()\-]{10,})$/.test(p)) {
+      return `<h2>${esc(p)}</h2>`;
+    }
+    if (/^On behalf of /.test(p) || /^For (Blendtobases|the Contractor)/.test(p)) {
+      return `<p class="sig-line">${esc(p)}</p>`;
+    }
     return `<p>${esc(p)}</p>`;
   }).join('\n');
 
@@ -298,7 +304,7 @@ exports.handler = async function (event) {
       await send({
         to: [session.email, 'airem@blendxr.online'],
         subject: `Executed: BlendXR x ${form.legal_name} contractor agreement`,
-        text: `Attached: executed copy of the Independent Contractor, Confidentiality and Intellectual Property Assignment Agreement, version ${AGREEMENT_VERSION}, signed by ${form.signer_name} (${form.signer_title}) for ${form.legal_name} on ${now.toUTCString()}.\n\nAccess continues at https://blendxr.online/r`,
+        text: `Attached: executed copy of the Test Engagement Confidentiality and Non-Replication Agreement, version ${AGREEMENT_VERSION}, signed by ${form.signer_name} (${form.signer_title}) for ${form.legal_name} on ${now.toUTCString()}.\n\nAccess continues at https://blendxr.online/r`,
         attachments: [{
           filename: `BlendXR-${form.legal_name.replace(/[^A-Za-z0-9]+/g, '_')}-executed-${AGREEMENT_VERSION}.pdf`,
           content:  b64

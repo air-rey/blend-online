@@ -79,8 +79,8 @@ async function buildExecutedPdf ({ agreementText, agreementVersion, agreementSha
 
   // Cover block
   drawLine('EXECUTED COPY', { font: bold, size: 9, gap: 18 });
-  drawLine('Independent Contractor, Confidentiality and', { font: bold, size: H1_SIZE, gap: 20 });
-  drawLine('Intellectual Property Assignment Agreement',   { font: bold, size: H1_SIZE, gap: 24 });
+  drawLine('Test Engagement Confidentiality and',          { font: bold, size: H1_SIZE, gap: 20 });
+  drawLine('Non-Replication Agreement',                     { font: bold, size: H1_SIZE, gap: 24 });
 
   drawLine(`Between:  BlendXR  ("Company")`, { gap: LINE_HEIGHT });
   drawLine(`And:      ${contractor.legalName || '[Contractor]'}  ("Contractor")`, { gap: LINE_HEIGHT });
@@ -118,21 +118,26 @@ async function buildExecutedPdf ({ agreementText, agreementVersion, agreementSha
   }
 
   // Signature data block. Flows directly after the Part B attestation
-  // text above (which starts on a fresh page via the PART handler), so
-  // the whole signature section stays together.
+  // text above (which starts on a fresh page via the PART handler, if
+  // any), so the whole signature section stays together.
   drawLine('', { gap: 12 });
   drawLine('SIGNATURES', { font: bold, size: H2_SIZE, gap: 20 });
-  drawLine('On behalf of Blendtobases OÜ, represented as BlendXR:', { gap: LINE_HEIGHT });
+
+  // BlendXR side — pre-authorised by Vedika, fixed date.
+  drawLine('For Blendtobases OÜ, trading as BlendXR', { gap: LINE_HEIGHT });
   drawLine(`Name:  ${blendxr.name}`, { gap: LINE_HEIGHT });
   drawLine(`Title: ${blendxr.title}`, { gap: LINE_HEIGHT });
-  drawLine(`Date:  ${blendxr.date}`, { gap: LINE_HEIGHT });
-  drawLine('Signed electronically.', { font: italic, size: 9, gap: 18 });
+  drawLine('Signed electronically', { font: italic, size: 9 });
+  drawLine(`Date:  ${blendxr.date}`, { gap: 18 });
 
-  drawLine(`On behalf of ${contractor.legalName}:`, { gap: LINE_HEIGHT });
-  drawLine(`Name:  ${signer.name}`, { gap: LINE_HEIGHT });
-  drawLine(`Title: ${signer.title}`, { gap: LINE_HEIGHT });
-  drawLine(`Date:  ${new Date(auditRecord.signedAt).toUTCString()}`, { gap: LINE_HEIGHT });
-  drawLine('Signed electronically.', { font: italic, size: 9, gap: 18 });
+  // Contractor side — filled in from the signing form.
+  drawLine('For the Contractor', { gap: LINE_HEIGHT });
+  drawLine(`Company name: ${contractor.legalName}`, { gap: LINE_HEIGHT });
+  drawLine(`Signer name:  ${signer.name}`, { gap: LINE_HEIGHT });
+  drawLine(`Title:        ${signer.title}`, { gap: LINE_HEIGHT });
+  drawLine(`Email:        ${auditRecord.email}`, { gap: LINE_HEIGHT });
+  drawLine('Signed electronically.', { font: italic, size: 9 });
+  drawLine(`Date:  ${new Date(auditRecord.signedAt).toUTCString()}`, { gap: 18 });
 
   // Contractor fields
   hr();
@@ -165,7 +170,7 @@ async function buildExecutedPdf ({ agreementText, agreementVersion, agreementSha
   // Audit page
   newPage();
   drawLine('AUDIT RECORD', { font: bold, size: H2_SIZE, gap: 20 });
-  drawParagraph(`This copy was executed electronically on blendxr.online, in accordance with Section 21 (Miscellaneous) of the Agreement, which permits electronic execution and counterparts.`);
+  drawParagraph(`This copy was executed electronically on blendxr.online, in accordance with Section 14 (General) of the Agreement, which permits electronic execution and counterparts.`);
   drawLine('', { gap: 10 });
   const audit = [
     ['Signer legal name', contractor.legalName],
