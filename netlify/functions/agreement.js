@@ -17,7 +17,7 @@ const { buildExecutedPdf } = require('./_lib/pdf');
 const { send } = require('./_lib/email');
 
 const AGREEMENT_PATH = path.join(__dirname, '..', '..', 'private-content', 'volga-test-scene', 'agreement.txt');
-const AGREEMENT_VERSION = '2026-10-31';
+const AGREEMENT_VERSION = '2026-11-01';
 
 function readAgreement () {
   const text = fs.readFileSync(AGREEMENT_PATH, 'utf-8');

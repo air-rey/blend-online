@@ -21,11 +21,15 @@ insert into people (org_id, name, email)
 values ('00000000-0000-0000-0000-00000000v01g'::uuid, 'Shivam', 'shivam@volgainfosys.com')
 on conflict (email) do nothing;
 
--- Shivam's grant. Expires 2026-11-24 per the page-spec default; extend from
--- the Supabase dashboard once Day 0 is confirmed.
+-- Shivam's grant.
+--   Start:   2026-11-01 (today)
+--   Expiry:  2026-11-14 end of day (14 days, Day 0 .. Day 14 inclusive)
+-- Once Shivam ticks Day 0 to confirm he has everything and can start, we
+-- can update expires_at to be exactly 14 days from his tick timestamp.
+-- Until then, keep the hard 2026-11-14 ceiling.
 insert into grants (resource_id, person_id, expires_at, agreement_required)
 select '00000000-0000-0000-0000-000000resource'::uuid, id,
-       '2026-11-24T23:59:59Z'::timestamptz, true
+       '2026-11-14T23:59:59Z'::timestamptz, true
 from people where email = 'shivam@volgainfosys.com'
 and not exists (
   select 1 from grants
@@ -34,7 +38,10 @@ and not exists (
     and revoked_at is null
 );
 
--- Checkpoints for the uploads panel.
+-- Checkpoints for the uploads panel. Day numbers are offsets from the
+-- start (Day 0 = 2026-11-01, Day 4 = 2026-11-05, Day 9 = 2026-11-10,
+-- Day 14 = 2026-11-14). Due dates are tracked per-grant in
+-- checkpoint_status.due_at once Day 0 is confirmed.
 insert into checkpoints (resource_id, day, label, accepts, position) values
   ('00000000-0000-0000-0000-000000resource'::uuid, 0,  'Start confirmation', '',                     0),
   ('00000000-0000-0000-0000-000000resource'::uuid, 4,  'Gray box',           '.mp4,.mov',            1),

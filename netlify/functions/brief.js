@@ -29,6 +29,9 @@ const md = require('./_lib/markdown');
 
 const BRIEF_PATH = path.join(__dirname, '..', '..', 'private-content', 'volga-test-scene', 'brief.md');
 
+// Keep in sync with NDA_VERSION in netlify/functions/nda.js.
+const CURRENT_NDA_VERSION = '2026-11-01';
+
 // Downloads list drives the panel UI. Each file is stored at
 // `volga/<key>` in the `downloads` private bucket. The upload step is a
 // one-time admin action; see README.md.
@@ -244,15 +247,31 @@ exports.handler = async function (event) {
   const db = supa();
 
   // Re-check the agreement status against the DB (don't trust the cookie
-  // alone, which could be stale after an agreement was voided).
-  if (session.org_id) {
-    const { data: oa } = await db.from('org_agreements')
-      .select('status')
-      .eq('org_id', session.org_id)
-      .order('signed_at', { ascending: false, nullsFirst: false })
-      .limit(1).maybeSingle();
-    if (!oa || oa.status !== 'executed') return redirectResponse('/agreement');
+  // alone, which could be stale after an agreement was voided). Branch
+  // on the resource's agreement_type: 'mutual_nda' resources require a
+  // nda_signatures row for the current version; 'contractor' resources
+  // require org_agreements.status='executed'.
+  if (session.org_id && session.resource_id) {
+    const { data: resource } = await db.from('resources')
+      .select('agreement_type').eq('id', session.resource_id).maybeSingle();
+    if (resource && resource.agreement_type === 'mutual_nda') {
+      const { data: sig } = await db.from('nda_signatures')
+        .select('id')
+        .eq('person_id', session.sub)
+        .eq('agreement_version', CURRENT_NDA_VERSION)
+        .maybeSingle();
+      if (!sig) return redirectResponse('/nda');
+    } else {
+      const { data: oa } = await db.from('org_agreements')
+        .select('status')
+        .eq('org_id', session.org_id)
+        .order('signed_at', { ascending: false, nullsFirst: false })
+        .limit(1).maybeSingle();
+      if (!oa || oa.status !== 'executed') return redirectResponse('/agreement');
+    }
   }
+
+  const justSigned = ((event.queryStringParameters || {}).signed || '') === '1';
 
   // Load the brief body + frontmatter.
   const briefMd = fs.readFileSync(BRIEF_PATH, 'utf-8');
@@ -290,6 +309,15 @@ exports.handler = async function (event) {
       .mast .spacer { flex: 1; }
       .mast .ver { font: 500 11px/1 'Teko', sans-serif; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
       .mast .who { font: 500 12px/1 'Rajdhani', sans-serif; color: var(--muted); }
+      .mast .mast-link { font: 500 12px/1 'Rajdhani', sans-serif; color: var(--ink); text-decoration: none; padding: 6px 10px; border: 1px solid var(--hairline-strong); border-radius: 6px; letter-spacing: 0.2px; }
+      .mast .mast-link:hover { background: rgba(255,255,255,0.06); color: var(--text-strong); }
+      .just-signed {
+        display: flex; align-items: center; justify-content: space-between; gap: 16px;
+        background: rgba(76, 175, 80, 0.08); border: 1px solid rgba(76, 175, 80, 0.35);
+        border-radius: 10px; padding: 14px 18px; margin: 24px 0 20px;
+        font: 500 14px/1.4 'Rajdhani', sans-serif; color: var(--text-strong);
+      }
+      @media (max-width: 560px) { .just-signed { flex-direction: column; align-items: stretch; } }
       .brief img, .brief video { max-width: 100%; height: auto; }
       .brief .table-wrap { overflow-x: auto; margin: 0 0 1.4em; }
       .brief h2 { padding-top: 10px; }
@@ -314,8 +342,18 @@ exports.handler = async function (event) {
     </g></svg>
     <span class="ver">BlendXR brief &middot; v${esc(version)}</span>
     <span class="spacer"></span>
+    <a class="mast-link" href="/my-nda">Download signed NDA</a>
     <span class="who">${esc(session.email || 'viewer')}</span>
   </div>
+
+  ${justSigned ? `
+  <div class="just-signed" role="status">
+    <div>
+      <strong>Mutual NDA signed.</strong>
+      <span style="color:var(--body);">A copy has been retained; download yours any time.</span>
+    </div>
+    <a class="btn btn--ghost" href="/my-nda">Download your signed NDA</a>
+  </div>` : ''}
 
   <article class="brief">
     ${bodyHtml}

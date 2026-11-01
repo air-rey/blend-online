@@ -264,7 +264,7 @@ exports.handler = async function (event) {
         'Cache-Control': 'private, no-store',
         'Set-Cookie': setCookieHeader(token)
       },
-      body: JSON.stringify({ redirect: '/r' })
+      body: JSON.stringify({ redirect: '/r?signed=1' })
     };
   }
 
