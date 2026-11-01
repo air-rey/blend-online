@@ -11,7 +11,10 @@
   command    = "npm run build"
 
 [build.environment]
-  NODE_VERSION = "20"
+  # Node 22 has native WebSocket. @supabase/supabase-js initialises the
+  # realtime client on createClient() and throws on Node <22 if no
+  # transport is provided. Node 22 avoids pulling in `ws`.
+  NODE_VERSION = "22"
 
 # Clean URLs for the server-rendered deal room routes.
 [[redirects]]
