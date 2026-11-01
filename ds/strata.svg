@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" role="img" aria-label="blendxr.online strata motif">
+  <defs>
+    <radialGradient id="diskGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0C0C0C" stop-opacity="0"></stop>
+      <stop offset="55%" stop-color="#3A3A3A" stop-opacity="0"></stop>
+      <stop offset="80%" stop-color="#5B5B5B" stop-opacity=".55"></stop>
+      <stop offset="100%" stop-color="#C3C3C3" stop-opacity=".95"></stop>
+    </radialGradient>
+    <linearGradient id="ringEdge" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0%" stop-color="#5B5B5B" stop-opacity="0"></stop>
+      <stop offset="50%" stop-color="#C3C3C3" stop-opacity=".85"></stop>
+      <stop offset="100%" stop-color="#5B5B5B" stop-opacity="0"></stop>
+    </linearGradient>
+  </defs>
+  <g transform="translate(240 240) rotate(-16)">
+    <ellipse cx="0" cy="-72" rx="200" ry="22" fill="none" stroke="url(#ringEdge)" stroke-width="1.25"></ellipse>
+    <ellipse cx="0" cy="-36" rx="210" ry="26" fill="none" stroke="url(#ringEdge)" stroke-width="1.25" opacity=".92"></ellipse>
+    <ellipse cx="0" cy="0" rx="216" ry="30" fill="none" stroke="url(#ringEdge)" stroke-width="1.5"></ellipse>
+    <ellipse cx="0" cy="36" rx="210" ry="26" fill="none" stroke="url(#ringEdge)" stroke-width="1.25" opacity=".92"></ellipse>
+    <ellipse cx="0" cy="72" rx="200" ry="22" fill="none" stroke="url(#ringEdge)" stroke-width="1.25" opacity=".82"></ellipse>
+    <ellipse cx="0" cy="0" rx="218" ry="32" fill="url(#diskGrad)" opacity=".25"></ellipse>
+  </g>
+</svg>

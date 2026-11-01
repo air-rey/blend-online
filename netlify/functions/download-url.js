@@ -1,0 +1,43 @@
+// GET /download/<key>
+// Returns JSON: { url } where url is a 10-minute signed Supabase URL for
+// the file in the `downloads` private bucket under volga-test-scene/<key>.
+// Also logs the download in `events`.
+
+const { supa } = require('./_lib/supa');
+const { readSession } = require('./_lib/cookie');
+const { jsonResponse, redirectResponse } = require('./_lib/html');
+
+const ALLOWED = new Set([
+  'hum-electric.mp3',
+  'crackle.mp3',
+  'EnterApp.mp3',
+  'unlocking-metal-door.mp3'
+]);
+
+exports.handler = async function (event) {
+  const session = await readSession(event.headers || {});
+  if (!session) return redirectResponse('/');
+  if (session.resource_slug !== 'volga-test-scene') return redirectResponse('/');
+
+  const raw = (event.path || '').replace(/^\/.netlify\/functions\/download-url\/?/, '').replace(/^\/download\/?/, '');
+  const name = decodeURIComponent(raw).replace(/\\/g, '').replace(/\.\./g, '');
+  if (!name || !ALLOWED.has(name)) return jsonResponse(404, { error: 'not found' });
+
+  const db = supa();
+  const key = `${session.resource_slug}/${name}`;
+  const { data, error } = await db.storage.from('downloads').createSignedUrl(key, 10 * 60);
+  if (error || !data || !data.signedUrl) {
+    console.error('download signed-url failed', error, key);
+    return jsonResponse(404, { error: 'not found' });
+  }
+
+  if (session.grant_id) {
+    const h = event.headers || {};
+    const ip = (h['x-nf-client-connection-ip'] || h['x-forwarded-for'] || '').split(',')[0].trim() || null;
+    await db.from('events').insert({
+      grant_id: session.grant_id, kind: 'asset_downloaded',
+      meta: { file: name, ip, ua: h['user-agent'] || null }
+    }).catch(() => {});
+  }
+  return jsonResponse(200, { url: data.signedUrl, expires_in: 600 });
+};

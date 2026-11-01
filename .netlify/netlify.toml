@@ -1,0 +1,32 @@
+headers = []
+redirects = []
+
+[functions]
+
+[functions."*"]
+
+[[plugins]]
+origin = "ui"
+package = "@netlify/plugin-lighthouse"
+
+[plugins.inputs]
+
+[build]
+publish = "/Users/vedikabhasin/Desktop/TrainingData/blendxr"
+publishOrigin = "config"
+commandOrigin = "ui"
+base = "/Users/vedikabhasin/Desktop/TrainingData/blendxr"
+
+[build.environment]
+
+[build.processing]
+
+[build.processing.css]
+
+[build.processing.html]
+
+[build.processing.images]
+
+[build.processing.js]
+
+[build.services]

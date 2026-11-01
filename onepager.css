@@ -1,0 +1,748 @@
+/* ============================================================
+   blendxr — one-pager section styles
+   Adds the reference landing flow on top of site.css. Monochrome,
+   alternating dark / inverted (light) bands. Uses DS tokens only.
+   ============================================================ */
+
+/* ---------- Inverted (light) band ---------- */
+.band-light {
+  background: var(--color-surface-inverted);
+  color: var(--color-on-inverted);
+}
+.band-light h2, .band-light h3, .band-light h4 { color: var(--color-on-inverted); }
+.band-light p { color: var(--color-on-inverted-soft); }
+.band-light .eyebrow { color: var(--color-on-inverted-soft); }
+.band-light .sec-head h2 { color: var(--color-on-inverted); }
+.band-light .sec-head p { color: var(--color-on-inverted-soft); }
+
+/* Eyebrow chip (dark pill on light, like the reference tags).
+   Uses --font-accent (Teko) — condensed uppercase reads as a spec label. */
+.tag {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--color-on-inverted);
+  color: var(--color-surface-inverted);
+  font: 600 13px/1 var(--font-accent);
+  letter-spacing: 1.6px; text-transform: uppercase;
+  padding: 7px 11px; border-radius: var(--radius-sm);
+}
+.tag--ondark {
+  background: var(--color-surface-card);
+  color: var(--color-ink);
+  border: 1px solid var(--color-hairline);
+}
+.tag__sq { width: 6px; height: 6px; background: currentColor; border-radius: 1px; }
+
+/* ============================================================
+   HERO metric chips (echo the reference ROAS / NC-ROAS floats)
+   ============================================================ */
+.float--metric {
+  width: 150px; padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.float--metric .m-cap {
+  display: flex; align-items: center; gap: 6px;
+  font: 600 13px/1 var(--font-accent); letter-spacing: 1.2px; text-transform: uppercase;
+  color: var(--color-muted);
+}
+.float--metric .m-cap svg { width: 13px; height: 13px; color: var(--color-muted-soft); }
+.float--metric .m-val {
+  font: 800 26px/1 var(--font-display); letter-spacing: -0.03em;
+  color: var(--color-text-strong); font-variant-numeric: tabular-nums;
+}
+.float--metric .m-val .u { font-size: 14px; color: var(--color-muted); font-weight: 500; margin-left: 2px; }
+.float--metric .spark { margin-top: 2px; }
+.float--metric .spark svg { width: 100%; height: 26px; display: block; }
+.float--metric-l, .float--metric-r { display: none; }
+@media (min-width: 1024px) {
+  .float--metric-l, .float--metric-r { display: flex; }
+}
+.float--metric-l { left: 4%; top: 150px; }
+.float--metric-r { right: 4%; top: 30px; }
+
+/* ============================================================
+   PROBLEM — two pain cards with × bullets
+   ============================================================ */
+.prob-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+@media (min-width: 1024px) { .prob-grid { grid-template-columns: 1fr 1fr; } }
+.prob-card {
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-xl);
+  padding: 36px;
+}
+.prob-card__icon {
+  width: 48px; height: 48px; border-radius: var(--radius-md);
+  display: grid; place-items: center;
+  background: var(--color-surface-strong);
+  color: var(--color-text-strong);
+  margin-bottom: 22px;
+}
+.prob-card__icon svg { width: 24px; height: 24px; }
+.prob-card h3 {
+  font: 700 24px/1.25 var(--font-display); letter-spacing: -0.02em;
+  color: var(--color-ink); margin: 0 0 22px;
+}
+.painlist { display: flex; flex-direction: column; gap: 10px; }
+.pain {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: var(--color-canvas);
+  border: 1px solid var(--color-hairline-soft);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  font: 400 14px/1.5 var(--font-body); color: var(--color-body);
+}
+.pain__x {
+  flex: 0 0 auto; width: 18px; height: 18px; margin-top: 1px;
+  display: grid; place-items: center;
+  border-radius: 50%; background: var(--color-surface-strong);
+  color: var(--color-muted); 
+}
+.pain__x svg { width: 11px; height: 11px; }
+
+/* ============================================================
+   STUDIO BIO — text + photo
+   ============================================================ */
+.bio { display: grid; grid-template-columns: 1fr; gap: 36px; align-items: center; }
+@media (min-width: 1024px) { .bio { grid-template-columns: 1.05fr 0.95fr; gap: 56px; } }
+.bio__title {
+  font: 800 clamp(28px, 5vw, 40px)/1.12 var(--font-display); letter-spacing: -0.035em;
+  color: var(--color-ink); margin: 18px 0 20px;
+}
+.bio__title em { font-style: normal; color: var(--color-text-strong); }
+.bio__body { font: 400 16px/1.65 var(--font-body); color: var(--color-body); margin: 0 0 18px; max-width: 520px; }
+.bio__stats { display: flex; flex-wrap: wrap; gap: 24px; margin: 26px 0 28px; }
+@media (min-width: 768px) { .bio__stats { gap: 36px; flex-wrap: nowrap; } }
+/* Bio stat numerals (6 / 60 / 1) use Teko Bold — condensed gives the
+   numbers a punchy industrial-display feel. */
+.bio__stat .n { font: 700 40px/1 var(--font-accent); letter-spacing: 0; color: var(--color-text-strong); }
+.bio__stat .l { font: 500 13px/1.4 var(--font-body); color: var(--color-muted); margin-top: 6px; }
+.bio__photo {
+  position: relative; border-radius: var(--radius-xl); overflow: hidden;
+  border: 1px solid var(--color-hairline);
+  aspect-ratio: 4 / 3.4;
+}
+.bio__photo image-slot { width: 100%; height: 100%; }
+.bio__badge {
+  position: absolute; left: 16px; bottom: 16px; z-index: 3;
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(12,12,12,.72); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-pill); padding: 8px 14px;
+  font: 600 12px/1 var(--font-body); color: var(--color-ink);
+}
+
+/* ============================================================
+   COMPARISON — two cards, ours highlighted (dark on light)
+   ============================================================ */
+.cmp-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+@media (min-width: 1024px) { .cmp-grid { grid-template-columns: 1fr 1fr; } }
+.cmp-card {
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  border: 1px solid var(--color-surface-inverted-soft);
+  background: var(--color-surface-inverted-elevated);
+}
+.cmp-card__head { display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; margin-bottom: 24px; }
+.cmp-card__avatar {
+  width: 46px; height: 46px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--color-surface-inverted-soft);
+  color: var(--color-on-inverted-soft);
+}
+.cmp-card__avatar svg { width: 22px; height: 22px; }
+.cmp-card__title { font: 700 20px/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--color-on-inverted); }
+.cmprow {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 16px; border-radius: var(--radius-md);
+  background: var(--color-surface-inverted);
+  border: 1px solid var(--color-surface-inverted-soft);
+  font: 500 14px/1.4 var(--font-body); color: var(--color-on-inverted);
+  margin-bottom: 8px;
+}
+.cmprow:last-child { margin-bottom: 0; }
+.cmprow__i { flex: 0 0 auto; width: 20px; height: 20px; display: grid; place-items: center; border-radius: 50%; }
+.cmprow__i svg { width: 12px; height: 12px; }
+.cmprow__i--no { background: var(--color-surface-inverted-soft); color: var(--color-on-inverted-soft); }
+
+/* Highlighted "us" card */
+.cmp-card--us {
+  background: var(--color-canvas);
+  border-color: var(--color-hairline);
+  box-shadow: 0 30px 80px rgba(0,0,0,.4);
+}
+.cmp-card--us .cmp-card__title { color: var(--color-text-strong); }
+.cmp-card--us .cmp-card__avatar { background: var(--color-surface-strong); color: var(--color-text-strong); }
+.cmp-card--us .cmprow {
+  background: var(--color-surface-card);
+  border-color: var(--color-hairline);
+  color: var(--color-ink);
+}
+.cmp-card--us .cmprow__i--yes { background: var(--color-success-bg); color: var(--color-success); }
+
+/* ============================================================
+   TESTIMONIALS — carousel
+   ============================================================ */
+.reviews { position: relative; }
+.reviews__bg {
+  position: absolute; right: -40px; top: 50%; transform: translateY(-50%);
+  width: 460px; height: 460px; opacity: .12; pointer-events: none;
+  color: var(--color-text-strong);
+}
+.review-viewport { overflow: hidden; }
+.review-track {
+  display: flex; gap: 16px;
+  transition: transform var(--dur-slow) var(--ease-standard);
+  will-change: transform;
+}
+.review-card {
+  flex: 0 0 100%;
+  background: rgba(29,29,29,.7);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-lg);
+  padding: 26px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+@media (min-width: 768px) { .review-card { flex: 0 0 calc((100% - 16px) / 2); } }
+@media (min-width: 1024px) { .review-card { flex: 0 0 calc((100% - 32px) / 3); } }
+.review-stars { display: flex; gap: 3px; color: var(--color-text-strong); }
+.review-stars svg { width: 15px; height: 15px; }
+.review-card p { font: 400 15px/1.55 var(--font-body); color: var(--color-ink); margin: 0; flex: 1; }
+.review-by { display: flex; align-items: center; gap: 12px; padding-top: 4px; }
+.review-av {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--color-surface-strong); border: 1px solid var(--color-hairline);
+  display: grid; place-items: center;
+  font: 600 13px/1 var(--font-body); color: var(--color-ink);
+}
+.review-name { font: 600 14px/1.3 var(--font-body); color: var(--color-ink); margin: 0; }
+.review-role { font: 500 12px/1.4 var(--font-body); color: var(--color-muted); margin: 0; }
+.reviews__foot { display: flex; align-items: center; justify-content: space-between; margin-top: 28px; }
+.reviews__dots { display: flex; gap: 8px; }
+.dotbtn { width: 7px; height: 7px; border-radius: 50%; border: none; padding: 0; cursor: pointer; background: var(--color-surface-strong); transition: background var(--dur-fast), width var(--dur-fast); }
+.dotbtn.is-on { background: var(--color-text-strong); width: 22px; border-radius: 4px; }
+.reviews__nav { display: flex; gap: 10px; }
+.navbtn {
+  width: 48px; height: 48px; border-radius: 50%;
+  border: 1px solid var(--color-hairline); background: transparent;
+  color: var(--color-ink); cursor: pointer;
+  display: grid; place-items: center;
+  transition: background var(--dur-fast), border-color var(--dur-fast);
+}
+.navbtn:hover { background: var(--color-hairline); border-color: var(--color-muted); }
+.navbtn svg { width: 18px; height: 18px; }
+
+/* ============================================================
+   PROCESS / GROWTH GAPS — intro + 3 numbered cards
+   ============================================================ */
+.gaps { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: start; }
+@media (min-width: 1024px) { .gaps { grid-template-columns: 0.85fr 1.15fr; gap: 56px; } }
+.gaps__intro h2 {
+  font: 800 clamp(30px, 5.5vw, 42px)/1.08 var(--font-display); letter-spacing: -0.035em;
+  color: var(--color-on-inverted); margin: 16px 0 18px;
+}
+.gaps__intro p { font: 400 16px/1.65 var(--font-body); color: var(--color-on-inverted-soft); margin: 0 0 26px; max-width: 380px; }
+.gapcards { display: flex; flex-direction: column; gap: 14px; }
+.gapcard {
+  display: grid; grid-template-columns: 52px 1fr; gap: 16px; align-items: center;
+  background: var(--color-surface-inverted-elevated);
+  border: 1px solid var(--color-surface-inverted-soft);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+}
+@media (min-width: 768px) {
+  .gapcard { grid-template-columns: 64px 1fr; gap: 22px; padding: 22px 26px; }
+}
+/* Numbered step indicators (01 / 02 / 03) — Teko Bold gives them an
+   industrial-spec feel that matches the "Steps to your build" message. */
+.gapcard__num {
+  width: 52px; height: 52px; border-radius: var(--radius-md);
+  background: var(--color-on-inverted); color: var(--color-surface-inverted);
+  display: grid; place-items: center;
+  font: 700 28px/1 var(--font-accent); letter-spacing: 0;
+}
+@media (min-width: 768px) {
+  .gapcard__num { width: 64px; height: 64px; font-size: 34px; }
+}
+.gapcard h3 { font: 700 19px/1.25 var(--font-body); color: var(--color-on-inverted); margin: 0 0 4px; letter-spacing: -0.01em; }
+.gapcard p { font: 400 14px/1.5 var(--font-body); color: var(--color-on-inverted-soft); margin: 0; }
+
+/* ============================================================
+   BOOK A CALL — scheduling widget mockup
+   ============================================================ */
+.booking { text-align: center; }
+.booking__sub { font: 400 18px/1.6 var(--font-body); color: var(--color-body); margin: 16px auto 0; max-width: 540px; }
+.cal {
+  margin: 48px auto 0; max-width: 560px;
+  display: grid; grid-template-columns: 1fr;
+  background: var(--color-surface-inverted);
+  border: 1px solid var(--color-surface-inverted-soft);
+  border-radius: var(--radius-xl);
+  overflow: hidden; text-align: left;
+  box-shadow: 0 40px 100px rgba(0,0,0,.5);
+}
+@media (min-width: 980px) { .cal { grid-template-columns: 300px 1fr; max-width: 860px; } }
+.cal__side { padding: 20px; border-bottom: 1px solid var(--color-surface-inverted-soft); }
+@media (min-width: 480px) { .cal__side { padding: 28px; } }
+@media (min-width: 980px) { .cal__side { border-bottom: none; border-right: 1px solid var(--color-surface-inverted-soft); } }
+.cal__host { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+.cal__hostav { width: 44px; height: 44px; border-radius: 50%; background: var(--color-surface-inverted-soft); display: grid; place-items: center; color: var(--color-on-inverted-soft); }
+.cal__hostav svg { width: 22px; height: 22px; }
+.cal__hostname { font: 600 13px/1.3 var(--font-body); color: var(--color-on-inverted-soft); margin: 0; }
+.cal__evt { font: 700 22px/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--color-on-inverted); margin: 0 0 18px; }
+.cal__meta { display: flex; flex-direction: column; gap: 12px; }
+.cal__metarow { display: flex; gap: 10px; align-items: flex-start; font: 500 13px/1.45 var(--font-body); color: var(--color-on-inverted-soft); }
+.cal__metarow svg { width: 16px; height: 16px; flex: 0 0 auto; margin-top: 1px; color: var(--color-on-inverted-soft); }
+.cal__main { padding: 20px; display: grid; grid-template-columns: 1fr; gap: 24px; }
+@media (min-width: 480px) { .cal__main { padding: 28px; } }
+@media (min-width: 640px) { .cal__main { grid-template-columns: 1.25fr 0.9fr; } }
+.cal__calwrap { min-width: 0; }
+.cal__calhead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.cal__month { font: 600 15px/1 var(--font-body); color: var(--color-on-inverted); }
+.cal__arrows { display: flex; gap: 6px; }
+.cal__arrow { width: 44px; height: 44px; border-radius: var(--radius-sm); border: 1px solid var(--color-surface-inverted-soft); background: var(--color-surface-inverted); color: var(--color-on-inverted); display: grid; place-items: center; cursor: pointer; transition: opacity var(--dur-fast) var(--ease-standard); }
+.cal__arrow svg { width: 16px; height: 16px; }
+.cal__arrow.is-disabled, .cal__arrow:disabled { opacity: 0.3; pointer-events: none; cursor: default; }
+@media (max-width: 767px) { .cal__arrow { width: 48px; height: 48px; } }
+.cal__dow, .cal__days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal__dow span { text-align: center; font: 600 10px/1 var(--font-body); letter-spacing: .5px; text-transform: uppercase; color: var(--color-on-inverted-soft); padding-bottom: 8px; }
+.cal__day {
+  aspect-ratio: 1; min-height: 40px; border: none; background: transparent; cursor: pointer;
+  border-radius: var(--radius-sm);
+  font: 500 13px/1 var(--font-body); color: var(--color-on-inverted);
+  display: grid; place-items: center;
+}
+@media (max-width: 767px) {
+  /* Touch target: 7-day grid can't fit 48px-square cells inside a 375px
+     viewport, so we keep aspect-ratio for the wider axis (limited by grid
+     column width) but force the vertical to ≥48px. */
+  .cal__day { min-height: 48px; aspect-ratio: auto; }
+  .cal, .cal__main { /* tighten padding to widen each column */ }
+}
+.cal__day.is-muted { color: var(--color-surface-inverted-soft); pointer-events: none; }
+/* Lead-blank cells before day 1 of months that don't start Monday. */
+.cal__day--blank { pointer-events: none; background: transparent; }
+.cal__day.is-avail { color: var(--color-on-inverted); font-weight: 600; background: var(--color-surface-inverted-elevated); }
+.cal__day.is-avail:hover { background: var(--color-surface-inverted-soft); }
+.cal__day.is-sel { background: var(--color-on-inverted); color: var(--color-surface-inverted); font-weight: 700; }
+.cal__slots { min-width: 0; display: flex; flex-direction: column; }
+/* Calendar slots day label (e.g., "Mon, Jun 15") — Teko Medium adds a
+   schedule/spec quality without competing with the surrounding UI text. */
+.cal__slotsday { font: 600 15px/1 var(--font-accent); letter-spacing: 0.4px; text-transform: uppercase; color: var(--color-on-inverted); margin-bottom: 12px; }
+/* Inline calendar-validation message — stays inside the monochrome system
+   (strong-on-inverted black + heavier weight signals attention without color). */
+.cal__slotsday--err { font-weight: 700; }
+.cal__slotlist { display: flex; flex-direction: column; gap: 8px; max-height: 232px; overflow-y: auto; padding-right: 4px; }
+.cal__slot {
+  border: 1px solid var(--color-surface-inverted-soft);
+  background: var(--color-surface-inverted);
+  border-radius: var(--radius-md); padding: 14px 0; min-height: 44px;
+  text-align: center; font: 600 13px/1 var(--font-body); color: var(--color-on-inverted);
+  cursor: pointer; transition: border-color var(--dur-fast), background var(--dur-fast), color var(--dur-fast);
+}
+@media (max-width: 767px) { .cal__slot { min-height: 48px; padding: 16px 0; } }
+.cal__slot:hover { border-color: var(--color-on-inverted); }
+.cal__slot.is-sel { background: var(--color-on-inverted); color: var(--color-surface-inverted); border-color: var(--color-on-inverted); }
+.cal__confirm {
+  margin-top: 12px; width: 100%; border: none; cursor: pointer;
+  background: var(--color-on-inverted); color: var(--color-surface-inverted);
+  border-radius: var(--radius-md); padding: 16px 0; min-height: 48px;
+  font: 600 13px/1 var(--font-body);
+  opacity: .35; pointer-events: none;
+  transition: opacity var(--dur-fast);
+}
+.cal__confirm.is-ready { opacity: 1; pointer-events: auto; }
+/* When the confirm button lives in .cal__form (flex column with its own gap),
+   the legacy margin-top:12px from its earlier slot-column home becomes a
+   double-margin. Zero it out in this context. */
+.cal__form .cal__confirm { margin-top: 6px; }
+
+/* ─── Netlify form fields ──────────────────────────────────────────
+   Spans both columns of the .cal grid so the calendar+slots row stays
+   intact above. Two-up at tablet+, single-column on phones. */
+.cal__form {
+  grid-column: 1 / -1;
+  padding: 22px 20px 24px;
+  border-top: 1px solid var(--color-surface-inverted-soft);
+  display: flex; flex-direction: column; gap: 14px;
+}
+@media (min-width: 480px) { .cal__form { padding: 24px 28px 28px; } }
+.cal__formrow {
+  display: grid; grid-template-columns: 1fr; gap: 12px;
+}
+@media (min-width: 480px) { .cal__formrow { grid-template-columns: 1fr 1fr; } }
+.cal__field { display: flex; flex-direction: column; gap: 6px; }
+/* Form field labels — Teko medium reads as a spec/legend label. */
+.cal__field > span {
+  font: 500 13px/1 var(--font-accent);
+  letter-spacing: 1.4px; text-transform: uppercase;
+  color: var(--color-on-inverted-soft);
+}
+.cal__field input {
+  background: var(--color-surface-inverted);
+  border: 1px solid var(--color-surface-inverted-soft);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  font: 500 14px/1.4 var(--font-body);
+  color: var(--color-on-inverted);
+  min-height: 44px;
+  outline: none;
+  width: 100%;
+  transition: border-color var(--dur-fast) var(--ease-standard),
+              box-shadow var(--dur-fast) var(--ease-standard);
+}
+@media (max-width: 767px) { .cal__field input { min-height: 48px; padding: 14px; } }
+.cal__field input::placeholder { color: var(--color-on-inverted-soft); }
+.cal__field input:hover { border-color: var(--color-on-inverted-soft); }
+.cal__field input:focus {
+  border-color: var(--color-on-inverted);
+  box-shadow: 0 0 0 3px rgba(12, 12, 12, 0.08);
+}
+.cal__field input:invalid:not(:placeholder-shown) {
+  border-color: var(--color-on-inverted-soft);
+}
+/* Full-width field row (used for the optional Message textarea). Sits
+   outside .cal__formrow so it doesn't get caught by the 2-col grid. */
+.cal__field--wide { width: 100%; }
+.cal__field-opt {
+  /* Inline "optional" hint that sits inside the field's label span. */
+  color: var(--color-on-inverted-soft);
+  text-transform: none;
+  letter-spacing: 0.4px;
+  font-weight: 400;
+}
+.cal__field textarea {
+  background: var(--color-surface-inverted);
+  border: 1px solid var(--color-surface-inverted-soft);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  font: 500 14px/1.5 var(--font-body);
+  color: var(--color-on-inverted);
+  min-height: 96px;
+  outline: none;
+  width: 100%;
+  resize: vertical;
+  font-family: inherit;
+  transition: border-color var(--dur-fast) var(--ease-standard),
+              box-shadow var(--dur-fast) var(--ease-standard);
+}
+@media (max-width: 767px) { .cal__field textarea { min-height: 112px; padding: 14px; } }
+.cal__field textarea::placeholder { color: var(--color-on-inverted-soft); }
+.cal__field textarea:hover { border-color: var(--color-on-inverted-soft); }
+.cal__field textarea:focus {
+  border-color: var(--color-on-inverted);
+  box-shadow: 0 0 0 3px rgba(12, 12, 12, 0.08);
+}
+/* Honeypot — off-screen but still in the form payload. Visually-hidden
+   without display:none, so the bot still sees it. */
+.cal__hp {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap; margin: -1px; padding: 0; border: 0;
+}
+
+.cal__done { padding: 40px 28px; text-align: center; grid-column: 1 / -1; }
+.cal__done svg { width: 40px; height: 40px; color: var(--color-success); margin: 0 auto 16px; }
+.cal__done h4 { font: 700 22px/1.2 var(--font-display); color: var(--color-on-inverted); margin: 0 0 8px; }
+.cal__done p { font: 400 14px/1.5 var(--font-body); color: var(--color-on-inverted-soft); margin: 0; }
+
+/* ============================================================
+   FAQ — accordion
+   ============================================================ */
+.faq { max-width: 820px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+.faq-item {
+  background: var(--color-surface-inverted-elevated);
+  border: 1px solid var(--color-surface-inverted-soft);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.faq-q {
+  width: 100%; min-height: 56px; border: none; background: transparent; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 20px 24px; text-align: left;
+  font: 600 16px/1.4 var(--font-body); color: var(--color-on-inverted);
+}
+.faq-q__i { flex: 0 0 auto; width: 22px; height: 22px; color: var(--color-on-inverted-soft); transition: transform var(--dur-base) var(--ease-standard); }
+.faq-item.is-open .faq-q__i { transform: rotate(180deg); }
+.faq-a { max-height: 0; overflow: hidden; transition: max-height var(--dur-slow) var(--ease-standard); }
+.faq-a__inner { padding: 0 24px 22px; font: 400 15px/1.6 var(--font-body); color: var(--color-on-inverted-soft); max-width: 640px; }
+
+/* ============================================================
+   MINIMAL FOOTER
+   ============================================================ */
+.foot { background: var(--color-canvas); border-top: 1px solid var(--color-hairline); }
+.foot__row { display: flex; align-items: center; justify-content: center; text-align: center; gap: 24px; padding: 28px 0; flex-wrap: wrap; }
+@media (min-width: 768px) { .foot__row { justify-content: space-between; text-align: left; } }
+.foot__mark { width: 34px; height: 34px; color: var(--color-text-strong); }
+.foot__copy { font: 500 13px/1.5 var(--font-body); color: var(--color-muted-soft); }
+.foot__copy a { color: var(--color-muted); text-decoration: underline; text-underline-offset: 3px; }
+.foot__social { display: flex; gap: 8px; }
+.foot__social a {
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 1px solid var(--color-hairline); color: var(--color-muted);
+  display: grid; place-items: center; text-decoration: none;
+  transition: color var(--dur-fast), border-color var(--dur-fast);
+}
+.foot__social a:hover { color: var(--color-ink); border-color: var(--color-muted); }
+.foot__social svg { width: 17px; height: 17px; }
+
+/* ============================================================
+   RESPONSIVE
+   Mobile-first: base rules above target mobile. Per-component min-width
+   blocks live inline next to each rule (480px / 640px / 768px / 980px /
+   1024px). No max-width queries — base = smallest viewport.
+   ============================================================ */
+
+/* ============================================================
+   RESPONSIVE — Trusted-by row + small-screen touch-ups
+   ============================================================ */
+
+/* Trusted-by stacks at tablet; logos__row drops its fixed
+   distribution so the two partner labels wrap cleanly instead of
+   sitting at opposite edges of a 50px sliver. */
+@media (max-width: 980px) {
+  .logos {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 28px 0;
+    text-align: center;
+  }
+  .logos__caption { max-width: none; margin: 0 auto; }
+  .logos__row {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 14px 28px;
+  }
+  .logos__item { white-space: normal; font-size: 16px; }
+
+  /* Hero stage is mostly hidden floats at this width — collapse the
+     reserved 380px so the code window doesn't sit in dead space. */
+  .hero { padding: 64px 0 56px; }
+  .hero__stage { height: auto; margin-top: 40px; padding-bottom: 220px; }
+  .hero__stage .strata { width: 420px; height: 420px; top: -60px; }
+  .float--code { position: relative; left: auto; top: auto; transform: none; margin: 0 auto; width: 100%; max-width: 520px; }
+
+  /* Inline-styled headings come down with the rest of the type ramp. */
+  .band-light .container > div > h2[style],
+  .booking h2[style] { font-size: 36px !important; line-height: 1.1 !important; }
+
+  /* Topnav: drop the long email; keep brand + Book-a-call. */
+  .topnav__login { display: none; }
+  .topnav__row { gap: 12px; }
+}
+
+@media (max-width: 640px) {
+  .logos { padding: 24px 0; }
+  .logos__item { font-size: 14px; }
+  .logos__row { gap: 10px 20px; }
+
+  /* Headlines + booking title shrink one more step. */
+  .band-light .container > div > h2[style],
+  .booking h2[style] { font-size: 30px !important; }
+
+  /* Bio stats wrap to a tidier 2-up so "60 days quickest streak…"
+     doesn't get squeezed into a single skinny column. */
+  .bio__stats { flex-wrap: wrap; gap: 18px 24px; }
+  .bio__stat { flex: 1 1 calc(50% - 24px); min-width: 120px; }
+
+  /* Booking calendar: pad-in for narrow viewports. */
+  .cal { margin-top: 32px; }
+  .cal__side, .cal__main { padding: 22px; }
+  .booking__sub { font-size: 16px; }
+
+  /* Sec-head h2 (Why most VR projects stall / Trusted by the teams). */
+  .sec-head h2 { font-size: 32px; }
+
+  /* Comparison + Problem cards: tighten touch targets. */
+  .cmprow { font-size: 13px; padding: 12px 14px; }
+  .prob-card { padding: 24px; }
+  .prob-card h3 { font-size: 20px; }
+}
+
+/* ============================================================
+   ACCESS GATE (Netlify form: curiousitor)
+   Fixed, full-viewport overlay with code + email request. Monochrome
+   and minimal to match the rest of the design system. Teko condensed
+   for the 5-digit code input (industrial spec feel). Rajdhani body
+   for everything else. Sarpanch display on the title.
+   ============================================================ */
+
+.gate {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background:
+    radial-gradient(90% 70% at 50% 35%, rgba(255,255,255,0.035), transparent 70%),
+    radial-gradient(60% 40% at 50% 100%, rgba(255,255,255,0.02), transparent 60%),
+    var(--color-canvas);
+  color: var(--color-ink);
+  display: grid;
+  place-items: center;
+  padding: 32px 20px;
+  animation: gateIn 0.7s cubic-bezier(.4,0,.2,1) both;
+}
+.gate.is-leaving {
+  animation: gateOut 0.9s cubic-bezier(.4,0,.2,1) forwards;
+  pointer-events: none;
+}
+.gate.is-done { display: none; }
+
+@keyframes gateIn {
+  from { opacity: 0; backdrop-filter: blur(0); }
+  to   { opacity: 1; }
+}
+@keyframes gateOut {
+  from { opacity: 1; transform: scale(1); filter: blur(0); }
+  to   { opacity: 0; transform: scale(1.04); filter: blur(6px); visibility: hidden; }
+}
+
+.gate__inner {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+}
+
+.gate__mark {
+  width: 44px; height: 44px;
+  color: var(--color-ink);
+  opacity: 0.9;
+  margin-bottom: 6px;
+  animation: gatePulse 4s ease-in-out infinite;
+}
+@keyframes gatePulse {
+  0%, 100% { opacity: 0.65; }
+  50%      { opacity: 1; }
+}
+
+.gate__title {
+  font: 500 clamp(26px, 4.5vw, 34px)/1.1 var(--font-display);
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+  margin: 0;
+}
+
+.gate__sub {
+  font: 400 13px/1.5 var(--font-body);
+  color: var(--color-muted);
+  margin: 0 0 10px;
+  letter-spacing: 0.2px;
+}
+
+.gate__form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.gate__input {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  font: 500 15px/1 var(--font-body);
+  color: var(--color-ink);
+  outline: none;
+  min-height: 48px;
+  text-align: center;
+  transition: border-color var(--dur-fast) var(--ease-standard),
+              background var(--dur-fast) var(--ease-standard),
+              box-shadow var(--dur-fast) var(--ease-standard);
+}
+.gate__input::placeholder { color: var(--color-muted-soft); }
+.gate__input:focus {
+  border-color: var(--color-ink);
+  background: rgba(255,255,255,0.02);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.05);
+}
+
+.gate__input--code {
+  font: 600 22px/1 var(--font-accent);
+  letter-spacing: 10px;
+  padding: 18px 16px;
+  text-indent: 10px;
+  text-transform: uppercase;
+}
+.gate__input--code::placeholder {
+  letter-spacing: 6px;
+  color: var(--color-muted-soft);
+  font-weight: 400;
+}
+
+.gate__sep {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--color-muted-soft);
+  font: 500 10px/1 var(--font-accent);
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  margin: 2px 0;
+}
+.gate__sep::before, .gate__sep::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--color-hairline);
+}
+
+.gate__hint {
+  font: 400 11px/1.55 var(--font-body);
+  color: var(--color-muted-soft);
+  margin: 0 0 4px;
+  letter-spacing: 0.1px;
+  max-width: 320px;
+  align-self: center;
+}
+
+.gate__submit {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  min-height: 48px;
+  padding: 0 24px;
+  font: 600 14px/1 var(--font-body);
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: background var(--dur-fast) var(--ease-standard),
+              transform var(--dur-fast) var(--ease-standard);
+}
+.gate__submit:hover    { background: var(--color-primary-active); }
+.gate__submit:active   { transform: translateY(1px); }
+.gate__submit svg      { width: 16px; height: 16px; }
+
+.gate__msg {
+  font: 400 12px/1.5 var(--font-body);
+  color: var(--color-muted);
+  min-height: 18px;
+  letter-spacing: 0.2px;
+  margin: 2px 0 0;
+}
+.gate__msg.is-err  { color: var(--color-ink); }
+.gate__msg.is-ok   { color: var(--color-success); }
+
+.gate__hp {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  margin: -1px; padding: 0; border: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 420px) {
+  .gate__title { font-size: 24px; }
+  .gate__input--code { font-size: 20px; letter-spacing: 7px; text-indent: 7px; }
+}

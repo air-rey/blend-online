@@ -1,0 +1,236 @@
+/* ============================================================
+   blendxr.online — Colors & Type
+   blendxr.online · monochrome XR / creative-technology brand
+   ============================================================ */
+
+/* ---------- Webfonts ----------
+   Display + body + accent are self-hosted from ds/fonts/ (industrial
+   geometric sans + semi-condensed body + heavily condensed accent).
+   JetBrains Mono still comes from Google Fonts — only used by the code
+   window, not worth bundling another 5 weights for. */
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+/* Sarpanch — display (replaces Manrope). Geometric, blocky, scales to
+   ExtraBold/Black for industrial headlines like "Pipeline Hazard Simulations". */
+@font-face { font-family: 'Sarpanch'; src: url('fonts/Sarpanch-Regular.ttf')   format('truetype'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Sarpanch'; src: url('fonts/Sarpanch-Medium.ttf')    format('truetype'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Sarpanch'; src: url('fonts/Sarpanch-SemiBold.ttf')  format('truetype'); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Sarpanch'; src: url('fonts/Sarpanch-Bold.ttf')      format('truetype'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Sarpanch'; src: url('fonts/Sarpanch-ExtraBold.ttf') format('truetype'); font-weight: 800; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Sarpanch'; src: url('fonts/Sarpanch-Black.ttf')     format('truetype'); font-weight: 900; font-style: normal; font-display: swap; }
+
+/* Rajdhani — body (replaces Inter). Semi-condensed humanist sans;
+   readable at small sizes, slightly tech-forward feel. */
+@font-face { font-family: 'Rajdhani'; src: url('fonts/Rajdhani-Light.ttf')    format('truetype'); font-weight: 300; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Rajdhani'; src: url('fonts/Rajdhani-Regular.ttf')  format('truetype'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Rajdhani'; src: url('fonts/Rajdhani-Medium.ttf')   format('truetype'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Rajdhani'; src: url('fonts/Rajdhani-SemiBold.ttf') format('truetype'); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Rajdhani'; src: url('fonts/Rajdhani-Bold.ttf')     format('truetype'); font-weight: 700; font-style: normal; font-display: swap; }
+
+/* Teko — accent. Heavily condensed industrial face; the third typographic
+   voice for tags, eyebrow labels, stat numerals, and form-field captions
+   where the condensed character adds an industrial-spec feel. */
+@font-face { font-family: 'Teko'; src: url('fonts/Teko-Light.ttf')    format('truetype'); font-weight: 300; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Teko'; src: url('fonts/Teko-Regular.ttf')  format('truetype'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Teko'; src: url('fonts/Teko-Medium.ttf')   format('truetype'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Teko'; src: url('fonts/Teko-SemiBold.ttf') format('truetype'); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Teko'; src: url('fonts/Teko-Bold.ttf')     format('truetype'); font-weight: 700; font-style: normal; font-display: swap; }
+
+:root {
+  /* ---------- COLOR · Brand & Primary ---------- */
+  --color-primary:           #FFFFFF;   /* signature inverted-white action */
+  --color-primary-active:    #CFCFCF;   /* press / hover-dim variant */
+  --color-primary-disabled:  #2F2F2F;   /* desaturated dark-tinted disabled */
+  --color-on-primary:        #0C0C0C;   /* near-black on inverted action */
+
+  /* ---------- COLOR · Surfaces (dark stack) ---------- */
+  --color-canvas:                  #0C0C0C;   /* default page floor */
+  --color-surface-soft:            #0E0E0E;   /* soft band backgrounds */
+  --color-surface-card:            #1D1D1D;   /* feature cards, code blocks */
+  --color-surface-strong:          #2F2F2F;   /* strongest dark elevation */
+
+  /* ---------- COLOR · Surfaces (inverted / light) ---------- */
+  --color-surface-inverted:          #FFFFFF;
+  --color-surface-inverted-elevated: #F1F1F1;
+  --color-surface-inverted-soft:     #E3E3E3;
+  --color-on-inverted:               #0C0C0C;
+  --color-on-inverted-soft:          #5B5B5B;
+
+  /* ---------- COLOR · Hairlines / borders ---------- */
+  --color-hairline:        rgba(255, 255, 255, 0.10);
+  --color-hairline-soft:   rgba(255, 255, 255, 0.06);
+  --color-hairline-solid:  #1D1D1D;
+
+  /* ---------- COLOR · Text on dark ---------- */
+  --color-ink:           #C3C3C3;   /* headlines, primary text */
+  --color-body-strong:   #C3C3C3;   /* emphasized paragraphs */
+  --color-body:          #878787;   /* default running text */
+  --color-muted:         #7A7A7A;   /* sub-headings, secondary */
+  --color-muted-soft:    #5B5B5B;   /* captions, fine-print */
+  --color-text-strong:   #FFFFFF;   /* peak emphasis only */
+
+  /* ---------- COLOR · Semantic ---------- */
+  --color-success:    #4CAF50;       /* only non-neutral in the system */
+  --color-success-bg: color-mix(in srgb, #4CAF50 15%, transparent);
+  --color-warning:    #C3C3C3;       /* warnings are neutral + label */
+  --color-error:      #FFFFFF;       /* errors are max-contrast neutral */
+
+  /* ---------- COLOR · Link (monochrome) ---------- */
+  --color-link-on-dark:     #FFFFFF;
+  --color-link-on-inverted: #0C0C0C;
+
+  /* ---------- TYPE · Families ----------
+     display = Sarpanch  (geometric industrial sans, 400→900 weight range)
+     body    = Rajdhani  (semi-condensed humanist, 300→700)
+     accent  = Teko      (heavily condensed industrial; tags / stat numerals / labels)
+     mono    = JetBrains Mono (code window) */
+  --font-display: "Sarpanch", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-body:    "Rajdhani", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-accent:  "Teko",     -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* ---------- TYPE · Size / weight / tracking tokens ---------- */
+  --type-display-xl-size: 84px;  --type-display-xl-lh: 1.05; --type-display-xl-tracking: -0.01em; --type-display-xl-weight: 800;
+  --type-display-lg-size: 48px;  --type-display-lg-lh: 1.10; --type-display-lg-tracking: -0.04em; --type-display-lg-weight: 800;
+  --type-display-md-size: 36px;  --type-display-md-lh: 1.15; --type-display-md-tracking: -0.03em; --type-display-md-weight: 800;
+  --type-display-sm-size: 28px;  --type-display-sm-lh: 1.20; --type-display-sm-tracking: -0.02em; --type-display-sm-weight: 700;
+
+  --type-title-lg-size: 22px; --type-title-lg-lh: 1.30; --type-title-lg-tracking: -0.01em; --type-title-lg-weight: 600;
+  --type-title-md-size: 18px; --type-title-md-lh: 1.40; --type-title-md-tracking: 0;        --type-title-md-weight: 600;
+  --type-title-sm-size: 16px; --type-title-sm-lh: 1.40; --type-title-sm-tracking: 0;        --type-title-sm-weight: 600;
+
+  --type-body-md-size: 16px; --type-body-md-lh: 1.60; --type-body-md-weight: 400;
+  --type-body-sm-size: 14px; --type-body-sm-lh: 1.50; --type-body-sm-weight: 500;
+
+  --type-caption-size: 13px; --type-caption-lh: 1.40; --type-caption-weight: 600;
+  --type-caption-uc-size: 12px; --type-caption-uc-lh: 1.40; --type-caption-uc-weight: 600; --type-caption-uc-tracking: 1.5px;
+
+  --type-code-size:  14px; --type-code-lh: 1.60;  --type-code-weight: 400;
+  --type-button-size: 14px; --type-button-lh: 1.0; --type-button-weight: 600;
+  --type-nav-size:   14px; --type-nav-lh: 1.40;  --type-nav-weight: 500;
+
+  /* ---------- SPACING (4px base) ---------- */
+  --space-xxs:      4px;
+  --space-xs:       8px;
+  --space-sm:      12px;
+  --space-md:      16px;
+  --space-lg:      24px;
+  --space-xl:      32px;
+  --space-xxl:     48px;
+  --space-section: 96px;
+
+  /* ---------- RADII ---------- */
+  --radius-xs:    4px;
+  --radius-sm:    6px;
+  --radius-md:    8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-2xl:  28px;
+  --radius-pill: 9999px;
+  --radius-full: 9999px;
+
+  /* ---------- MOTION ---------- */
+  --dur-fast: 150ms;
+  --dur-base: 200ms;
+  --dur-slow: 300ms;
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ---------- ELEVATION (rare; inverted only) ---------- */
+  --shadow-inverted: 0 1px 2px rgba(12,12,12,0.04), 0 4px 12px rgba(12,12,12,0.06), 0 12px 32px rgba(12,12,12,0.08);
+
+  /* ---------- LAYOUT ---------- */
+  --container-max: 1200px;
+  --gutter-desktop: 40px;
+  --gutter-mobile:  20px;
+}
+
+/* ============================================================
+   Semantic element styles · drop in to start working in-brand
+   ============================================================ */
+
+html, body {
+  background: var(--color-canvas);
+  color: var(--color-body);
+  font-family: var(--font-body);
+  font-size: var(--type-body-md-size);
+  line-height: var(--type-body-md-lh);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  color: var(--color-ink);
+  margin: 0;
+}
+
+h1 {
+  font-size: var(--type-display-xl-size);
+  line-height: var(--type-display-xl-lh);
+  letter-spacing: var(--type-display-xl-tracking);
+  font-weight: var(--type-display-xl-weight);
+}
+h2 {
+  font-size: var(--type-display-lg-size);
+  line-height: var(--type-display-lg-lh);
+  letter-spacing: var(--type-display-lg-tracking);
+  font-weight: var(--type-display-lg-weight);
+}
+h3 {
+  font-size: var(--type-display-md-size);
+  line-height: var(--type-display-md-lh);
+  letter-spacing: var(--type-display-md-tracking);
+  font-weight: var(--type-display-md-weight);
+}
+h4 {
+  font-size: var(--type-display-sm-size);
+  line-height: var(--type-display-sm-lh);
+  letter-spacing: var(--type-display-sm-tracking);
+  font-weight: var(--type-display-sm-weight);
+}
+
+p {
+  font-family: var(--font-body);
+  font-size: var(--type-body-md-size);
+  line-height: var(--type-body-md-lh);
+  color: var(--color-body);
+  margin: 0;
+}
+
+a {
+  color: var(--color-link-on-dark);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+code, pre, kbd, samp {
+  font-family: var(--font-mono);
+  font-size: var(--type-code-size);
+  line-height: var(--type-code-lh);
+  color: var(--color-ink);
+}
+
+/* Utility text classes */
+.t-display-xl { font-family: var(--font-display); font-size: var(--type-display-xl-size); line-height: var(--type-display-xl-lh); letter-spacing: var(--type-display-xl-tracking); font-weight: var(--type-display-xl-weight); color: var(--color-ink); }
+.t-display-lg { font-family: var(--font-display); font-size: var(--type-display-lg-size); line-height: var(--type-display-lg-lh); letter-spacing: var(--type-display-lg-tracking); font-weight: var(--type-display-lg-weight); color: var(--color-ink); }
+.t-display-md { font-family: var(--font-display); font-size: var(--type-display-md-size); line-height: var(--type-display-md-lh); letter-spacing: var(--type-display-md-tracking); font-weight: var(--type-display-md-weight); color: var(--color-ink); }
+.t-display-sm { font-family: var(--font-display); font-size: var(--type-display-sm-size); line-height: var(--type-display-sm-lh); letter-spacing: var(--type-display-sm-tracking); font-weight: var(--type-display-sm-weight); color: var(--color-ink); }
+.t-title-lg   { font-family: var(--font-body); font-size: var(--type-title-lg-size); line-height: var(--type-title-lg-lh); letter-spacing: var(--type-title-lg-tracking); font-weight: var(--type-title-lg-weight); color: var(--color-ink); }
+.t-title-md   { font-family: var(--font-body); font-size: var(--type-title-md-size); line-height: var(--type-title-md-lh); font-weight: var(--type-title-md-weight); color: var(--color-ink); }
+.t-title-sm   { font-family: var(--font-body); font-size: var(--type-title-sm-size); line-height: var(--type-title-sm-lh); font-weight: var(--type-title-sm-weight); color: var(--color-ink); }
+.t-body-md    { font-family: var(--font-body); font-size: var(--type-body-md-size); line-height: var(--type-body-md-lh); font-weight: var(--type-body-md-weight); color: var(--color-body); }
+.t-body-sm    { font-family: var(--font-body); font-size: var(--type-body-sm-size); line-height: var(--type-body-sm-lh); font-weight: var(--type-body-sm-weight); color: var(--color-body); }
+.t-caption    { font-family: var(--font-body); font-size: var(--type-caption-size); line-height: var(--type-caption-lh); font-weight: var(--type-caption-weight); color: var(--color-ink); }
+.t-caption-uc { font-family: var(--font-accent); font-size: 14px; line-height: var(--type-caption-uc-lh); font-weight: 500; letter-spacing: 1.6px; text-transform: uppercase; color: var(--color-muted); }
+.t-code       { font-family: var(--font-mono); font-size: var(--type-code-size); line-height: var(--type-code-lh); font-weight: var(--type-code-weight); color: var(--color-ink); }
+.t-mono       { font-family: var(--font-mono); }
+
+/* Color helpers */
+.c-ink         { color: var(--color-ink); }
+.c-body        { color: var(--color-body); }
+.c-muted       { color: var(--color-muted); }
+.c-muted-soft  { color: var(--color-muted-soft); }
+.c-strong      { color: var(--color-text-strong); }
+.c-success     { color: var(--color-success); }
+.c-on-inverted { color: var(--color-on-inverted); }

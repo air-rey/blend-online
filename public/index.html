@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Private preview</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Private preview.">
+<link rel="icon" type="image/svg+xml" href="/strata-mark.svg">
+<style>
+  @font-face { font-family: 'Sarpanch'; src: url('/fonts/Sarpanch-SemiBold.ttf') format('truetype'); font-weight: 600; font-display: swap; }
+  @font-face { font-family: 'Sarpanch'; src: url('/fonts/Sarpanch-Bold.ttf')     format('truetype'); font-weight: 700; font-display: swap; }
+  @font-face { font-family: 'Rajdhani'; src: url('/fonts/Rajdhani-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+  @font-face { font-family: 'Rajdhani'; src: url('/fonts/Rajdhani-Medium.ttf')  format('truetype'); font-weight: 500; font-display: swap; }
+  @font-face { font-family: 'Rajdhani'; src: url('/fonts/Rajdhani-SemiBold.ttf') format('truetype'); font-weight: 600; font-display: swap; }
+  @font-face { font-family: 'Teko';     src: url('/fonts/Teko-Medium.ttf')     format('truetype'); font-weight: 500; font-display: swap; }
+  @font-face { font-family: 'Teko';     src: url('/fonts/Teko-SemiBold.ttf')   format('truetype'); font-weight: 600; font-display: swap; }
+
+  :root {
+    --canvas: #0C0C0C;
+    --ink: #C3C3C3;
+    --body: #878787;
+    --muted: #7A7A7A;
+    --muted-soft: #5B5B5B;
+    --text-strong: #FFFFFF;
+    --hairline: rgba(255,255,255,0.10);
+    --success: #4CAF50;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    background:
+      radial-gradient(90% 70% at 50% 35%, rgba(255,255,255,0.035), transparent 70%),
+      radial-gradient(60% 40% at 50% 100%, rgba(255,255,255,0.02), transparent 60%),
+      var(--canvas);
+    color: var(--ink);
+    font-family: 'Rajdhani', 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    display: grid;
+    place-items: center;
+    padding: 32px 20px;
+    min-height: 100vh;
+  }
+
+  .gate {
+    width: 100%; max-width: 360px;
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center;
+    gap: 14px;
+    animation: gateIn 0.7s cubic-bezier(.4,0,.2,1) both;
+  }
+  @keyframes gateIn { from { opacity: 0 } to { opacity: 1 } }
+
+  .gate__mark {
+    width: 44px; height: 44px;
+    color: var(--ink); opacity: 0.9; margin-bottom: 6px;
+    animation: pulse 4.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 0.6 } 50% { opacity: 1 } }
+
+  .gate__title {
+    font: 500 clamp(26px, 4.5vw, 34px)/1.1 'Sarpanch', sans-serif;
+    letter-spacing: -0.02em; color: var(--ink); margin: 0;
+  }
+  .gate__sub {
+    font: 400 13px/1.5 'Rajdhani', sans-serif;
+    color: var(--muted); margin: 0 0 10px; letter-spacing: 0.2px;
+  }
+
+  .gate__form { width: 100%; display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
+
+  .gate__input {
+    width: 100%; background: transparent;
+    border: 1px solid var(--hairline); border-radius: 8px;
+    padding: 14px 16px;
+    font: 500 15px/1 'Rajdhani', sans-serif;
+    color: var(--ink);
+    outline: none;
+    min-height: 48px;
+    text-align: center;
+    transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+  }
+  .gate__input::placeholder { color: var(--muted-soft); }
+  .gate__input:focus {
+    border-color: var(--ink);
+    background: rgba(255,255,255,0.02);
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.05);
+  }
+
+  .gate__input--code {
+    font: 600 22px/1 'Teko', sans-serif;
+    letter-spacing: 10px;
+    padding: 18px 16px;
+    text-indent: 10px;
+    text-transform: uppercase;
+  }
+  .gate__input--code::placeholder { letter-spacing: 6px; color: var(--muted-soft); font-weight: 400; }
+
+  .gate__sep {
+    display: flex; align-items: center; gap: 12px;
+    color: var(--muted-soft);
+    font: 500 10px/1 'Teko', sans-serif;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    margin: 2px 0;
+  }
+  .gate__sep::before, .gate__sep::after {
+    content: ""; flex: 1; height: 1px; background: var(--hairline);
+  }
+
+  .gate__hint {
+    font: 400 11px/1.55 'Rajdhani', sans-serif;
+    color: var(--muted-soft); margin: 0 0 4px; letter-spacing: 0.1px;
+    max-width: 320px; align-self: center;
+  }
+
+  .gate__submit {
+    background: #FFFFFF; color: #0C0C0C;
+    border: none; border-radius: 8px;
+    min-height: 48px; padding: 0 24px;
+    font: 600 14px/1 'Rajdhani', sans-serif; letter-spacing: 0.3px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    transition: background 200ms ease, transform 250ms ease;
+  }
+  .gate__submit:hover  { background: #CFCFCF; }
+  .gate__submit:active { transform: translateY(1px); }
+  .gate__submit svg    { width: 16px; height: 16px; }
+  .gate__submit[disabled] { opacity: 0.55; cursor: wait; }
+
+  .gate__msg {
+    font: 400 12px/1.5 'Rajdhani', sans-serif;
+    color: var(--muted); min-height: 18px; letter-spacing: 0.2px; margin: 2px 0 0;
+  }
+  .gate__msg.is-err { color: var(--ink); }
+  .gate__msg.is-ok  { color: var(--success); }
+
+  .gate__hp {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); margin: -1px; padding: 0; border: 0; white-space: nowrap;
+  }
+
+  .gate__legal {
+    margin-top: 24px;
+    font: 400 10px/1.4 'Rajdhani', sans-serif;
+    color: var(--muted-soft); letter-spacing: 0.3px;
+  }
+</style>
+</head>
+<body>
+
+<main class="gate" aria-label="Private preview">
+  <svg class="gate__mark" viewBox="0 0 64 64" aria-hidden="true">
+    <g transform="translate(32 32) rotate(-16)" fill="none" stroke="currentColor" stroke-width="1.4">
+      <ellipse cx="0" cy="-10" rx="26" ry="3.4" opacity=".45"/>
+      <ellipse cx="0" cy="-5"  rx="27" ry="3.8" opacity=".7"/>
+      <ellipse cx="0" cy="0"   rx="28" ry="4.2"/>
+      <ellipse cx="0" cy="5"   rx="27" ry="3.8" opacity=".7"/>
+      <ellipse cx="0" cy="10"  rx="26" ry="3.4" opacity=".45"/>
+    </g>
+  </svg>
+
+  <h1 class="gate__title">Private preview.</h1>
+  <p class="gate__sub">Enter your 5-digit code to continue.</p>
+
+  <form class="gate__form" id="gateForm" method="POST" action="/.netlify/functions/enter" novalidate>
+    <p class="gate__hp" aria-hidden="true">
+      <label>Leave this empty: <input name="bot-field" tabindex="-1" autocomplete="off"></label>
+    </p>
+
+    <input type="text" name="code" id="gateCode"
+           inputmode="numeric" pattern="[0-9]*" maxlength="5"
+           placeholder="&bull; &bull; &bull; &bull; &bull;"
+           class="gate__input gate__input--code" autocomplete="off"
+           aria-label="5-digit access code" spellcheck="false">
+
+    <div class="gate__sep"><span>or</span></div>
+
+    <input type="email" name="email" id="gateEmail"
+           placeholder="your@email.com" class="gate__input"
+           autocomplete="email" aria-label="Invite email">
+
+    <p class="gate__hint">
+      No code, key, or 5-digit? Type your email to request access please.
+    </p>
+
+    <button type="submit" class="gate__submit" id="gateSubmit">
+      <span>Enter</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    <p class="gate__msg" id="gateMsg" aria-live="polite"></p>
+  </form>
+
+  <p class="gate__legal">Blendtobases OU, trading as BlendXR. Confidential.</p>
+</main>
+
+<script>
+  (function () {
+    var form   = document.getElementById('gateForm');
+    var codeIn = document.getElementById('gateCode');
+    var emailIn= document.getElementById('gateEmail');
+    var submit = document.getElementById('gateSubmit');
+    var msg    = document.getElementById('gateMsg');
+
+    setTimeout(function () { try { codeIn.focus(); } catch(_){} }, 180);
+    codeIn.addEventListener('input', function () {
+      if (codeIn.value.length === 5) submit.focus();
+    });
+
+    function setMsg (text, kind) {
+      msg.textContent = text || '';
+      msg.classList.remove('is-err','is-ok');
+      if (kind === 'err') msg.classList.add('is-err');
+      if (kind === 'ok')  msg.classList.add('is-ok');
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var code  = (codeIn.value  || '').trim();
+      var email = (emailIn.value || '').trim();
+      if (!code && !email) {
+        setMsg('Type a code, or your email to request access.', 'err');
+        codeIn.focus();
+        return;
+      }
+      submit.disabled = true; setMsg('');
+
+      var body = new URLSearchParams(new FormData(form)).toString();
+      fetch('/.netlify/functions/enter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
+        body: body, credentials: 'same-origin'
+      })
+        .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+        .then(function (res) {
+          submit.disabled = false;
+          if (res.status === 200 && res.body && res.body.redirect) {
+            window.location.href = res.body.redirect;
+            return;
+          }
+          if (res.status === 202) {
+            setMsg('Request received. We will be in touch.', 'ok');
+            codeIn.value = ''; emailIn.value = ''; emailIn.blur();
+            return;
+          }
+          if (res.status === 401 || res.status === 403) {
+            setMsg('Not quite. Try again, or drop your email.', 'err');
+            codeIn.select();
+            return;
+          }
+          setMsg((res.body && res.body.error) || 'Something went wrong. Try again.', 'err');
+        })
+        .catch(function () {
+          submit.disabled = false;
+          setMsg('Network error. Try again.', 'err');
+        });
+    });
+  })();
+</script>
+</body>
+</html>

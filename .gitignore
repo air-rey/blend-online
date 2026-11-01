@@ -1,0 +1,8 @@
+node_modules/
+.env
+.env.local
+.netlify/state.json
+*.log
+.DS_Store
+# Legacy marketing archive, not for the public build.
+private-content/legacy-marketing.html.bak

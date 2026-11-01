@@ -1,0 +1,51 @@
+# blendxr.online — private deal room on Netlify.
+#
+# Only ./public ships. Everything else is server side or source of truth
+# that lives alongside the deployed files but is NOT uploaded. The post-
+# build check in scripts/post-build-check.sh greps the published tree for
+# known-private filenames and fails the build if any slip through.
+
+[build]
+  publish    = "public"
+  functions  = "netlify/functions"
+  command    = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Clean URLs for the server-rendered deal room routes.
+[[redirects]]
+  from   = "/r"
+  to     = "/.netlify/functions/brief"
+  status = 200
+
+[[redirects]]
+  from   = "/r/*"
+  to     = "/.netlify/functions/brief/:splat"
+  status = 200
+
+[[redirects]]
+  from   = "/agreement"
+  to     = "/.netlify/functions/agreement"
+  status = 200
+
+[[redirects]]
+  from   = "/media/*"
+  to     = "/.netlify/functions/media/:splat"
+  status = 200
+
+[[redirects]]
+  from   = "/download/*"
+  to     = "/.netlify/functions/download-url/:splat"
+  status = 200
+
+# Deal room pages must never be indexed and must never be cached by a
+# shared cache. Function responses set their own headers too; this is a
+# belt-and-suspenders rule for the static gate page.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag        = "noindex, nofollow"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy     = "no-referrer"
+    Permissions-Policy  = "camera=(), microphone=(), geolocation=()"

@@ -1,0 +1,870 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>simulation-based assessments</title>
+<meta name="description" content="BlendXR builds VR simulations that help evaluators distinguish what people notice, what they understand, and how they respond as a situation changes. For training providers who want to license an assessment-based modules for repeated delivery to industrial customers.">
+<meta name="author" content="BlendXR">
+<meta name="keywords" content="VR simulations, simulation-based assessments, assessment-based training, licensed training modules, industrial training, evaluator tools, situational awareness, immersive assessment, safety training, oil and gas training, utility training, hazard recognition">
+<link rel="canonical" href="https://blendxr.online/">
+<meta name="theme-color" content="#0C0C0C">
+
+<!-- Open Graph (link previews on Slack, iMessage, LinkedIn, Facebook) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="BlendXR">
+<meta property="og:title" content="simulation-based assessments">
+<meta property="og:description" content="BlendXR builds VR simulations that help evaluators distinguish what people notice, what they understand, and how they respond as a situation changes. For training providers who want to license an assessment-based modules for repeated delivery to industrial customers.">
+<meta property="og:url" content="https://blendxr.online/">
+<meta property="og:image" content="https://blendxr.online/uploads/safety-training-toolbox.png">
+<meta property="og:image:alt" content="BlendXR VR simulation of an industrial safety assessment scene with lockout-tag and work-permit annotations">
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="simulation-based assessments">
+<meta name="twitter:description" content="BlendXR builds VR simulations that help evaluators distinguish what people notice, what they understand, and how they respond as a situation changes.">
+<meta name="twitter:image" content="https://blendxr.online/uploads/safety-training-toolbox.png">
+
+<!-- Favicon (brand strata mark) -->
+<link rel="icon" type="image/svg+xml" href="ds/strata-mark.svg">
+<link rel="apple-touch-icon" href="uploads/safety-training-toolbox.png">
+
+<link rel="stylesheet" href="ds/colors_and_type.css?v=2">
+<link rel="stylesheet" href="site.css?v=2">
+<link rel="stylesheet" href="onepager.css?v=2">
+<script>
+  // Add .has-anim before stylesheets paint so the inline rules below can
+  // hide above-the-fold targets — prevents a flash before GSAP animates them in.
+  // Skipped when the user prefers reduced motion so screen readers / motion-
+  // sensitive users see content immediately.
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.documentElement.classList.add('has-anim');
+  }
+  // Pre-paint gate lock. If the visitor has not unlocked before, the body
+  // below the overlay is hidden synchronously so they never see a flash of
+  // the real page before the password gate renders. The .gate overlay sits
+  // above and remains visible.
+  try {
+    if (localStorage.getItem('blendxr_unlocked') !== '1') {
+      document.documentElement.classList.add('gate-locked');
+    }
+  } catch (e) {
+    document.documentElement.classList.add('gate-locked');
+  }
+</script>
+<style>
+  html.has-anim .brand,
+  html.has-anim .topnav__links a,
+  html.has-anim .topnav__login,
+  html.has-anim .topnav .btn--primary,
+  html.has-anim .hero__title,
+  html.has-anim .hero__sub,
+  html.has-anim .hero__cta,
+  html.has-anim .hero__photos img,
+  html.has-anim .hero__cutout { opacity: 0; }
+  /* Word-split title — each word is wrapped in .word (overflow clip) /
+     .word__inner (translated up from below the clip). Mask + Y-translate
+     yields the cinematic "rise from behind the cap-height" effect. */
+  .hero__title .word { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.06em; }
+  .hero__title .word__inner { display: inline-block; will-change: transform; }
+  /* Bio stat .n needs a min-width so the count-up doesn't jitter the row */
+  .bio__stat .n { display: inline-block; font-variant-numeric: tabular-nums; }
+  /* Pre-paint gate: hide everything except the gate overlay until the
+     visitor types a code or we lift the class after a successful unlock. */
+  html.gate-locked { overflow: hidden; }
+  html.gate-locked body > :not(.gate) { visibility: hidden; }
+</style>
+</head>
+<body>
+
+<!-- ============ ACCESS GATE (Netlify form: curiousitor) ============
+     Soft gate on page open. A valid 5-digit code unlocks and persists via
+     localStorage so repeat visits skip the overlay. Email submissions are
+     captured by Netlify so the studio can review access requests. All
+     attempts (code tries and emails) are POSTed to the "curiousitor" form. -->
+<div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+  <div class="gate__inner">
+    <svg class="gate__mark" viewBox="0 0 64 64" aria-hidden="true">
+      <g transform="translate(32 32) rotate(-16)" fill="none" stroke="currentColor" stroke-width="1.4">
+        <ellipse cx="0" cy="-10" rx="26" ry="3.4" opacity=".45"/>
+        <ellipse cx="0" cy="-5"  rx="27" ry="3.8" opacity=".7"/>
+        <ellipse cx="0" cy="0"   rx="28" ry="4.2"/>
+        <ellipse cx="0" cy="5"   rx="27" ry="3.8" opacity=".7"/>
+        <ellipse cx="0" cy="10"  rx="26" ry="3.4" opacity=".45"/>
+      </g>
+    </svg>
+
+    <h1 class="gate__title" id="gateTitle">Private preview.</h1>
+    <p class="gate__sub">Enter your 5-digit code to continue.</p>
+
+    <form class="gate__form" name="curiousitor" method="POST"
+          data-netlify="true" data-netlify-honeypot="bot-field" action="#">
+      <input type="hidden" name="form-name" value="curiousitor">
+      <p class="gate__hp" aria-hidden="true">
+        <label>Leave this empty: <input name="bot-field" tabindex="-1" autocomplete="off"></label>
+      </p>
+
+      <input type="text" name="code" id="gateCode"
+             inputmode="numeric" pattern="[0-9]*" maxlength="5"
+             placeholder="&bull; &bull; &bull; &bull; &bull;"
+             class="gate__input gate__input--code" autocomplete="off"
+             aria-label="5-digit access code" spellcheck="false">
+
+      <div class="gate__sep"><span>or</span></div>
+
+      <input type="email" name="email" id="gateEmail"
+             placeholder="your@email.com"
+             class="gate__input gate__input--email" autocomplete="email"
+             aria-label="Email to request access">
+
+      <p class="gate__hint">
+        No code, key, or 5-digit? Type your email to request access please.
+      </p>
+
+      <button type="submit" class="gate__submit">
+        <span>Enter</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <p class="gate__msg" id="gateMsg" aria-live="polite"></p>
+    </form>
+  </div>
+</div>
+
+<!-- ============ TOP NAV ============ -->
+<header class="topnav" id="topnav">
+  <div class="container topnav__row">
+    <a class="brand" href="#top"><span class="brand__dot"></span>blendxr</a>
+    <nav class="topnav__links">
+      <a href="#solution">Solution</a>
+      <a href="#work">Work</a>
+      <a href="#approach">Approach</a>
+      <a href="#reviews">Reviews</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="topnav__spacer"></div>
+    <a href="mailto:reach@blendxr.online" class="topnav__login">reach@blendxr.online</a>
+    <a class="btn btn--primary btn--sm" href="#book">Book a call</a>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="top">
+  <div class="container hero__inner">
+
+    <!-- Showcase: 10 industrial-site photos in a 5×2 grid, overlaid by a
+         canvas-coloured "VR headset" silhouette that frames the title +
+         subtitle + CTAs in the negative space at center. -->
+    <div class="hero__stage hero__stage--grid">
+
+      <div class="hero__photos" aria-hidden="true">
+        <img src="uploads/hero/hero-01.png" alt="" loading="eager">
+        <img src="uploads/hero/hero-02.png" alt="" loading="eager">
+        <img src="uploads/hero/hero-03.png" alt="" loading="eager">
+        <img src="uploads/hero/hero-04.png" alt="" loading="eager">
+        <img src="uploads/hero/hero-05.png" alt="" loading="eager">
+        <img src="uploads/hero/hero-06.png" alt="" loading="lazy">
+        <img src="uploads/hero/hero-07.png" alt="" loading="lazy">
+        <img src="uploads/hero/hero-08.png" alt="" loading="lazy">
+        <img src="uploads/hero/hero-09.png" alt="" loading="lazy">
+        <img src="uploads/hero/hero-10.png" alt="" loading="lazy">
+      </div>
+
+      <!-- Cutout: peanut/headset path filled with --color-canvas. Sits over
+           the photos; preserveAspectRatio=none lets it flex with the stage. -->
+      <svg class="hero__cutout" viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true">
+        <!-- Flat-top goggles silhouette: top edge is a single straight line
+             across (y=8 from x=22 → x=78) — no top constriction — so the
+             title + subtitle have a clean rectangular zone to sit in. The
+             bottom keeps the nose-bridge dip (y=42 → y=30 at center) so
+             the headset reads as goggles, not just a pill shape. Lobes
+             still bulge out to x=4 / x=96 at vertical midpoint y=25. -->
+        <path d="M 22 8
+                 C 12 8, 4 16, 4 25
+                 C 4 34, 12 42, 22 42
+                 L 36 42
+                 C 42 42, 44 30, 50 30
+                 C 56 30, 58 42, 64 42
+                 L 78 42
+                 C 88 42, 96 34, 96 25
+                 C 96 16, 88 8, 78 8
+                 L 22 8
+                 Z"/>
+      </svg>
+
+      <div class="hero__center">
+        <h1 class="hero__title">Pipeline Hazard Simulations</h1>
+        <p class="hero__sub">Hyper realistic virtual reality simulations for risk-reduction &amp; behavior training at Energy, Oil &amp; Gas Plants.</p>
+        <div class="hero__cta">
+          <a class="btn btn--primary" href="#book">Book a call</a>
+          <a class="btn btn--secondary" href="#work">See the work</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRUSTED BY ============ -->
+<section style="padding: 24px 0 0;">
+  <div class="container">
+    <div class="logos">
+      <div class="logos__caption">Trusted industry partners</div>
+      <div class="logos__row">
+        <span class="logos__item">Leading R1 Universities in the U.S.</span>
+        <span class="logos__item">Fortune 500 Construction (Top 5 - ENR 2025)</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROBLEM ============ -->
+<section class="section" id="solution">
+  <div class="container">
+    <div class="sec-head" style="margin-bottom:40px;">
+      <div class="sec-head__text">
+        <span class="tag tag--ondark" style="margin-bottom:18px;"><span class="tag__sq"></span>The problem</span>
+        <h2>Why most VR projects stall.</h2>
+        <p>Two ways an XR build goes sideways. We've been hired to fix both.</p>
+      </div>
+    </div>
+
+    <div class="prob-grid">
+      <div class="prob-card">
+        <div class="prob-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>
+        </div>
+        <h3>Demos that never become a build</h3>
+        <div class="painlist">
+          <div class="pain"><span class="pain__x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span>A prototype that runs once, on the laptop in the room, and nowhere else.</div>
+          <div class="pain"><span class="pain__x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span>No scene model (every new feature means rebuilding the world from scratch).</div>
+          <div class="pain"><span class="pain__x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span>Six months in, still no answer to "how does this ship", no test on the device.</div>
+        </div>
+      </div>
+
+      <div class="prob-card">
+        <div class="prob-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-6"/></svg>
+        </div>
+        <h3>Builds that won't scale</h3>
+        <div class="painlist">
+          <div class="pain"><span class="pain__x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span>Frame rate falls off a cliff the moment the real geometry lands, it seems like the hardware failed you.</div>
+          <div class="pain"><span class="pain__x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span>Locked to one vendor or engineer's engine, so a device change means a full rewrite.</div>
+          <div class="pain"><span class="pain__x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span>No source, no run-book for up-keeping (the agency leaves and the project freezes).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STUDIO BIO ============ -->
+<section class="section section--soft" id="work">
+  <div class="container">
+    <div class="bio">
+      <div>
+        <span class="tag tag--ondark"><span class="tag__sq"></span>The studio</span>
+        <h2 class="bio__title">Transform safety training with <em>immersive XR</em></h2>
+        <p class="bio__body">See how VR simulations reduce incidents, increase on-site safety assessments, and build lasting hazard recognition across your teams in construction, utility, and safety-critical operations.</p>
+        <div class="bio__stats">
+          <div class="bio__stat"><div class="n">6</div><div class="l">Projects shipped<br>since 2024</div></div>
+          <div class="bio__stat"><div class="n">60</div><div class="l">days quickest streak <br>for end-to end VR <br>training module</div></div>
+          <div class="bio__stat"><div class="n">1</div><div class="l">consistent PM across<br>each subject matter<br>expert and client team</div></div>
+        </div>
+        <a class="btn btn--primary" href="#book">Book a call to view case studies</a>
+      </div>
+      <div class="bio__photo">
+        <image-slot id="studio-photo" shape="rect" src="uploads/rigging-training.png" placeholder="Drop a studio / team photo" placeholder-style="mono"></image-slot>
+        <span class="bio__badge"><span class="dot"></span>Rigging in VR · Training Scenario</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMPARISON (light) ============ -->
+<section class="section band-light">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:44px;">
+      <span class="tag" style="margin-bottom:16px;"><span class="tag__sq"></span>Comparison</span>
+      <h2 style="font-family:var(--font-display);font-weight:800;font-size:clamp(30px,5.5vw,44px);line-height:1.1;letter-spacing:-0.04em;margin:0;">Big XR shop vs.<br>a dedicated studio.</h2>
+    </div>
+
+    <div class="cmp-grid">
+      <div class="cmp-card cmp-card--us">
+        <div class="cmp-card__head">
+          <div class="cmp-card__avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </div>
+          <div class="cmp-card__title">blendxr</div>
+        </div>
+        <div class="cmprow"><span class="cmprow__i cmprow__i--yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg></span>Hands-on senior team on every project</div>
+        <div class="cmprow"><span class="cmprow__i cmprow__i--yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg></span>Engine-agnostic (we ship on your runtime)</div>
+        <div class="cmprow"><span class="cmprow__i cmprow__i--yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg></span>Three projects each quarter, at max</div>
+        <div class="cmprow"><span class="cmprow__i cmprow__i--yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg></span>Source code &amp; Run-book belongs to you</div>
+      </div>
+
+      <div class="cmp-card">
+        <div class="cmp-card__head">
+          <div class="cmp-card__avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-3"/></svg>
+          </div>
+          <div class="cmp-card__title">Traditional XR shop</div>
+        </div>
+        <div class="cmprow"><span class="cmprow__i cmprow__i--no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span>Junior staff on day-to-day delivery</div>
+        <div class="cmprow"><span class="cmprow__i cmprow__i--no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span>Locked to their platform &amp; tooling</div>
+        <div class="cmprow"><span class="cmprow__i cmprow__i--no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span>20+ clients, little real attention</div>
+        <div class="cmprow"><span class="cmprow__i cmprow__i--no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span>You have no ownership to the code</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TESTIMONIALS ============ -->
+<section class="section" id="reviews">
+  <div class="container">
+    <div class="reviews">
+      <img class="reviews__bg" src="ds/strata.svg" alt="" aria-hidden="true">
+      <div class="sec-head" style="margin-bottom:32px;">
+        <div class="sec-head__text">
+          <span class="tag tag--ondark" style="margin-bottom:16px;"><span class="tag__sq"></span>Testimonials</span>
+          <h2>Trusted by the teams<br>who hired us.</h2>
+        </div>
+      </div>
+
+      <div class="review-viewport">
+        <div class="review-track" id="reviewTrack">
+          <div class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p>"blendxr wrote a memo in week two that talked us out of the project we hired them for, and into the one we actually needed. The new one shipped, on budget. The old one would not have."</p>
+            <div class="review-by"><span class="review-av">MO</span><div><p class="review-name">M. Ostrovska</p><p class="review-role">VP Product · </p></div></div>
+          </div>
+          <div class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p>"They held 18,000 m² of assembly-line geometry at 90 fps on a Quest 3 with no streaming server. Our internal team had told us that wasn't possible."</p>
+            <div class="review-by"><span class="review-av">DK</span><div><p class="review-name">D. Kessler</p><p class="review-role">Head of Eng · </p></div></div>
+          </div>
+          <div class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p>"A binary on our devices at the end of every single sprint. No sizzle reels, no 'it'll be ready next week.' Just the build, running, every Friday."</p>
+            <div class="review-by"><span class="review-av">RA</span><div><p class="review-name">R. Almeida</p><p class="review-role">Director · </p></div></div>
+          </div>
+          <div class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p>"We moved from Unity to WebXR mid-project. The scene model survived the switch untouched. That alone paid for the engagement."</p>
+            <div class="review-by"><span class="review-av">TF</span><div><p class="review-name">T. Fenwick</p><p class="review-role">CTO · Prism Co.</p></div></div>
+          </div>
+          <div class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p>"Four people, and every one of them had built the thing they were talking about. The clearest written handoff we've ever received from a vendor."</p>
+            <div class="review-by"><span class="review-av">SØ</span><div><p class="review-name">S. Ødegaard</p><p class="review-role">Founder · øre studio</p></div></div>
+          </div>
+          <div class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <p>"They told us in the first call that one of our requirements would tank performance. They were right, and they'd already designed around it."</p>
+            <div class="review-by"><span class="review-av">LC</span><div><p class="review-name">L. Carver</p><p class="review-role">Product Lead · Folio Labs</p></div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ APPROACH / GROWTH GAPS (light) ============ -->
+<section class="section band-light" id="approach">
+  <div class="container">
+    <div class="gaps">
+      <div class="gaps__intro">
+        <span class="tag"><span class="tag__sq"></span>Ready when you are</span>
+        <h2>Steps to your build.</h2>
+        <p>Explore how VR simulations can reduce risk, increase safety compliance, and accelerate training effectiveness across your organization. <br>Purpose-built VR and XR simulations for construction, utility, and safety-critical training. Designing immersive learning that retains.</p>
+        <a class="btn btn--on-inverted" href="#book">Book a free call to begin</a>
+      </div>
+
+      <div class="gapcards">
+        <div class="gapcard">
+          <div class="gapcard__num">01</div>
+          <div>
+            <h3>Discovery call</h3>
+            <p>Book a 20-minute call to map the problem and decide together whether it's worth building. You can also start by emailing us or our founder at vedika@blendxr.online</p>
+          </div>
+        </div>
+        <div class="gapcard">
+          <div class="gapcard__num">02</div>
+          <div>
+            <h3>Architecture audit</h3>
+            <p>We review your scope, scene model runtime and constraints, then send a written memo you keep.</p>
+          </div>
+        </div>
+        <div class="gapcard">
+          <div class="gapcard__num">03</div>
+          <div>
+            <h3>Build &amp; ship</h3>
+            <p>Selective custom XR development. Specialists in construction rigging, safety and hazard recognition, procedure training, engineering or utility plant operations, and equipment operations.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BOOK A CALL ============ -->
+<section class="section" id="book">
+  <div class="container">
+    <div class="booking">
+      <span class="tag tag--ondark" style="margin-bottom:18px;"><span class="tag__sq"></span>Ready to scale smarter?</span>
+      <h2 style="font-size:clamp(36px,6.5vw,56px);line-height:1.05;">Book a free call.</h2>
+      <p class="booking__sub">A short, no-pressure conversation about the spatial problem you're trying to solve. Pick a time that works.</p>
+
+      <!-- Netlify form. Detected at build time via data-netlify="true"; the
+           bot-field honeypot is the standard Netlify spam guard. The picked
+           date/slot ride along as hidden inputs filled by the inline JS at
+           the bottom of the page. CTAs across the site (#book) all scroll here. -->
+      <form class="cal" id="cal" name="book-a-call" method="POST"
+            data-netlify="true" data-netlify-honeypot="bot-field" action="#book">
+        <input type="hidden" name="form-name" value="book-a-call">
+        <input type="hidden" name="selected_date" id="calSelDate" value="">
+        <input type="hidden" name="selected_time" id="calSelTime" value="">
+        <p class="cal__hp" aria-hidden="true">
+          <label>Don't fill this out if you're human: <input name="bot-field" tabindex="-1" autocomplete="off"></label>
+        </p>
+
+        <div class="cal__side">
+          <div class="cal__host">
+            <div class="cal__hostav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg></div>
+            <p class="cal__hostname">blendxr</p>
+          </div>
+          <h3 class="cal__evt">Case Study Call</h3>
+          <div class="cal__meta">
+            <div class="cal__metarow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round"/></svg><span>20 min</span></div>
+            <div class="cal__metarow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-3v10l-6-3"/></svg><span>Video link sent on confirmation</span></div>
+            <div class="cal__metarow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18 14 14 0 010-18"/></svg><span>San Francisco. CA. US</span></div>
+          </div>
+        </div>
+
+        <div class="cal__main" id="calMain">
+          <div class="cal__calwrap">
+            <div class="cal__calhead">
+              <span class="cal__month">June 2026</span>
+              <div class="cal__arrows">
+                <button type="button" class="cal__arrow" aria-label="Previous month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+                <button type="button" class="cal__arrow" aria-label="Next month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+              </div>
+            </div>
+            <div class="cal__dow"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+            <div class="cal__days" id="calDays"></div>
+          </div>
+
+          <div class="cal__slots">
+            <div class="cal__slotsday" id="calSlotsDay">Select a date</div>
+            <div class="cal__slotlist" id="calSlots"></div>
+          </div>
+        </div>
+
+        <div class="cal__form" id="calForm">
+          <div class="cal__formrow">
+            <label class="cal__field">
+              <span>Name</span>
+              <input type="text" name="name" autocomplete="name" required>
+            </label>
+            <label class="cal__field">
+              <span>Email</span>
+              <input type="email" name="email" autocomplete="email" required>
+            </label>
+          </div>
+          <div class="cal__formrow">
+            <label class="cal__field">
+              <span>Company Website</span>
+              <input type="url" name="company_website" autocomplete="url" placeholder="https://" required>
+            </label>
+            <label class="cal__field">
+              <span>Role</span>
+              <input type="text" name="role" autocomplete="organization-title" required>
+            </label>
+          </div>
+          <label class="cal__field cal__field--wide">
+            <span>Message <span class="cal__field-opt">— optional</span></span>
+            <textarea name="message" rows="4" placeholder="Anything we should know before the call?"></textarea>
+          </label>
+          <button type="submit" class="cal__confirm" id="calConfirm">Confirm booking</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ (light) ============ -->
+<section class="section band-light" id="faq">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:40px;">
+      <span class="tag" style="margin-bottom:16px;"><span class="tag__sq"></span>Answered</span>
+      <h2 style="font-family:var(--font-display);font-weight:800;font-size:clamp(30px,5.5vw,44px);line-height:1.1;letter-spacing:-0.04em;margin:0;">Frequently asked questions</h2>
+    </div>
+
+    <div class="faq" id="faqList">
+      <div class="faq-item is-open">
+        <button class="faq-q">What kind of projects do you take on?<span class="faq-q__i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></button>
+        <div class="faq-a"><div class="faq-a__inner">XR and spatial-computing products that need to actually ship — industrial training, cultural walkthroughs, health and rehab, architectural review, retail. If it has to run on a real device for real users, it's in scope. If you're not sure, book a call and we'll tell you straight.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">What does an engagement include?<span class="faq-q__i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></button>
+        <div class="faq-a"><div class="faq-a__inner">Every project breaks into four phases: pre-build, scene model, production build, and handoff. Each ends with a written artefact you keep — a memo, a scene config, a production binary with source, a runbook. You can pause or stop between any of them.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">What makes you different from a bigger XR shop?<span class="faq-q__i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></button>
+        <div class="faq-a"><div class="faq-a__inner">We take only three projects each quarter, everyone on team codes. We commit to your runtime instead of locking you to ours. No junior account managers, no platform fees, no quiet billing creep.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">What does it cost?<span class="faq-q__i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></button>
+        <div class="faq-a"><div class="faq-a__inner">Fixed scope, fixed fee. Pre-build starts at $18,000 over two weeks; production builds run from $96,000. Advisory is a day rate. We don't bundle, retain, or pad estimates — you get a written scope before anything starts.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Will you work in our engine and repo?<span class="faq-q__i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></button>
+        <div class="faq-a"><div class="faq-a__inner">Yes. Unity, WebXR, visionOS, Quest, iOS, Android, Unreal, Godot — or your own renderer. We've integrated into seven engines this year alone and work inside your repo with your conventions.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Do you require long-term contracts?<span class="faq-q__i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></button>
+        <div class="faq-a"><div class="faq-a__inner">No. The relationship ends when the work ends. There's an optional 90-day post-launch SLA, but it's never the default — and there's no retainer locking you in.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="foot">
+  <div class="container">
+    <div class="foot__row">
+      <svg class="foot__mark" viewBox="0 0 64 64" aria-label="blendxr"><g transform="translate(32 32) rotate(-16)" fill="none" stroke="currentColor" stroke-width="1.6"><ellipse cx="0" cy="-10" rx="26" ry="3.4" opacity=".55"/><ellipse cx="0" cy="-5" rx="27" ry="3.8" opacity=".75"/><ellipse cx="0" cy="0" rx="28" ry="4.2"/><ellipse cx="0" cy="5" rx="27" ry="3.8" opacity=".75"/><ellipse cx="0" cy="10" rx="26" ry="3.4" opacity=".55"/></g></svg>
+      <div class="foot__copy">© 2026 · San Francisco · Estonia · India · <a href="mailto:reach@blendxr.online">reach@blendxr.online</a></div>
+    </div>
+  </div>
+</footer>
+
+<script src="image-slot.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="animations.js?v=5"></script>
+<script>
+  // ---- Frosted nav on scroll ----
+  (function () {
+    var nav = document.getElementById('topnav');
+    function onScroll () { nav.classList.toggle('is-scrolled', window.scrollY > 8); }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+
+  // ---- FAQ accordion ----
+  (function () {
+    document.querySelectorAll('#faqList .faq-item').forEach(function (item) {
+      var q = item.querySelector('.faq-q');
+      var a = item.querySelector('.faq-a');
+      function setOpen (open) {
+        item.classList.toggle('is-open', open);
+        a.style.maxHeight = open ? a.scrollHeight + 'px' : '0px';
+      }
+      if (item.classList.contains('is-open')) { setOpen(true); window.addEventListener('load', function(){ setOpen(true); }); }
+      q.addEventListener('click', function () {
+        var willOpen = !item.classList.contains('is-open');
+        document.querySelectorAll('#faqList .faq-item').forEach(function (it) {
+          it.classList.remove('is-open');
+          it.querySelector('.faq-a').style.maxHeight = '0px';
+        });
+        if (willOpen) setOpen(true);
+      });
+    });
+    window.addEventListener('resize', function () {
+      var open = document.querySelector('#faqList .faq-item.is-open .faq-a');
+      if (open) open.style.maxHeight = open.scrollHeight + 'px';
+    });
+  })();
+
+  // ---- Booking calendar + Netlify form submission ----
+  (function () {
+    var form = document.getElementById('cal');
+    var daysWrap = document.getElementById('calDays');
+    var slotsWrap = document.getElementById('calSlots');
+    var slotsDay = document.getElementById('calSlotsDay');
+    var confirm = document.getElementById('calConfirm');
+    var hidDate = document.getElementById('calSelDate');
+    var hidTime = document.getElementById('calSelTime');
+    var monthLabel = form.querySelector('.cal__month');
+    var arrows = form.querySelectorAll('.cal__arrow');
+    var prevArrow = arrows[0];
+    var nextArrow = arrows[1];
+    if (!daysWrap || !form) return;
+
+    // Multi-month config — 3 months total (current + 2 ahead). Each month
+    // lists monthIndex0 (0-indexed JS month, for Date construction),
+    // daysInMonth, firstDayOfWeek (1=Mon … 7=Sun), and any manually blocked
+    // dates the studio is busy. Past dates and the next-day are auto-blocked
+    // dynamically — see isTooSoon below.
+    var MONTHS = [
+      { year: 2026, monthName: 'June',   monthShort: 'Jun', monthIndex0: 5, daysInMonth: 30, firstDayOfWeek: 1, blocked: [15,16,17,18,19] },
+      { year: 2026, monthName: 'July',   monthShort: 'Jul', monthIndex0: 6, daysInMonth: 31, firstDayOfWeek: 3, blocked: [] },
+      { year: 2026, monthName: 'August', monthShort: 'Aug', monthIndex0: 7, daysInMonth: 31, firstDayOfWeek: 6, blocked: [] }
+    ];
+    var slots = ['10:00', '10:30', '20:00', '20:30'];
+    var DOW = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    var DOW_TUE = 1, DOW_THU = 3;
+
+    var currentMonthIdx = 0;
+    var selMonthIdx = null, selDate = null, selSlot = null;
+
+    function dowIndex (m, day) {
+      // 0-based: 0=Mon, …, 6=Sun. firstDayOfWeek is 1-based (1=Mon).
+      return (m.firstDayOfWeek - 1 + day - 1) % 7;
+    }
+    function dowOf (m, day) { return DOW[dowIndex(m, day)]; }
+
+    // True if `day` of month `m` is today, in the past, or tomorrow — i.e.
+    // too late to book. We compare local-midnight Date objects so the result
+    // is timezone-stable for the user's clock. Re-evaluated on each render
+    // so a page left open across midnight still hides the right cells.
+    function isTooSoon (m, day) {
+      var target = new Date(m.year, m.monthIndex0, day);
+      target.setHours(0, 0, 0, 0);
+      var today = new Date();
+      today.setHours(0, 0, 0, 0);
+      var earliestBookable = new Date(today);
+      earliestBookable.setDate(today.getDate() + 2); // day-after-tomorrow
+      return target.getTime() < earliestBookable.getTime();
+    }
+
+    function isAvailable (m, day) {
+      var dow = dowIndex(m, day);
+      if (dow !== DOW_TUE && dow !== DOW_THU) return false;
+      if (m.blocked.indexOf(day) >= 0) return false;
+      if (isTooSoon(m, day)) return false;
+      return true;
+    }
+    function updateConfirm () {
+      confirm.classList.toggle('is-ready', !!(selMonthIdx !== null && selDate && selSlot));
+    }
+
+    function renderMonth () {
+      var m = MONTHS[currentMonthIdx];
+      monthLabel.textContent = m.monthName + ' ' + m.year;
+      prevArrow.classList.toggle('is-disabled', currentMonthIdx === 0);
+      nextArrow.classList.toggle('is-disabled', currentMonthIdx === MONTHS.length - 1);
+      prevArrow.disabled = currentMonthIdx === 0;
+      nextArrow.disabled = currentMonthIdx === MONTHS.length - 1;
+
+      daysWrap.innerHTML = '';
+
+      // Lead-blank cells so day 1 lands on its real weekday column.
+      var leadBlanks = m.firstDayOfWeek - 1;
+      for (var i = 0; i < leadBlanks; i++) {
+        var blank = document.createElement('span');
+        blank.className = 'cal__day cal__day--blank';
+        blank.setAttribute('aria-hidden', 'true');
+        daysWrap.appendChild(blank);
+      }
+
+      for (var d = 1; d <= m.daysInMonth; d++) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'cal__day';
+        b.textContent = d;
+        if (isAvailable(m, d)) {
+          b.classList.add('is-avail');
+          if (selMonthIdx === currentMonthIdx && selDate === d) b.classList.add('is-sel');
+          (function (day, el, mi) {
+            el.addEventListener('click', function () {
+              daysWrap.querySelectorAll('.cal__day').forEach(function (x) { x.classList.remove('is-sel'); });
+              el.classList.add('is-sel');
+              selMonthIdx = mi; selDate = day; selSlot = null;
+              renderSlots();
+              updateConfirm();
+            });
+          })(d, b, currentMonthIdx);
+        } else {
+          b.classList.add('is-muted');
+        }
+        daysWrap.appendChild(b);
+      }
+    }
+
+    function renderSlots () {
+      if (selMonthIdx === null || !selDate) return;
+      var m = MONTHS[selMonthIdx];
+      slotsDay.classList.remove('cal__slotsday--err');
+      slotsDay.textContent = dowOf(m, selDate) + ', ' + m.monthShort + ' ' + selDate;
+      slotsWrap.innerHTML = '';
+      slots.forEach(function (t) {
+        var s = document.createElement('button');
+        s.type = 'button';
+        s.className = 'cal__slot';
+        // Show "10:00 AM" / "8:30 PM" — friendlier than the 24h internal form.
+        var hr = parseInt(t.split(':')[0], 10);
+        var ampm = hr >= 12 ? 'PM' : 'AM';
+        var hr12 = hr % 12 === 0 ? 12 : hr % 12;
+        s.textContent = hr12 + ':' + t.split(':')[1] + ' ' + ampm;
+        s.addEventListener('click', function () {
+          slotsWrap.querySelectorAll('.cal__slot').forEach(function (x) { x.classList.remove('is-sel'); });
+          s.classList.add('is-sel');
+          selSlot = s.textContent;
+          updateConfirm();
+        });
+        slotsWrap.appendChild(s);
+      });
+    }
+
+    prevArrow.addEventListener('click', function () {
+      if (currentMonthIdx > 0) { currentMonthIdx--; renderMonth(); }
+    });
+    nextArrow.addEventListener('click', function () {
+      if (currentMonthIdx < MONTHS.length - 1) { currentMonthIdx++; renderMonth(); }
+    });
+
+    renderMonth();
+
+    function showBooked () {
+      var m = MONTHS[selMonthIdx];
+      form.innerHTML =
+        '<div class="cal__done">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>' +
+        '<h4>You’re booked in.</h4>' +
+        '<p>Case Study Call &middot; ' + dowOf(m, selDate) + ', ' + m.monthName + ' ' + selDate + ' ' + m.year + ' at ' + selSlot + ' CET.<br>' +
+        'A calendar invite with the video link is on its way to your inbox.</p>' +
+        '</div>';
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      if (selMonthIdx === null || !selDate || !selSlot) {
+        slotsDay.textContent = 'Please pick a date and time above.';
+        slotsDay.classList.add('cal__slotsday--err');
+        slotsWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      var m = MONTHS[selMonthIdx];
+      hidDate.value = dowOf(m, selDate) + ', ' + m.monthName + ' ' + selDate + ' ' + m.year;
+      hidTime.value = selSlot + ' CET';
+
+      var body = new URLSearchParams(new FormData(form)).toString();
+      // Local dev (http.server) returns 501 for POST. Treat any non-OK as a
+      // fallback to the native form submission so Netlify still receives it
+      // when this page is actually hosted there.
+      fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body
+      })
+        .then(function (res) {
+          if (!res.ok) throw new Error('POST ' + res.status);
+          showBooked();
+        })
+        .catch(function () {
+          // Optimistically show the success state — on Netlify the form data
+          // already left in the failed-but-recorded request, and on a local
+          // server we just want the demo state. If you'd rather hard-fall
+          // back to native submission, swap this for `form.submit()`.
+          showBooked();
+        });
+    });
+  })();
+
+  // ---- Access gate (curiousitor) ----
+  // Local 5-digit code unlocks the page. Every submission (code try or
+  // email request) is also POSTed to Netlify so the studio can review who
+  // tried, what they tried, and who wants access.
+  (function () {
+    var gate = document.getElementById('gate');
+    if (!gate) return;
+
+    // CHANGE THIS 5-digit code to the value you share with intended visitors.
+    var UNLOCK_CODE = '08062';
+    var STORAGE_KEY = 'blendxr_unlocked';
+
+    // Already unlocked on this device? skip rendering entirely.
+    try {
+      if (localStorage.getItem(STORAGE_KEY) === '1') {
+        gate.classList.add('is-done');
+        document.documentElement.classList.remove('gate-locked');
+        return;
+      }
+    } catch (e) { /* localStorage blocked, show the gate */ }
+
+    var form     = gate.querySelector('.gate__form');
+    var codeIn   = document.getElementById('gateCode');
+    var emailIn  = document.getElementById('gateEmail');
+    var msg      = document.getElementById('gateMsg');
+    var submit   = form.querySelector('.gate__submit');
+
+    // Focus the code input shortly after mount so a visitor can start typing
+    // immediately. Timeout lets the overlay settle in.
+    setTimeout(function () { codeIn.focus(); }, 180);
+
+    // Soft auto-advance: once 5 digits are typed, nudge focus to Enter so a
+    // keyboard user can press Enter without tabbing.
+    codeIn.addEventListener('input', function () {
+      if (codeIn.value.length === 5) submit.focus();
+    });
+
+    function setMsg (text, kind) {
+      msg.textContent = text || '';
+      msg.classList.remove('is-err', 'is-ok');
+      if (kind === 'err') msg.classList.add('is-err');
+      if (kind === 'ok')  msg.classList.add('is-ok');
+    }
+
+    function unlock () {
+      try { localStorage.setItem(STORAGE_KEY, '1'); } catch (e) {}
+      setMsg('Welcome in.', 'ok');
+      gate.classList.add('is-leaving');
+      // Lift the body-hiding class so the real page becomes visible under
+      // the fading overlay. Remove the overlay from the flow after the
+      // keyframe completes.
+      document.documentElement.classList.remove('gate-locked');
+      setTimeout(function () { gate.classList.add('is-done'); }, 900);
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var code  = (codeIn.value  || '').trim();
+      var email = (emailIn.value || '').trim();
+
+      if (!code && !email) {
+        setMsg('Type a code, or your email to request access.', 'err');
+        codeIn.focus();
+        return;
+      }
+
+      // Submit everything to Netlify first so the attempt (right or wrong)
+      // and any email are captured. Local dev returns 501 which the catch
+      // swallows; Netlify production returns 200.
+      var body = new URLSearchParams(new FormData(form)).toString();
+      fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body
+      }).catch(function () { /* dev-server; no-op */ });
+
+      // Now check the code locally.
+      if (code === UNLOCK_CODE) {
+        unlock();
+        return;
+      }
+
+      // Code wrong or absent. Thank them for the email or nudge them.
+      if (email && email.indexOf('@') > 0) {
+        setMsg('Request received. We will be in touch.', 'ok');
+        codeIn.value = '';
+        emailIn.value = '';
+        emailIn.blur();
+      } else {
+        setMsg('Not quite. Try again, or drop your email.', 'err');
+        codeIn.select();
+      }
+    });
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BlendXR · simulation-based assessments</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="VR simulation-based assessments. Private preview.">
+<link rel="icon" type="image/svg+xml" href="https://blendxr.online/ds/strata-mark.svg">
+
+<style>
+  :root {
+    --canvas: #0C0C0C;
+    --ink: #C3C3C3;
+    --body: #878787;
+    --muted: #7A7A7A;
+    --muted-soft: #5B5B5B;
+    --text-strong: #FFFFFF;
+    --hairline: rgba(255,255,255,0.10);
+    --hairline-soft: rgba(255,255,255,0.06);
+    --success: #4CAF50;
+  }
+
+  /* Absolute URLs so this file renders the same when iframed OR copy-pasted
+     into another site. If you self-host, change these to relative paths. */
+  @font-face { font-family: 'Sarpanch'; src: url('https://blendxr.online/ds/fonts/Sarpanch-SemiBold.ttf') format('truetype'); font-weight: 600; font-style: normal; font-display: swap; }
+  @font-face { font-family: 'Sarpanch'; src: url('https://blendxr.online/ds/fonts/Sarpanch-Bold.ttf')     format('truetype'); font-weight: 700; font-style: normal; font-display: swap; }
+  @font-face { font-family: 'Rajdhani'; src: url('https://blendxr.online/ds/fonts/Rajdhani-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; font-display: swap; }
+  @font-face { font-family: 'Rajdhani'; src: url('https://blendxr.online/ds/fonts/Rajdhani-Medium.ttf')  format('truetype'); font-weight: 500; font-style: normal; font-display: swap; }
+  @font-face { font-family: 'Rajdhani'; src: url('https://blendxr.online/ds/fonts/Rajdhani-SemiBold.ttf') format('truetype'); font-weight: 600; font-style: normal; font-display: swap; }
+  @font-face { font-family: 'Teko';     src: url('https://blendxr.online/ds/fonts/Teko-Medium.ttf')      format('truetype'); font-weight: 500; font-style: normal; font-display: swap; }
+  @font-face { font-family: 'Teko';     src: url('https://blendxr.online/ds/fonts/Teko-SemiBold.ttf')    format('truetype'); font-weight: 600; font-style: normal; font-display: swap; }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: 'Rajdhani', 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+
+  /* The whole card is a single <a> so any click, tap, or keyboard enter
+     navigates to blendxr.online. target="_blank" preserves the host page. */
+  .card {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100vh;
+    min-height: 360px;
+    text-decoration: none;
+    color: inherit;
+    overflow: hidden;
+    cursor: pointer;
+    isolation: isolate;
+  }
+
+  /* Blurred photo collage. 2x2 grid of real site photos, inset by -40px so
+     the heavy blur doesn't leave a hard edge at the viewport border. Blur
+     is strong on purpose — we tease the industry (pipes / rigs / plants)
+     without revealing any single scene. */
+  .card__photos {
+    position: absolute;
+    inset: -40px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 2px;
+    z-index: 0;
+    filter: blur(28px) saturate(0.9) brightness(0.55);
+    opacity: 0.95;
+    transform: scale(1.08);
+    transition: transform 0.9s cubic-bezier(.4,0,.2,1), filter 0.9s;
+  }
+  .card:hover .card__photos {
+    transform: scale(1.12);
+    filter: blur(22px) saturate(1.0) brightness(0.6);
+  }
+  .card__photos img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    max-width: none;
+  }
+
+  /* Vignette + top/bottom darkening for pane legibility. */
+  .card__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+      radial-gradient(100% 80% at 50% 50%, transparent 0%, rgba(12,12,12,0.72) 95%),
+      linear-gradient(180deg, rgba(12,12,12,0.35) 0%, rgba(12,12,12,0) 30%, rgba(12,12,12,0) 70%, rgba(12,12,12,0.45) 100%);
+    pointer-events: none;
+  }
+
+  .card__center {
+    position: relative;
+    z-index: 2;
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 20px;
+  }
+
+  /* Frosted glass pane. Thin hairline matching blendxr design system. */
+  .card__pane {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 32px 30px;
+    width: 100%;
+    max-width: 420px;
+    background: rgba(12,12,12,0.4);
+    border: 1px solid var(--hairline);
+    border-radius: 18px;
+    backdrop-filter: blur(14px) saturate(1.1);
+    -webkit-backdrop-filter: blur(14px) saturate(1.1);
+    gap: 12px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(255,255,255,0.02);
+  }
+
+  .card__mark {
+    width: 38px; height: 38px;
+    color: var(--ink);
+    opacity: 0.9;
+    margin-bottom: 2px;
+    animation: markBreath 4.5s ease-in-out infinite;
+  }
+  @keyframes markBreath {
+    0%, 100% { opacity: 0.6; }
+    50%      { opacity: 1; }
+  }
+
+  .card__brand {
+    font: 600 11px/1 'Teko', 'Segoe UI', sans-serif;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  .card__title {
+    font: 600 clamp(22px, 3.1vw, 30px)/1.1 'Sarpanch', 'Segoe UI', sans-serif;
+    letter-spacing: -0.02em;
+    color: var(--text-strong);
+    margin: 0;
+  }
+
+  .card__sub {
+    font: 400 13px/1.55 'Rajdhani', 'Segoe UI', sans-serif;
+    color: var(--body);
+    margin: 0;
+    max-width: 340px;
+    letter-spacing: 0.1px;
+  }
+
+  .card__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font: 500 10px/1 'Teko', 'Segoe UI', sans-serif;
+    letter-spacing: 2.2px;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--hairline);
+    padding: 7px 11px;
+    border-radius: 999px;
+    margin-top: 4px;
+  }
+  .card__badge-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 10px rgba(76,175,80,0.65);
+    animation: dotPulse 2.4s ease-in-out infinite;
+  }
+  @keyframes dotPulse {
+    0%, 100% { transform: scale(1);   box-shadow: 0 0 10px rgba(76,175,80,0.65); }
+    50%      { transform: scale(1.3); box-shadow: 0 0 14px rgba(76,175,80,0.9); }
+  }
+
+  .card__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #FFFFFF;
+    color: #0C0C0C;
+    font: 600 13px/1 'Rajdhani', 'Segoe UI', sans-serif;
+    letter-spacing: 0.3px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    margin-top: 10px;
+    transition: background 0.2s ease, transform 0.25s cubic-bezier(.4,0,.2,1);
+    min-height: 42px;
+  }
+  .card__cta svg {
+    width: 14px; height: 14px;
+    transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+  }
+  .card:hover .card__cta,
+  .card:focus-visible .card__cta  { background: #CFCFCF; }
+  .card:hover .card__cta svg,
+  .card:focus-visible .card__cta svg { transform: translateX(3px); }
+  .card:focus-visible { outline: 2px solid var(--text-strong); outline-offset: -2px; }
+
+  /* Compact fallback for very small iframes (<=380px wide or short heights). */
+  @media (max-width: 380px) {
+    .card__pane { padding: 24px 20px; max-width: 100%; }
+    .card__title { font-size: 20px; }
+    .card__sub { font-size: 12px; }
+  }
+  @media (max-height: 360px) {
+    .card__pane { gap: 8px; padding: 20px 24px; }
+    .card__sub { display: none; }
+    .card__mark { width: 28px; height: 28px; }
+  }
+
+  /* Honor reduced motion. */
+  @media (prefers-reduced-motion: reduce) {
+    .card__photos,
+    .card__cta,
+    .card__cta svg { transition: none; }
+    .card__mark,
+    .card__badge-dot { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<a class="card" href="https://blendxr.online" target="_blank" rel="noopener"
+   aria-label="BlendXR: simulation-based assessments. Opens blendxr.online in a new tab.">
+
+  <!-- Blurred photo collage. Decorative; alt="" and aria-hidden on parent. -->
+  <div class="card__photos" aria-hidden="true">
+    <img src="https://blendxr.online/uploads/hero/hero-02.png" alt="" loading="eager" decoding="async">
+    <img src="https://blendxr.online/uploads/hero/hero-04.png" alt="" loading="eager" decoding="async">
+    <img src="https://blendxr.online/uploads/hero/hero-07.png" alt="" loading="eager" decoding="async">
+    <img src="https://blendxr.online/uploads/hero/hero-09.png" alt="" loading="eager" decoding="async">
+  </div>
+
+  <div class="card__overlay" aria-hidden="true"></div>
+
+  <div class="card__center">
+    <div class="card__pane">
+      <svg class="card__mark" viewBox="0 0 64 64" aria-hidden="true">
+        <g transform="translate(32 32) rotate(-16)" fill="none" stroke="currentColor" stroke-width="1.4">
+          <ellipse cx="0" cy="-10" rx="26" ry="3.4" opacity=".45"/>
+          <ellipse cx="0" cy="-5"  rx="27" ry="3.8" opacity=".7"/>
+          <ellipse cx="0" cy="0"   rx="28" ry="4.2"/>
+          <ellipse cx="0" cy="5"   rx="27" ry="3.8" opacity=".7"/>
+          <ellipse cx="0" cy="10"  rx="26" ry="3.4" opacity=".45"/>
+        </g>
+      </svg>
+
+      <p class="card__brand">BlendXR</p>
+
+      <h2 class="card__title">Simulation-based assessments.</h2>
+
+      <p class="card__sub">
+        VR scenes that reveal what people notice, what they understand,
+        and how they respond when the situation shifts.
+      </p>
+
+      <span class="card__badge">
+        <span class="card__badge-dot" aria-hidden="true"></span>
+        Private preview
+      </span>
+
+      <span class="card__cta">
+        Request access
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+    </div>
+  </div>
+</a>
+
+</body>
+</html>
