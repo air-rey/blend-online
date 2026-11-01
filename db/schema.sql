@@ -218,23 +218,23 @@ alter table access_requests        enable row level security;
 -- Volga seed
 -- =====================================================================
 insert into orgs (id, name, legal_name, country)
-values ('00000000-0000-0000-0000-00000000v01g'::uuid, 'Volga Infosys', 'Volga Infosys', 'India')
+values ('00000000-0000-0000-0000-000000000001'::uuid, 'Volga Infosys', 'Volga Infosys', 'India')
 on conflict (id) do nothing;
 
 insert into resources (id, slug, type, title, agreement_type, contact_email)
-values ('00000000-0000-0000-0000-000000resource'::uuid, 'volga-test-scene', 'brief',
+values ('00000000-0000-0000-0000-000000000002'::uuid, 'volga-test-scene', 'brief',
         'BlendXR x Volga: Test Scene Brief', 'mutual_nda', 'airem@blendxr.online')
 on conflict (slug) do update set agreement_type = excluded.agreement_type;
 
 -- Replace :volga_contact_email with the real address before running:
 -- insert into people (org_id, name, email)
---   values ('00000000-0000-0000-0000-00000000v01g'::uuid, 'Volga Contact', ':volga_contact_email');
+--   values ('00000000-0000-0000-0000-000000000001'::uuid, 'Volga Contact', ':volga_contact_email');
 -- insert into grants (resource_id, person_id, expires_at)
---   select '00000000-0000-0000-0000-000000resource'::uuid, id, '2026-11-24T23:59:59Z'::timestamptz
+--   select '00000000-0000-0000-0000-000000000002'::uuid, id, '2026-11-24T23:59:59Z'::timestamptz
 --   from people where email = ':volga_contact_email';
 --
 -- insert into checkpoints (resource_id, day, label, accepts, position) values
---   ('00000000-0000-0000-0000-000000resource'::uuid, 0,  'Start confirmation', 'none', 0),
---   ('00000000-0000-0000-0000-000000resource'::uuid, 4,  'Gray box',           '.mp4,.mov', 1),
---   ('00000000-0000-0000-0000-000000resource'::uuid, 9,  'First APK',          '.apk', 2),
---   ('00000000-0000-0000-0000-000000resource'::uuid, 14, 'Final delivery',     '.apk,.zip,.md,.json', 3);
+--   ('00000000-0000-0000-0000-000000000002'::uuid, 0,  'Start confirmation', 'none', 0),
+--   ('00000000-0000-0000-0000-000000000002'::uuid, 4,  'Gray box',           '.mp4,.mov', 1),
+--   ('00000000-0000-0000-0000-000000000002'::uuid, 9,  'First APK',          '.apk', 2),
+--   ('00000000-0000-0000-0000-000000000002'::uuid, 14, 'Final delivery',     '.apk,.zip,.md,.json', 3);

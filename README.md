@@ -138,7 +138,7 @@ event code later, insert into `event_codes` with:
 ```sql
 insert into event_codes (resource_id, code_hash, event_label, valid_on)
 values (
-  '00000000-0000-0000-0000-000000resource'::uuid,
+  '00000000-0000-0000-0000-000000000002'::uuid,
   encode(hmac('CODE_HERE', 'YOUR_CODE_SALT', 'sha256'), 'hex'),
   'Austin demo 2026-11-14',
   '2026-11-14'
