@@ -30,6 +30,11 @@
   status = 200
 
 [[redirects]]
+  from   = "/nda"
+  to     = "/.netlify/functions/nda"
+  status = 200
+
+[[redirects]]
   from   = "/media/*"
   to     = "/.netlify/functions/media/:splat"
   status = 200

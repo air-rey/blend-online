@@ -183,4 +183,118 @@ async function buildExecutedPdf ({ agreementText, agreementVersion, agreementSha
   return Buffer.from(bytes);
 }
 
-module.exports = { buildExecutedPdf };
+async function buildMutualNdaPdf ({ ndaText, ndaVersion, ndaSha256,
+                                   counterparty, signer, blendxr, auditRecord }) {
+  const pdf = await PDFDocument.create();
+  const font   = await pdf.embedFont(StandardFonts.Helvetica);
+  const bold   = await pdf.embedFont(StandardFonts.HelveticaBold);
+  const italic = await pdf.embedFont(StandardFonts.HelveticaOblique);
+
+  let page = pdf.addPage([PAGE_W, PAGE_H]);
+  let y = PAGE_H - MARGIN;
+
+  function newPage () { page = pdf.addPage([PAGE_W, PAGE_H]); y = PAGE_H - MARGIN; }
+  function ensureSpace (n) { if (y - n < MARGIN) newPage(); }
+  function drawLine (text, { font: f = font, size = BODY_SIZE, color = rgb(0.1, 0.1, 0.1), gap = LINE_HEIGHT } = {}) {
+    ensureSpace(gap);
+    page.drawText(text, { x: MARGIN, y, size, font: f, color });
+    y -= gap;
+  }
+  function drawParagraph (text, opts = {}) {
+    const f = opts.font || font;
+    const size = opts.size || BODY_SIZE;
+    const gap = opts.gap || LINE_HEIGHT;
+    const lines = wrap(text, f, size, BODY_WIDTH);
+    for (const l of lines) drawLine(l, { font: f, size, gap });
+  }
+  function hr (gapBefore = 10, gapAfter = 10) {
+    ensureSpace(gapBefore + 1 + gapAfter);
+    y -= gapBefore;
+    page.drawLine({ start: { x: MARGIN, y }, end: { x: PAGE_W - MARGIN, y },
+      thickness: 0.5, color: rgb(0.65, 0.65, 0.65) });
+    y -= gapAfter;
+  }
+
+  // Cover block
+  drawLine('EXECUTED COPY', { font: bold, size: 9, gap: 18 });
+  drawLine('Mutual Non-Disclosure Agreement', { font: bold, size: H1_SIZE, gap: 24 });
+
+  drawLine(`Between:  Blendtobases OU, trading as BlendXR  ("BlendXR")`, { gap: LINE_HEIGHT });
+  drawLine(`And:      ${counterparty.legalName || '[Counterparty]'}  ("Counterparty")`, { gap: LINE_HEIGHT });
+  drawLine(`Dated:    ${new Date(auditRecord.signedAt).toUTCString()}`, { gap: LINE_HEIGHT });
+  drawLine(`Version:  ${ndaVersion}`, { gap: LINE_HEIGHT });
+  drawLine(`SHA-256:  ${ndaSha256}`, { font: italic, size: 8, gap: 12 });
+  hr();
+
+  // NDA body
+  const paras = ndaText.split(/\n\s*\n/);
+  for (const p of paras) {
+    const clean = p.replace(/\s+/g, ' ').trim();
+    if (!clean) continue;
+    const mSec = clean.match(/^(\d{1,2})\.\s+([^\.]{1,60}\.)\s*(.*)$/);
+    if (mSec && mSec[2].length < 60) {
+      ensureSpace(LINE_HEIGHT + 4);
+      drawLine(`${mSec[1]}. ${mSec[2]}`, { font: bold, size: H2_SIZE, gap: LINE_HEIGHT + 2 });
+      if (mSec[3]) drawParagraph(mSec[3]);
+      drawLine('', { gap: 4 });
+      continue;
+    }
+    if (/^PART [A-Z]:/.test(clean)) {
+      ensureSpace(LINE_HEIGHT + 8);
+      drawLine(clean, { font: bold, size: H2_SIZE + 1, gap: LINE_HEIGHT + 6 });
+      continue;
+    }
+    drawParagraph(clean);
+    drawLine('', { gap: 4 });
+  }
+
+  // Signatures
+  newPage();
+  drawLine('SIGNATURES', { font: bold, size: H2_SIZE, gap: 20 });
+  drawLine('On behalf of Blendtobases OU, trading as BlendXR:', { gap: LINE_HEIGHT });
+  drawLine(`Name:  ${blendxr.name}`, { gap: LINE_HEIGHT });
+  drawLine(`Title: ${blendxr.title}`, { gap: LINE_HEIGHT });
+  drawLine(`Date:  ${blendxr.date}`, { gap: LINE_HEIGHT });
+  drawLine('Signed electronically pursuant to Section 14 (Electronic execution).',
+    { font: italic, size: 9, gap: 18 });
+
+  drawLine(`On behalf of ${counterparty.legalName}:`, { gap: LINE_HEIGHT });
+  drawLine(`Name:  ${signer.name}`, { gap: LINE_HEIGHT });
+  drawLine(`Title: ${signer.title}`, { gap: LINE_HEIGHT });
+  drawLine(`Date:  ${new Date(auditRecord.signedAt).toUTCString()}`, { gap: LINE_HEIGHT });
+  drawLine('Signed electronically pursuant to Section 14 (Electronic execution).',
+    { font: italic, size: 9, gap: 18 });
+
+  hr();
+  drawLine('COUNTERPARTY DETAILS', { font: bold, size: H2_SIZE, gap: 16 });
+  const kv = [
+    ['Organisation',  counterparty.legalName],
+    ['Signer email',  auditRecord.email],
+    ['Country',       counterparty.country || '(not provided)']
+  ];
+  for (const [k, v] of kv) drawParagraph(`${k}: ${v || '(not provided)'}`);
+
+  // Audit page
+  newPage();
+  drawLine('AUDIT RECORD', { font: bold, size: H2_SIZE, gap: 20 });
+  drawParagraph('This copy was executed electronically on blendxr.online, in accordance with Section 14 (Electronic execution), which permits electronic execution and counterparts.');
+  drawLine('', { gap: 10 });
+  const audit = [
+    ['Signer name',    signer.name],
+    ['Signer title',   signer.title],
+    ['Signer email',   auditRecord.email],
+    ['Timestamp (UTC)', new Date(auditRecord.signedAt).toISOString()],
+    ['IP address',     auditRecord.ip],
+    ['User agent',     auditRecord.userAgent],
+    ['NDA version',    ndaVersion],
+    ['NDA SHA-256',    ndaSha256]
+  ];
+  for (const [k, v] of audit) drawParagraph(`${k}: ${v || '(unknown)'}`, { size: 9 });
+  drawLine('', { gap: 8 });
+  drawParagraph(`Record ID: ${auditRecord.id}`, { font: italic, size: 9 });
+
+  const bytes = await pdf.save();
+  return Buffer.from(bytes);
+}
+
+module.exports = { buildExecutedPdf, buildMutualNdaPdf };

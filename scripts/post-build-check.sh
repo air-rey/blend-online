@@ -8,6 +8,7 @@ PUB="public"
 FORBIDDEN=(
   "brief.md"
   "agreement.txt"
+  "nda.txt"
   "legacy-marketing.html"
   "switchgear-panel-failing.png"
   "switchgear-panel-failing-vrhands.png"

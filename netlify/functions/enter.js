@@ -24,6 +24,9 @@ const { supa } = require('./_lib/supa');
 const { makeSession, setCookieHeader } = require('./_lib/cookie');
 const { jsonResponse } = require('./_lib/html');
 
+// Keep in sync with NDA_VERSION in netlify/functions/nda.js.
+const CURRENT_NDA_VERSION = '2026-11-01';
+
 function parseForm (body) {
   const out = {};
   if (!body) return out;
@@ -164,12 +167,23 @@ exports.handler = async function (event) {
   const { data: resource } = await db.from('resources')
     .select('id, slug, agreement_type').eq('id', live.resource_id).single();
 
-  const { data: orgAgreement } = await db.from('org_agreements')
-    .select('id, status')
-    .eq('org_id', person.org_id)
-    .order('signed_at', { ascending: false, nullsFirst: false }).limit(1).maybeSingle();
-
-  const agreementExecuted = orgAgreement && orgAgreement.status === 'executed';
+  let agreementOk = false;
+  let signTarget  = '/agreement';
+  if (resource.agreement_type === 'mutual_nda') {
+    signTarget = '/nda';
+    const { data: ndaSig } = await db.from('nda_signatures')
+      .select('id')
+      .eq('person_id', person.id)
+      .eq('agreement_version', CURRENT_NDA_VERSION)
+      .maybeSingle();
+    agreementOk = !!ndaSig;
+  } else {
+    const { data: orgAgreement } = await db.from('org_agreements')
+      .select('id, status')
+      .eq('org_id', person.org_id)
+      .order('signed_at', { ascending: false, nullsFirst: false }).limit(1).maybeSingle();
+    agreementOk = !!(orgAgreement && orgAgreement.status === 'executed');
+  }
 
   const token = await makeSession({
     sub:            String(person.id),
@@ -179,15 +193,15 @@ exports.handler = async function (event) {
     resource_id:    String(live.resource_id),
     resource_slug:  resource.slug,
     grant_id:       String(live.id),
-    agreement_ok:   !!agreementExecuted
+    agreement_ok:   agreementOk
   });
 
   await db.from('events').insert({
     grant_id: live.id, kind: 'gate_entered',
-    meta: { ip, ua, agreement_ok: !!agreementExecuted }
+    meta: { ip, ua, agreement_ok: agreementOk, agreement_type: resource.agreement_type }
   }).catch(() => {});
 
-  const target = agreementExecuted ? '/r' : '/agreement';
+  const target = agreementOk ? '/r' : signTarget;
   return {
     statusCode: 200,
     headers: {

@@ -8,8 +8,8 @@ on conflict (id) do nothing;
 
 insert into resources (id, slug, type, title, agreement_type, contact_email)
 values ('00000000-0000-0000-0000-000000resource'::uuid, 'volga-test-scene', 'brief',
-        'BlendXR x Volga: Test Scene Brief', 'contractor', 'airem@blendxr.online')
-on conflict (slug) do nothing;
+        'BlendXR x Volga: Test Scene Brief', 'mutual_nda', 'airem@blendxr.online')
+on conflict (slug) do update set agreement_type = excluded.agreement_type;
 
 insert into content_versions (resource_id, version, hash, change_note)
 values ('00000000-0000-0000-0000-000000resource'::uuid, '2026-11-01',
