@@ -2,7 +2,7 @@
 // Upload the Volga private content to Supabase Storage.
 //
 // Reads two env vars:
-//   SUPABASE_URL                 e.g. https://sgzltnhmxywjslvjwaif.supabase.co
+//   SUPABASE_URL                 e.g. https://<project-ref>.supabase.co
 //   SUPABASE_SERVICE_ROLE_KEY    service_role (NOT the publishable key)
 //
 // Walks the local trees:
