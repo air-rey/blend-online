@@ -37,7 +37,7 @@ function wrap (text, font, size, maxWidth) {
 }
 
 async function buildExecutedPdf ({ agreementText, agreementVersion, agreementSha256,
-                                   contractor, exhibitB, signer, blendxr, auditRecord }) {
+                                   contractor, signer, blendxr, auditRecord }) {
   const pdf = await PDFDocument.create();
   const font     = await pdf.embedFont(StandardFonts.Helvetica);
   const bold     = await pdf.embedFont(StandardFonts.HelveticaBold);
@@ -139,33 +139,10 @@ async function buildExecutedPdf ({ agreementText, agreementVersion, agreementSha
   drawLine('Signed electronically.', { font: italic, size: 9 });
   drawLine(`Date:  ${new Date(auditRecord.signedAt).toUTCString()}`, { gap: 18 });
 
-  // Contractor fields
-  hr();
-  drawLine('CONTRACTOR DETAILS', { font: bold, size: H2_SIZE, gap: 16 });
-  const kv = [
-    ['Legal name',          contractor.legalName],
-    ['Entity type',         contractor.entityType],
-    ['Registration number', contractor.registrationNumber],
-    ['PAN',                 contractor.pan],
-    ['Principal place of business', contractor.address],
-    ['Country',             contractor.country || 'India']
-  ];
-  for (const [k, v] of kv) {
-    drawParagraph(`${k}: ${v || '(not provided)'}`);
-  }
-
-  // Exhibit B
-  hr();
-  drawLine('EXHIBIT B: Background IP and prior inventions', { font: bold, size: H2_SIZE, gap: 16 });
-  if (exhibitB.none) {
-    drawParagraph('The Contractor confirms there is NO Background IP or prior inventions to list for this engagement.');
-  } else if (exhibitB.items && exhibitB.items.length) {
-    exhibitB.items.forEach((it, idx) => drawParagraph(`${idx + 1}. ${it}`));
-  } else if (exhibitB.text) {
-    drawParagraph(exhibitB.text);
-  } else {
-    drawParagraph('(none)');
-  }
+  // CONTRACTOR DETAILS and EXHIBIT B are gone — the v3 agreement only
+  // needs Company name + Signer name + Title + Email + Date, which are
+  // already in the signature block above. The audit page below records
+  // the signing event itself.
 
   // Audit page
   newPage();

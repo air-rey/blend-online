@@ -63,9 +63,9 @@ function renderAgreementPage (session, agreementText, agreementVersion) {
     <span style="margin-left:auto;color:var(--muted-soft);">${esc(session.email)}</span>
   </div>
 
-  <h1>Sign the contractor agreement</h1>
+  <h1>Sign the test agreement</h1>
   <p class="caps" style="margin-bottom:4px;">Version ${esc(agreementVersion)}</p>
-  <p style="color:var(--body);">The agreement text below is live. Please read it in full. The signer must be authorised to bind ${esc(session.name ? '(' + session.name + ') for ' : '')}your organisation. BlendXR has already signed; your signature on the fields below completes the agreement.</p>
+  <p style="color:var(--body);">The agreement text below is live. Please read it in full. BlendXR has already signed; your signature on the fields below completes the agreement.</p>
 
   <section class="agreement-body" aria-label="Agreement text">
     ${bodyHtml}
@@ -73,52 +73,22 @@ function renderAgreementPage (session, agreementText, agreementVersion) {
 
   <hr>
 
-  <h2>Your signature and contractor details</h2>
+  <h2>Your signature</h2>
   <form id="signForm" method="POST" action="/.netlify/functions/agreement" novalidate>
+    <label class="field"><span>Company name</span>
+      <input class="input" name="legal_name" required></label>
     <div class="row2">
-      <label class="field"><span>Full legal name of signer</span>
+      <label class="field"><span>Signer name</span>
         <input class="input" name="signer_name" required autocomplete="name"></label>
-      <label class="field"><span>Title / role</span>
+      <label class="field"><span>Title</span>
         <input class="input" name="signer_title" required autocomplete="organization-title"></label>
     </div>
+    <label class="field"><span>Email</span>
+      <input class="input" type="email" name="signer_email" required autocomplete="email" value="${esc(session.email || '')}"></label>
 
-    <h3>Contractor entity</h3>
-    <div class="row2">
-      <label class="field"><span>Company legal name</span>
-        <input class="input" name="legal_name" required></label>
-      <label class="field"><span>Entity type</span>
-        <select class="select" name="entity_type" required>
-          <option value="">Select…</option>
-          <option>Private limited company</option>
-          <option>Limited Liability Partnership</option>
-          <option>Partnership firm</option>
-          <option>Sole proprietorship</option>
-          <option>One Person Company</option>
-          <option>Other</option>
-        </select></label>
-    </div>
-    <div class="row2">
-      <label class="field"><span>Registration number (CIN, LLPIN, GSTIN or Udyam)</span>
-        <input class="input" name="registration_number" required></label>
-      <label class="field"><span>PAN</span>
-        <input class="input" name="pan" required pattern="[A-Z]{5}[0-9]{4}[A-Z]" title="PAN format: 5 letters, 4 digits, 1 letter"></label>
-    </div>
-    <label class="field"><span>Principal place of business</span>
-      <textarea class="input" name="address" required rows="2"></textarea></label>
-
-    <h3>Exhibit B: prior inventions and Background IP</h3>
-    <p style="color:var(--body);">List anything you consider Background IP that may be incorporated into the Work Product. If none, tick the box.</p>
-    <label class="check">
-      <input type="checkbox" id="exhibitNone" name="exhibit_none" value="1">
-      <span>None. The Contractor has no Background IP or prior inventions to list.</span>
-    </label>
-    <label class="field"><span>Items (one per line)</span>
-      <textarea class="input" id="exhibitText" name="exhibit_text" rows="4" placeholder="e.g. Internal Unreal build pipeline (owned by Volga Infosys)"></textarea></label>
-
-    <h3>Authority</h3>
-    <label class="check">
+    <label class="check" style="margin-top:14px;">
       <input type="checkbox" name="authorised" value="1" required>
-      <span>I am authorised to sign this agreement on behalf of the Contractor named above.</span>
+      <span>I am authorised to sign for this company.</span>
     </label>
 
     <div style="display:flex; gap:12px; margin-top:20px;">
@@ -129,7 +99,7 @@ function renderAgreementPage (session, agreementText, agreementVersion) {
   </form>
 
   <p class="footer-note">
-    Governed by the laws of India. The Agreement takes effect on execution by both parties and may be executed electronically and in counterparts (Section 21).
+    Governed by the laws of India. The Agreement takes effect on execution by both parties and may be executed electronically and in counterparts (Section 14).
   </p>
 </div>
 
@@ -138,9 +108,6 @@ function renderAgreementPage (session, agreementText, agreementVersion) {
     var f = document.getElementById('signForm');
     var btn = document.getElementById('signBtn');
     var msg = document.getElementById('signMsg');
-    var none = document.getElementById('exhibitNone');
-    var txt  = document.getElementById('exhibitText');
-    none.addEventListener('change', function () { txt.disabled = none.checked; if (none.checked) txt.value = ''; });
     f.addEventListener('submit', function (e) {
       e.preventDefault();
       msg.className = 'msg'; msg.textContent = '';
@@ -205,19 +172,15 @@ exports.handler = async function (event) {
 
   if (event.httpMethod === 'POST') {
     const form = parseForm(event.body || '');
-    const required = ['signer_name', 'signer_title', 'legal_name', 'entity_type',
-                      'registration_number', 'pan', 'address', 'authorised'];
+    const required = ['legal_name', 'signer_name', 'signer_title', 'signer_email', 'authorised'];
     for (const k of required) {
       if (!form[k] || !String(form[k]).trim()) {
         return jsonResponse(400, { error: 'Please fill every field (and tick authorised).' });
       }
     }
-    if (!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(String(form.pan).toUpperCase())) {
-      return jsonResponse(400, { error: 'PAN format must be 5 letters, 4 digits, 1 letter.' });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(form.signer_email).trim())) {
+      return jsonResponse(400, { error: 'Enter a valid email address.' });
     }
-    const exhibitNone  = form.exhibit_none === '1';
-    const exhibitText  = (form.exhibit_text || '').trim();
-    const exhibitItems = exhibitNone ? [] : exhibitText.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
     const ip  = clientIp(event);
     const ua  = userAgent(event);
     const now = new Date();
@@ -226,7 +189,7 @@ exports.handler = async function (event) {
 
     const auditRecord = {
       id:        crypto.randomUUID(),
-      email:     session.email,
+      email:     String(form.signer_email).trim(),
       signedAt:  now.toISOString(),
       ip, userAgent: ua
     };
@@ -237,15 +200,7 @@ exports.handler = async function (event) {
         agreementText,
         agreementVersion: AGREEMENT_VERSION,
         agreementSha256:  agreementSha,
-        contractor: {
-          legalName:          form.legal_name,
-          entityType:         form.entity_type,
-          registrationNumber: form.registration_number,
-          pan:                String(form.pan).toUpperCase(),
-          address:            form.address,
-          country:            'India'
-        },
-        exhibitB: { none: exhibitNone, items: exhibitItems },
+        contractor: { legalName: form.legal_name },
         signer:   { name: form.signer_name, title: form.signer_title },
         blendxr:  { name: 'Vedika Bhasin', title: 'Founder', date: BLENDXR_SIGN_DATE },
         auditRecord
@@ -277,14 +232,9 @@ exports.handler = async function (event) {
       signed_at:    now.toISOString(),
       ip, user_agent: ua,
       contractor_fields: {
-        legal_name:          form.legal_name,
-        entity_type:         form.entity_type,
-        registration_number: form.registration_number,
-        pan:                 String(form.pan).toUpperCase(),
-        address:             form.address,
-        country:             'India'
+        legal_name:   form.legal_name,
+        signer_email: auditRecord.email
       },
-      exhibit_b: { none: exhibitNone, items: exhibitItems },
       executed_pdf_ref: storagePath,
       audit_record_id: auditRecord.id
     }).select().single();
@@ -298,12 +248,12 @@ exports.handler = async function (event) {
       person_id: session.sub, org_agreement_id: orgAgreement.id, at: now.toISOString(), ip
     }).then(() => {}, () => {});
 
-    // Email signer + airem@blendxr.online with the PDF.
+    // Email the signer, airem@, and vedika@ with the PDF.
     try {
       const b64 = pdf.toString('base64');
       await send({
-        to: [session.email, 'airem@blendxr.online'],
-        subject: `Executed: BlendXR x ${form.legal_name} contractor agreement`,
+        to: [auditRecord.email, 'airem@blendxr.online', 'vedika@blendxr.online'],
+        subject: `Executed: BlendXR x ${form.legal_name} test agreement`,
         text: `Attached: executed copy of the Test Engagement Confidentiality and Non-Replication Agreement, version ${AGREEMENT_VERSION}, signed by ${form.signer_name} (${form.signer_title}) for ${form.legal_name} on ${now.toUTCString()}.\n\nAccess continues at https://blendxr.online/r`,
         attachments: [{
           filename: `BlendXR-${form.legal_name.replace(/[^A-Za-z0-9]+/g, '_')}-executed-${AGREEMENT_VERSION}.pdf`,

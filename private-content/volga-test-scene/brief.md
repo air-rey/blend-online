@@ -216,7 +216,7 @@ Download the Hospital Generator & Utility Room pack and the Realistic Gloves Pac
 - Keep-clear floor markings: simple planes with a flat yellow material. No asset needed.
 - Corridor, lighting and the window frame, using the packs above where they fit.
 
-This build stays private, so free and non-commercial assets are fine. The 14-day clock starts when you tick Day 0 in the uploads panel below to confirm you can access every asset linked here. Please tick Day 0 by Tuesday, November 3.
+This build stays private, so free and non-commercial assets are fine. The 14-day clock starts when you tick the Day 0 confirmation below to confirm you can access every asset linked here. Please tick the Day 0 confirmation below by Tuesday, November 3.
 
 <!-- DOWNLOADS PANEL: rendered here by the page (see page-spec.md) -->
 
@@ -226,7 +226,7 @@ The project matters as much as the APK. We are testing how you build, solve prob
 
 | Day | Checkpoint | What we receive |
 | --- | --- | --- |
-| 0 | Start | Tick Day 0 below to confirm you can open all assets and the setup above works. Clock starts on tick. |
+| 0 | Start | Tick the Day 0 confirmation below. Clock starts on tick. |
 | 4 | Gray box | Headset capture video: room blocked out, gaze working on all 4 targets with debug reticle on. |
 | 9 | First APK | Full flow from fade-in to app exit, pulses and session file working, placeholder art acceptable |
 | 14 | Final | Final APK, zipped project with full Git history, README, one sample session file |
