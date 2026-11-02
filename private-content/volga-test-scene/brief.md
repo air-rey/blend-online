@@ -27,7 +27,7 @@ We install the APK on our own Quest 3 from macOS with SideQuest or Meta Quest De
 
 ## Purpose and test terms
 
-One short Unreal scene, 25 to 45 seconds, delivered as an optimized Quest 3 APK and a clean project within 14 days. This is shorter than the 1 to 2 minutes first discussed; the scope below replaces it. BlendXR owns scenario, design and interaction logic. Volga owns technical art, implementation and an optimized build.
+One short Unreal scene, 18 to 38 seconds, delivered as an optimized Quest 3 APK and a clean project within 14 days. This is shorter than the 1 to 2 minutes first discussed; the scope below replaces it. BlendXR owns scenario, design and interaction logic. Volga owns technical art, implementation and an optimized build.
 
 We will evaluate five things:
 
@@ -80,12 +80,12 @@ One level, three phases. Times are from the moment the room is fully faded in.
 | Phase | Time | What happens | Pulses |
 | --- | --- | --- | --- |
 | Enter | Before 0:00 | App opens to black and S3 plays. Recenter so the player faces down the room. 2 s fade into the room. Room hum (S1) already playing. | None |
-| 1. Settle | 0:00 to 12.8 s | Still room. Nothing changes, nothing to find. Dawn light from the window on the right. Dwell is still logged on every target. | None |
-| 2. Observe | From 12.8 s | Smoke starts at P3's vent and is clearly evident by 14.8 s. Sparks and crackle (S2) begin at P3. Observation unlocks for O1, O2, O3 in order (see Observation logic). | Notice, then alert if needed |
+| 1. Settle | 0:00 to 5.8 s | Still room. Nothing changes, nothing to find. Dawn light from the window on the right. Dwell is still logged on every target. | None |
+| 2. Observe | From 5.8 s | Smoke starts at P3's vent and is clearly evident by 7.8 s. Sparks and crackle (S2) begin at P3. Observation unlocks for O1, O2, O3 in order (see Observation logic). | Notice, then alert if needed |
 | 3. Act | After O3 is observed | The exit door (I1) unlocks with the same pulse logic. Dwell on the door unlocks it (S4) and opens it, revealing the corridor and extinguisher. | Notice, then alert if needed |
-| Exit | Door open + 4 s | 2 s fade to black with S4, then the app quits. | None |
+| Exit | Door open + 4 s | 2 s fade to black with S4. The app then returns to the Enter phase with a fresh session ID so a reviewer can hand the headset to the next viewer without relaunching. The headset system menu (Oculus button) quits the app. | None |
 
-Pacing: under 25 s for a fast trainee, about 45 s well paced, longer is fine. Nothing times out.
+Pacing: under 18 s for a fast trainee, about 38 s well paced, longer is fine. Nothing times out. The fade-to-black / Enter loop lets a reviewer run back-to-back private demos under a minute each.
 
 ## Observation logic
 
@@ -108,7 +108,7 @@ One reusable component, `BP_GazeTarget`, drives all four. Each carries a `Role` 
 
 **Rules per target**
 
-1. **Unlock.** O1 unlocks at 12.8 s. Each later target unlocks the moment the previous one is observed.
+1. **Unlock.** O1 unlocks at 5.8 s. Each later target unlocks the moment the previous one is observed.
 2. **Grace.** For 2 s after unlock, no pulse. If the target is observed in that window, skip its pulses and unlock the next.
 3. **Notice.** If not yet observed after 2 s, play exactly 2 notice pulses at 0.8x speed (1.5 s per pulse, 3 s total). If observed during them, fade out over 0.3 s and unlock the next.
 4. **Alert.** If still not observed after both notice pulses finish, fade in the alert pulse: 2.8x speed (about 0.43 s per pulse), looping until observed. Then fade out over 0.3 s and unlock the next.
@@ -131,27 +131,102 @@ Reference from our police sim (the pulsing toolbox). Ignore its text panel: ther
 
 ## Session data
 
-The scene does no scoring. It records raw events so a future BlendXR backend can score them. Build the logger as one component (`BP_SessionLogger`) that writes a JSON file per session to the app's storage on the headset. No network calls in this test.
+The scene does no scoring. It writes a JSON file per session to the app's storage on the headset so BlendXR's dashboard can score and compare runs. No network calls in this test. Build the logger as one component (`BP_SessionLogger`); schema below is the deliverable contract.
 
-**Session header:** session ID, build version, device model, start time (UTC), phase timestamps (fade-in complete, Observe start, Act start, door open, exit).
+The loop in Flow mints a fresh `session_id` every time the room fades back in, so back-to-back private demos stay as separate files.
 
-**Events to log** (time in ms from fade-in complete, target ID, phase):
+**Session header**
 
-| Event | When |
+| Field | Type | Notes |
+| --- | --- | --- |
+| `session_id` | UUIDv4 string | Fresh per run (new one after the restart loop fades the room back in). |
+| `scenario` | string | `"electrical-room-v1"`. Freezes with the brief; bump the suffix when the brief does. |
+| `build_version` | string | Semver from the project settings. |
+| `device_model` | string | From the Meta XR API. |
+| `started_at` | ISO-8601 UTC | At `fade_in_complete`. |
+| `ended_at` | ISO-8601 UTC | At the restart or quit fade-start. |
+| `ended_reason` | enum | `"completed"` (Exit reached naturally, loop restart next), `"quit"` (Oculus-button quit), `"restart"` (reserved for a future manual restart). |
+| `total_scenario_time_ms` | int | `ended_at` minus `started_at`. |
+| `phases` | object | Per-phase start times in ms from `fade_in_complete`. See example below. |
+
+**Phase timestamps (object `phases`):** `fade_in_complete_ms` (always `0`), `observe_start_ms` (= 5800), `act_start_ms` (first observed moment O3 confirms), `door_open_ms` (I1 confirmed + the pre-swing beat), `exit_fade_start_ms` (`door_open_ms` + 4000), `restart_or_quit_ms` (`exit_fade_start_ms` + 2000; the session file is flushed at this moment).
+
+**Per-target summary** (one object per target in the `targets` array; order matches the Observation logic table so the dashboard can bar-chart them without a join):
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `id` | string | `"O1"`, `"O2"`, `"O3"`, `"I1"`. |
+| `role` | enum | `"Observation"` or `"Interaction"`. |
+| `unlocked_at_ms` | int | When the target's turn begins. |
+| `first_gaze_at_ms` | int or `null` | First `gaze_enter` on this target, regardless of lock state. `null` if never gazed. |
+| `first_gaze_in_turn_ms` | int or `null` | First `gaze_enter` on or after `unlocked_at_ms`. `null` if never gazed during its turn. |
+| `observed_at_ms` | int or `null` | When dwell crossed the target's threshold during its turn. `null` if alert pulse never resolved. |
+| `dwell_total_ms` | int | Sum of dwell on this target across the whole session, including Settle. |
+| `dwell_in_turn_ms` | int | Dwell on this target only during its unlocked turn. The scoring metric. |
+| `gaze_gaps_in_turn` | int | Count of `gaze_exit` events during the target's turn before `observed_at_ms` (the 0.25 s gap tolerance does not increment this). |
+| `max_gap_ms_in_turn` | int | Longest gaze gap during the target's turn before `observed_at_ms`. |
+| `pulses_shown` | enum | `"none"`, `"notice"`, `"alert"`. The strongest cue that fired. |
+
+**Events to log** (array `events`, ordered by `t_ms`, time in ms from `fade_in_complete`):
+
+| Event | Fields |
 | --- | --- |
-| `gaze_enter` | Ray starts hitting a target |
-| `gaze_exit` | Ray stops hitting a target (after the 0.25 s gap tolerance) |
-| `unlocked` | Target's turn begins |
-| `pulse_notice_start` | First notice pulse begins |
-| `pulse_alert_start` | Alert pulse fades in |
-| `observed` | Dwell threshold reached during its turn |
-| `door_opened` | I1 confirmed |
+| `fade_in_complete` | — |
+| `observe_phase_start` | — |
+| `act_phase_start` | — |
+| `unlocked` | `target` |
+| `gaze_enter` | `target` |
+| `gaze_exit` | `target` (after the 0.25 s gap tolerance) |
+| `pulse_notice_start` | `target` |
+| `pulse_alert_start` | `target` |
+| `observed` | `target` |
+| `door_opened` | — |
+| `exit_fade_start` | — |
+| `session_end` | `reason` ∈ {`completed`, `quit`, `restart`} |
 
-From these, the backend can rebuild everything it needs: what was seen, in what order, for how long, before or after a pulse.
+**Example** (abbreviated):
 
-- Keep event names and fields exactly as above so files from different builds stay comparable.
+```json
+{
+  "session_id": "7b3b4f6a-5b10-4a1f-8c92-98e7cae0f9ad",
+  "scenario": "electrical-room-v1",
+  "build_version": "0.9.0",
+  "device_model": "Quest 3",
+  "started_at": "2026-11-14T08:30:00.000Z",
+  "ended_at":   "2026-11-14T08:30:27.420Z",
+  "ended_reason": "completed",
+  "total_scenario_time_ms": 27420,
+  "phases": {
+    "fade_in_complete_ms": 0,
+    "observe_start_ms": 5800,
+    "act_start_ms": 15230,
+    "door_open_ms": 20120,
+    "exit_fade_start_ms": 24120,
+    "restart_or_quit_ms": 26120
+  },
+  "targets": [
+    { "id": "O1", "role": "Observation", "unlocked_at_ms": 5800,  "first_gaze_at_ms": 6230, "first_gaze_in_turn_ms": 6230, "observed_at_ms": 7730, "dwell_total_ms": 1500, "dwell_in_turn_ms": 1500, "gaze_gaps_in_turn": 0, "max_gap_ms_in_turn": 0,   "pulses_shown": "none"   },
+    { "id": "O2", "role": "Observation", "unlocked_at_ms": 7730,  "first_gaze_at_ms": 9120, "first_gaze_in_turn_ms": 9120, "observed_at_ms": 10320,"dwell_total_ms": 1200, "dwell_in_turn_ms": 1200, "gaze_gaps_in_turn": 1, "max_gap_ms_in_turn": 180, "pulses_shown": "notice" },
+    { "id": "O3", "role": "Observation", "unlocked_at_ms": 10320, "first_gaze_at_ms": null,"first_gaze_in_turn_ms": null, "observed_at_ms": 15230,"dwell_total_ms": 1500, "dwell_in_turn_ms": 1500, "gaze_gaps_in_turn": 0, "max_gap_ms_in_turn": 0,   "pulses_shown": "alert"  },
+    { "id": "I1", "role": "Interaction","unlocked_at_ms": 15230, "first_gaze_at_ms": 15490,"first_gaze_in_turn_ms": 15490,"observed_at_ms": 20120,"dwell_total_ms": 1800, "dwell_in_turn_ms": 1800, "gaze_gaps_in_turn": 2, "max_gap_ms_in_turn": 220, "pulses_shown": "notice" }
+  ],
+  "events": [
+    { "t_ms": 0,     "kind": "fade_in_complete" },
+    { "t_ms": 5800,  "kind": "observe_phase_start" },
+    { "t_ms": 5800,  "kind": "unlocked", "target": "O1" },
+    { "t_ms": 6230,  "kind": "gaze_enter", "target": "O1" },
+    { "t_ms": 7730,  "kind": "observed",  "target": "O1" },
+    "…"
+  ]
+}
+```
+
+Rules the logger must follow so dashboards from different builds stay comparable:
+
+- Keep every field name and enum value exactly as above. If a field is unknown, write `null`, never omit it.
+- Write the file atomically (temp file + rename) at the `restart_or_quit_ms` moment so the loop never produces a half-flushed file.
 - Also print each event to the output log for debugging.
-- Document the file location and format in the README with one sample file.
+- Document the file location and format in the README with two sample files: one `"completed"` and one `"quit"`.
 
 ## Interaction, hands and movement
 
@@ -168,9 +243,9 @@ From these, the backend can rebuild everything it needs: what was seen, in what 
 
 **Window.** A simple HDRI or skybox plane with an early-dawn sky and a soft industrial silhouette. It only needs to read as outside and morning.
 
-**Smoke.** One Niagara system at P3's vent: a few soft translucent sprite cards rising slowly. Starts at 12.8 s, reaches full density by 14.8 s, then holds. Thin and grey. Keep particle count and overdraw low. No volumetric fog.
+**Smoke.** One Niagara system at P3's vent: a few soft translucent sprite cards rising slowly. Starts at 5.8 s, reaches full density by 7.8 s, then holds. Thin and grey. Keep particle count and overdraw low. No volumetric fog.
 
-**Spark.** One small Niagara burst at the right edge of P3's vent, every 3 to 5 s from 12.8 s, synced with S2. Brief and small: a real arc, not fireworks.
+**Spark.** One small Niagara burst at the right edge of P3's vent, every 3 to 5 s from 5.8 s, synced with S2. Brief and small: a real arc, not fireworks.
 
 **Audio (4 sounds, supplied)**
 
@@ -179,7 +254,7 @@ From these, the backend can rebuild everything it needs: what was seen, in what 
 | S1 | `hum-electric.mp3` | Room hum. Loop from the fade-in. Non-spatial or very wide. |
 | S2 | `crackle.mp3` | Spatialized at P3. Plays with each spark, randomized pitch (plus or minus 10%). |
 | S3 | `EnterApp.mp3` | Plays once over the black screen at app start, leading into the fade-in. Non-spatial. |
-| S4 | `unlocking-metal-door.mp3` | Spatialized at the door. Plays when I1 is observed, before the door swings open, and again during the final fade to black at app quit. |
+| S4 | `unlocking-metal-door.mp3` | Spatialized at the door. Plays when I1 is observed, before the door swings open, and again during the 2 s fade to black at the restart/quit transition. |
 
 No other sounds. The trainee should be able to turn toward P3 by ear alone.
 
@@ -196,7 +271,7 @@ Three sources: paid packs and our own files, which BlendXR supplies; free Fab li
 | `hum-electric.mp3` (S1, download below) | Room hum |
 | `crackle.mp3` (S2, download below) | Spark crackle |
 | `EnterApp.mp3` (S3, download below) | App start |
-| `unlocking-metal-door.mp3` (S4, download below) | Door unlock and app quit |
+| `unlocking-metal-door.mp3` (S4, download below) | Door unlock and the restart/quit fade |
 | Highlight pulse reference | Video above |
 
 Download the Hospital Generator & Utility Room pack and the Realistic Gloves Pack from BlendXR's Fab account (airem). airem@blendxr.online will send the login separately and handle sign-in codes during reply windows. Sign in, add both packs to your project, sign out, and email us when it's done. The password will be changed after that. Use the account only for these two packs: no other downloads, purchases or setting changes. Use the packs only for this project, do not share them further, and delete them when the test ends.
@@ -228,8 +303,8 @@ The project matters as much as the APK. We are testing how you build, solve prob
 | --- | --- | --- |
 | 0 | Start | Tick the Day 0 confirmation below. Clock starts on tick. |
 | 4 | Gray box | Headset capture video: room blocked out, gaze working on all 4 targets with debug reticle on. |
-| 9 | First APK | Full flow from fade-in to app exit, pulses and session file working, placeholder art acceptable |
-| 14 | Final | Final APK, zipped project with full Git history, README, one sample session file |
+| 9 | First APK | Full flow from fade-in through the restart loop, pulses and the session log export writing to headset storage with the schema in Session data, placeholder art acceptable |
+| 14 | Final | Final APK, zipped project with full Git history, README, two sample session files (one `"completed"`, one `"quit"`) that match the schema in Session data |
 
 **Performance**
 
