@@ -1,6 +1,6 @@
 ---
 title: "BlendXR x Volga — Test Scene Brief"
-version: "2026-11-02"
+version: "2026-11-03"
 resource_type: brief
 partner: Volga Infosys
 contact: airem@blendxr.online
@@ -27,12 +27,12 @@ We install the APK on our own Quest 3 from macOS with SideQuest or Meta Quest De
 
 ## Purpose and test terms
 
-One short Unreal scene, 18 to 38 seconds, delivered as an optimized Quest 3 APK and a clean project within 14 days. This is shorter than the 1 to 2 minutes first discussed; the scope below replaces it. BlendXR owns scenario, design and interaction logic. Volga owns technical art, implementation and an optimized build.
+One short Unreal scene, 12 to 22 seconds, delivered as an optimized Quest 3 APK and a clean project within 14 days. This is shorter than the 1 to 2 minutes first discussed; the scope below replaces it. BlendXR owns scenario, design and interaction logic. Volga owns technical art, implementation and an optimized build.
 
 We will evaluate five things:
 
 1. **On time.** Both check-ins and the final delivery hit.
-2. **Runs clean in headset.** Sideloads, holds frame rate, no hitches on load, door or exit.
+2. **Runs clean in headset.** Sideloads, holds frame rate, no hitches on load, alarm or exit fade.
 3. **Gaze feels right.** Target assets register when looked at: never by accident while scanning, and never needing an overly long look to count as *observed*.
 4. **Project quality.** Someone outside your team can open, understand, modify and rebuild it quickly.
 5. **Communication.** Questions asked early, blockers flagged the day they appear.
@@ -42,12 +42,12 @@ If time runs short, cut visual detail, not frame rate, project hygiene or sequen
 **Terms**
 
 - This test is unpaid. Budgets are discussed only if we move to full experiences.
-- The scenario, interaction logic and this brief are confidential. Do not share, reuse or show them, including in your portfolio, without written permission. The contractor agreement you signed to open this page covers everything in it.
+- The scenario, interaction logic and this brief are confidential. Do not share, reuse or show them, including in your portfolio, without written permission. The test agreement you signed to open this page covers everything in it.
 - All work produced for this test belongs to BlendXR.
 
 ## Scene concept — Electrical Room, Before the Fire
 
-The trainee stands in a switchgear room at dawn. Nothing happens at first. Then a panel starts to fail: smoke at a vent, a spark, and boxes stacked against the panel. The scene directs what the trainee should notice next, one cue at a time, and logs where they look. Then they move to the door, which opens onto a corridor with an extinguisher: in a longer scenario, the next step would be to bring it back to the panel.
+The trainee stands in a switchgear room at dawn. Nothing happens at first. Then a panel starts to fail: smoke at a vent, a spark, and boxes stacked against the panel. The scene highlights the smoke so the trainee notices it; the fire alarm pull station on the far wall then highlights so they can trigger the alarm. The spark and the stacked boxes stay in view the whole time — gaze on them is logged for scoring but never prompted. Pulling the alarm ends the scenario and the app loops straight back to the Enter phase for the next viewer.
 
 No text, no arrows, no menus, no score shown. Cues exist to build awareness and raise alerts, not anxiety.
 
@@ -56,14 +56,13 @@ No text, no arrows, no menus, no score shown. Cues exist to build awareness and 
 | Element | Spec |
 | --- | --- |
 | Room | About 10 m long x 5 m wide x 4 m high |
-| Player start | About 1.5 m from the near wall, slightly left of center, facing down the room toward the door |
+| Player start | About 1.5 m from the near wall, slightly left of center, facing down the room toward the far wall |
 | Panel run | About 10 floor-standing switchgear panels along the left wall, P1 nearest the player. Meters, indicator lights, rotary handles. Label plates stay blank. |
 | Faulty panel | P3, the panel with the large louvered vent. Smoke rises from the top of the vent and drifts toward the ceiling. Sparks at the right edge of the vent, beside the handle. |
 | Boxes | 3 cardboard boxes on a low wooden crate, stacked against P3 and P4, inside a yellow hatched keep-clear floor zone (paint only, no lettering) |
-| Far wall | Steel door with panic bar and closer, centered. Wall-mounted electrical box to its left, a tall grey cabinet in the left corner, fire alarm pull stations near the door, exposed conduit. |
-| Right wall | Large steel-framed window, about 4 m wide x 3 m high, sill at about 1.2 m. Low dawn sun over an industrial yard. Floor vent grille below it, yellow bollard near the door, a rolling tool cart and shelving near the player. |
+| Far wall | Wall-mounted electrical box on the left, a tall grey cabinet in the left corner, a fire alarm pull station centered at chest height (red faceplate, visible lever), exposed conduit. |
+| Right wall | Large steel-framed window, about 4 m wide x 3 m high, sill at about 1.2 m. Low dawn sun over an industrial yard. Floor vent grille below it, yellow bollard near the near-wall corner, a rolling tool cart and shelving near the player. |
 | Ceiling | 2 to 3 suspended fluorescent fixtures, exposed conduit and pipes |
-| Corridor | Behind the exit door: short, plain, about 2 m wide. Wall-mounted fire extinguisher visible as soon as the door opens. |
 
 The window is on the right and in view from the start, so the room never feels sealed. Dawn light across the floor is the only warm tone.
 
@@ -80,14 +79,14 @@ One level, three phases. Times are from the moment the room is fully faded in.
 | Phase | Time | What happens | Pulses |
 | --- | --- | --- | --- |
 | Enter | Before 0:00 | App opens to black and S3 plays. Recenter so the player faces down the room. 2 s fade into the room. Room hum (S1) already playing. | None |
-| 1. Settle | 0:00 to 5.8 s | Still room. Nothing changes, nothing to find. Dawn light from the window on the right. Dwell is still logged on every target. | None |
-| 2. Observe | From 5.8 s | Smoke starts at P3's vent and is clearly evident by 7.8 s. Sparks and crackle (S2) begin at P3. Observation unlocks for O1, O2, O3 in order (see Observation logic). | Notice, then alert if needed |
-| 3. Act | After O3 is observed | The exit door (I1) unlocks with the same pulse logic. Dwell on the door unlocks it (S4) and opens it, revealing the corridor and extinguisher. | Notice, then alert if needed |
-| Exit | Door open + 4 s | 2 s fade to black with S4. The app then returns to the Enter phase with a fresh session ID so a reviewer can hand the headset to the next viewer without relaunching. The headset system menu (Oculus button) quits the app. | None |
+| 1. Settle | 0:00 to 5.8 s | Still room. Nothing changes, nothing to find. Dawn light from the window on the right. Dwell is logged on every target throughout. | None |
+| 2. Observe | From 5.8 s | Smoke starts at P3's vent and is clearly evident by 7.8 s. Sparks and crackle (S2) begin at P3. `smoke` pulses with notice / alert until observed. `spark` and `boxes` are visible but silent — gaze on them is logged, never prompted. | Notice, then alert if needed |
+| 3. Act | After `smoke` is observed | The fire alarm pull station on the far wall unlocks with the same pulse logic. Dwell on it fires S4 and starts the exit fade immediately. | Notice, then alert if needed |
+| Exit | Alarm observed | 2 s fade to black with S4. The app then returns to the Enter phase with a fresh `session_id` so a reviewer can hand the headset to the next viewer without relaunching. The headset system menu (Oculus button) quits the app. | None |
 
-Pacing: under 18 s for a fast trainee, about 38 s well paced, longer is fine. Nothing times out. The fade-to-black / Enter loop lets a reviewer run back-to-back private demos under a minute each.
+Pacing: under 12 s for a fast trainee, about 22 s well paced, longer is fine. Nothing times out. The fade-to-black / Enter loop lets a reviewer run back-to-back private demos under half a minute each.
 
-## Observation logic
+## Target logic
 
 **Input is head gaze.** Quest 3 has no eye-tracking hardware, so the ray comes from the center of the headset view. Build it so true eye tracking can replace the ray source later without touching the targets.
 
@@ -95,29 +94,35 @@ Pacing: under 18 s for a fast trainee, about 38 s well paced, longer is fine. No
 - If that blocks you, a sphere trace from the HMD camera each tick is acceptable (radius 5 cm, range 6 m, dedicated `Gaze` trace channel). Email us which you used.
 - No visible reticle in the shipping build. A debug reticle behind a console toggle is welcome.
 
-**Targets, in order**
+**Targets**
 
-| Order | ID | Target | Role | Gaze volume |
+| ID | Target | Kind | Role | Gaze volume |
 | --- | --- | --- | --- | --- |
-| 1 | O1 | Smoke at P3's vent | Observation | Box around the upper vent and lower plume |
-| 2 | O2 | Spark at P3 | Observation | Small box around the spark point at the vent's right edge, separate from O1 |
-| 3 | O3 | Boxes **in** the keep-clear zone | Observation | Box stack meshes |
-| 4 | I1 | Exit door | Interaction | Door mesh |
+| `smoke` | Smoke at P3's vent | Pulsed | Observation | Box around the upper vent and lower plume |
+| `alarm` | Fire alarm pull station on the far wall | Pulsed | Interaction | Box around the pull station lever and faceplate |
+| `spark` | Spark at the right edge of P3's vent | Logged | Observation | Small box around the spark point, separate from `smoke` |
+| `boxes` | Cardboard boxes in the keep-clear zone | Logged | Observation | Box stack meshes |
 
-One reusable component, `BP_GazeTarget`, drives all four. Each carries a `Role` field (Observation or Interaction). Both roles look and behave the same in this test; the field exists so later scenarios can treat them differently.
+Two kinds. **Pulsed** targets drive the scene: they unlock in order (`smoke`, then `alarm` once `smoke` is observed), use the Notice / Alert pulse logic below, and the second one ending triggers the exit. **Logged** targets are visible from fade-in and never pulse; their only job is to record where the trainee looked without prompting. All four write the same `BP_GazeTarget` events, so the dashboard treats them uniformly.
 
-**Rules per target**
+**Rules per pulsed target**
 
-1. **Unlock.** O1 unlocks at 5.8 s. Each later target unlocks the moment the previous one is observed.
-2. **Grace.** For 2 s after unlock, no pulse. If the target is observed in that window, skip its pulses and unlock the next.
-3. **Notice.** If not yet observed after 2 s, play exactly 2 notice pulses at 0.8x speed (1.5 s per pulse, 3 s total). If observed during them, fade out over 0.3 s and unlock the next.
-4. **Alert.** If still not observed after both notice pulses finish, fade in the alert pulse: 2.8x speed (about 0.43 s per pulse), looping until observed. Then fade out over 0.3 s and unlock the next.
+1. **Unlock.** `smoke` unlocks at 5.8 s with the smoke appearance. `alarm` unlocks the moment `smoke` is observed.
+2. **Grace.** For 2 s after unlock, no pulse. If the target is observed in that window, skip its pulses and continue (unlock the next pulsed target, or fire the exit if this is `alarm`).
+3. **Notice.** If not yet observed after 2 s, play exactly 2 notice pulses at 0.8x speed (1.5 s per pulse, 3 s total). If observed during them, fade out over 0.3 s and continue.
+4. **Alert.** If still not observed after both notice pulses finish, fade in the alert pulse: 2.8x speed (about 0.43 s per pulse), looping until observed. Then fade out over 0.3 s and continue.
 5. **Observed.** Continuous dwell reaches the target's threshold while it is unlocked. Gaps under 0.25 s do not reset dwell.
+
+**Logged targets**
+
+- `spark` and `boxes` are active from `fade_in_complete`. They never unlock in a turn, never pulse, and never time out.
+- `gaze_enter`, `gaze_exit` and dwell on them run the whole session.
+- They trigger nothing in the scene; the dashboard scores them as "did the trainee look without being prompted?"
 
 **Dwell**
 
-- Threshold per target, tunable from 1.2 to 1.8 s. Defaults: O1 1.5 s, O2 1.2 s, O3 1.5 s, I1 1.8 s.
-- Dwell is tracked on every target the whole session, including Settle and before a target unlocks. Only dwell inside its unlocked turn counts as observed.
+- Threshold per pulsed target, tunable from 1.2 to 1.8 s. Defaults: `smoke` 1.5 s, `alarm` 1.8 s.
+- Dwell is tracked on every target the whole session. For pulsed targets, only dwell inside the unlocked turn counts as *observed*.
 - Every number on this page is a variable on the component or a data asset, never hardcoded.
 
 **Pulse look**
@@ -126,12 +131,13 @@ Reference from our police sim (the pulsing toolbox). Ignore its text panel: ther
 
 <video src="media/highlight-pulse-ref.mp4" controls muted playsinline></video>
 
-- Overlay material: unlit, additive, fresnel edge glow on the target's mesh (vent grille, the panel face around the spark, boxes, exit door). No post-process outline.
+- Overlay material: unlit, additive, fresnel edge glow on the target's mesh (vent grille for `smoke`, pull station faceplate and lever for `alarm`). No post-process outline.
 - Color #ebfcf7. Base cycle 1.2 s at 1.0x speed. Subtle peak: it should read as the object catching light, not a game pickup.
+- Logged targets never show this overlay.
 
 ## Session data
 
-The scene does no scoring. It writes a JSON file per session to the app's storage on the headset so BlendXR's dashboard can score and compare runs. No network calls in this test. Build the logger as one component (`BP_SessionLogger`); schema below is the deliverable contract.
+The scene does no scoring. It writes a JSON file per session to the app's storage on the headset so BlendXR's dashboard can score and compare runs. No network calls in this test. Build the logger as one component (`BP_SessionLogger`); the schema below is the deliverable contract.
 
 The loop in Flow mints a fresh `session_id` every time the room fades back in, so back-to-back private demos stay as separate files.
 
@@ -140,32 +146,33 @@ The loop in Flow mints a fresh `session_id` every time the room fades back in, s
 | Field | Type | Notes |
 | --- | --- | --- |
 | `session_id` | UUIDv4 string | Fresh per run (new one after the restart loop fades the room back in). |
-| `scenario` | string | `"electrical-room-v1"`. Freezes with the brief; bump the suffix when the brief does. |
+| `scenario` | string | `"electrical-room-v2"`. Freezes with the brief; bump the suffix when the brief does. |
 | `build_version` | string | Semver from the project settings. |
 | `device_model` | string | From the Meta XR API. |
 | `started_at` | ISO-8601 UTC | At `fade_in_complete`. |
-| `ended_at` | ISO-8601 UTC | At the restart or quit fade-start. |
-| `ended_reason` | enum | `"completed"` (Exit reached naturally, loop restart next), `"quit"` (Oculus-button quit), `"restart"` (reserved for a future manual restart). |
+| `ended_at` | ISO-8601 UTC | At the restart or quit fade start. |
+| `ended_reason` | enum | `"completed"` (alarm triggered the exit, loop restart next), `"quit"` (Oculus-button quit), `"restart"` (reserved for a future manual restart). |
 | `total_scenario_time_ms` | int | `ended_at` minus `started_at`. |
 | `phases` | object | Per-phase start times in ms from `fade_in_complete`. See example below. |
 
-**Phase timestamps (object `phases`):** `fade_in_complete_ms` (always `0`), `observe_start_ms` (= 5800), `act_start_ms` (first observed moment O3 confirms), `door_open_ms` (I1 confirmed + the pre-swing beat), `exit_fade_start_ms` (`door_open_ms` + 4000), `restart_or_quit_ms` (`exit_fade_start_ms` + 2000; the session file is flushed at this moment).
+**Phase timestamps (object `phases`):** `fade_in_complete_ms` (always `0`), `observe_start_ms` (= 5800), `act_start_ms` (the moment `smoke` is observed), `exit_fade_start_ms` (the moment `alarm` is observed), `restart_or_quit_ms` (`exit_fade_start_ms` + 2000; the session file is flushed at this moment).
 
-**Per-target summary** (one object per target in the `targets` array; order matches the Observation logic table so the dashboard can bar-chart them without a join):
+**Per-target summary** (one object per target in the `targets` array; order matches the Target logic table so the dashboard can bar-chart them without a join):
 
 | Field | Type | Notes |
 | --- | --- | --- |
-| `id` | string | `"O1"`, `"O2"`, `"O3"`, `"I1"`. |
+| `id` | string | `"smoke"`, `"alarm"`, `"spark"`, `"boxes"`. |
+| `kind` | enum | `"pulsed"` or `"logged"`. |
 | `role` | enum | `"Observation"` or `"Interaction"`. |
-| `unlocked_at_ms` | int | When the target's turn begins. |
+| `unlocked_at_ms` | int or `null` | When the pulsed target's turn begins. `null` for logged targets. |
 | `first_gaze_at_ms` | int or `null` | First `gaze_enter` on this target, regardless of lock state. `null` if never gazed. |
-| `first_gaze_in_turn_ms` | int or `null` | First `gaze_enter` on or after `unlocked_at_ms`. `null` if never gazed during its turn. |
-| `observed_at_ms` | int or `null` | When dwell crossed the target's threshold during its turn. `null` if alert pulse never resolved. |
-| `dwell_total_ms` | int | Sum of dwell on this target across the whole session, including Settle. |
-| `dwell_in_turn_ms` | int | Dwell on this target only during its unlocked turn. The scoring metric. |
-| `gaze_gaps_in_turn` | int | Count of `gaze_exit` events during the target's turn before `observed_at_ms` (the 0.25 s gap tolerance does not increment this). |
-| `max_gap_ms_in_turn` | int | Longest gaze gap during the target's turn before `observed_at_ms`. |
-| `pulses_shown` | enum | `"none"`, `"notice"`, `"alert"`. The strongest cue that fired. |
+| `first_gaze_in_turn_ms` | int or `null` | First `gaze_enter` on or after `unlocked_at_ms`. `null` for logged targets and for pulsed targets never gazed during their turn. |
+| `observed_at_ms` | int or `null` | When dwell crossed the pulsed target's threshold during its turn. `null` for logged targets; `null` for pulsed targets whose alert pulse never resolved. |
+| `dwell_total_ms` | int | Sum of dwell on this target across the whole session. The scoring metric for logged targets. |
+| `dwell_in_turn_ms` | int or `null` | Dwell on this target only during its unlocked turn. The scoring metric for pulsed targets. `null` for logged targets. |
+| `gaze_gaps_in_turn` | int or `null` | Count of `gaze_exit` events during the pulsed target's turn before `observed_at_ms` (the 0.25 s gap tolerance does not increment this). `null` for logged targets. |
+| `max_gap_ms_in_turn` | int or `null` | Longest gaze gap during the pulsed target's turn before `observed_at_ms`. `null` for logged targets. |
+| `pulses_shown` | enum or `null` | `"none"`, `"notice"`, `"alert"`. The strongest cue that fired. `null` for logged targets. |
 
 **Events to log** (array `events`, ordered by `t_ms`, time in ms from `fade_in_complete`):
 
@@ -180,7 +187,6 @@ The loop in Flow mints a fresh `session_id` every time the room fades back in, s
 | `pulse_notice_start` | `target` |
 | `pulse_alert_start` | `target` |
 | `observed` | `target` |
-| `door_opened` | — |
 | `exit_fade_start` | — |
 | `session_end` | `reason` ∈ {`completed`, `quit`, `restart`} |
 
@@ -189,34 +195,39 @@ The loop in Flow mints a fresh `session_id` every time the room fades back in, s
 ```json
 {
   "session_id": "7b3b4f6a-5b10-4a1f-8c92-98e7cae0f9ad",
-  "scenario": "electrical-room-v1",
+  "scenario": "electrical-room-v2",
   "build_version": "0.9.0",
   "device_model": "Quest 3",
   "started_at": "2026-11-14T08:30:00.000Z",
-  "ended_at":   "2026-11-14T08:30:27.420Z",
+  "ended_at":   "2026-11-14T08:30:14.120Z",
   "ended_reason": "completed",
-  "total_scenario_time_ms": 27420,
+  "total_scenario_time_ms": 14120,
   "phases": {
     "fade_in_complete_ms": 0,
     "observe_start_ms": 5800,
-    "act_start_ms": 15230,
-    "door_open_ms": 20120,
-    "exit_fade_start_ms": 24120,
-    "restart_or_quit_ms": 26120
+    "act_start_ms": 8120,
+    "exit_fade_start_ms": 12120,
+    "restart_or_quit_ms": 14120
   },
   "targets": [
-    { "id": "O1", "role": "Observation", "unlocked_at_ms": 5800,  "first_gaze_at_ms": 6230, "first_gaze_in_turn_ms": 6230, "observed_at_ms": 7730, "dwell_total_ms": 1500, "dwell_in_turn_ms": 1500, "gaze_gaps_in_turn": 0, "max_gap_ms_in_turn": 0,   "pulses_shown": "none"   },
-    { "id": "O2", "role": "Observation", "unlocked_at_ms": 7730,  "first_gaze_at_ms": 9120, "first_gaze_in_turn_ms": 9120, "observed_at_ms": 10320,"dwell_total_ms": 1200, "dwell_in_turn_ms": 1200, "gaze_gaps_in_turn": 1, "max_gap_ms_in_turn": 180, "pulses_shown": "notice" },
-    { "id": "O3", "role": "Observation", "unlocked_at_ms": 10320, "first_gaze_at_ms": null,"first_gaze_in_turn_ms": null, "observed_at_ms": 15230,"dwell_total_ms": 1500, "dwell_in_turn_ms": 1500, "gaze_gaps_in_turn": 0, "max_gap_ms_in_turn": 0,   "pulses_shown": "alert"  },
-    { "id": "I1", "role": "Interaction","unlocked_at_ms": 15230, "first_gaze_at_ms": 15490,"first_gaze_in_turn_ms": 15490,"observed_at_ms": 20120,"dwell_total_ms": 1800, "dwell_in_turn_ms": 1800, "gaze_gaps_in_turn": 2, "max_gap_ms_in_turn": 220, "pulses_shown": "notice" }
+    { "id": "smoke", "kind": "pulsed", "role": "Observation",  "unlocked_at_ms": 5800,  "first_gaze_at_ms": 6230, "first_gaze_in_turn_ms": 6230, "observed_at_ms": 8120,  "dwell_total_ms": 1500, "dwell_in_turn_ms": 1500, "gaze_gaps_in_turn": 0, "max_gap_ms_in_turn": 0,   "pulses_shown": "none"   },
+    { "id": "alarm", "kind": "pulsed", "role": "Interaction",  "unlocked_at_ms": 8120,  "first_gaze_at_ms": 8540, "first_gaze_in_turn_ms": 8540, "observed_at_ms": 12120, "dwell_total_ms": 1800, "dwell_in_turn_ms": 1800, "gaze_gaps_in_turn": 1, "max_gap_ms_in_turn": 180, "pulses_shown": "notice" },
+    { "id": "spark", "kind": "logged", "role": "Observation",  "unlocked_at_ms": null,  "first_gaze_at_ms": 3100, "first_gaze_in_turn_ms": null, "observed_at_ms": null,  "dwell_total_ms": 420,  "dwell_in_turn_ms": null, "gaze_gaps_in_turn": null, "max_gap_ms_in_turn": null, "pulses_shown": null },
+    { "id": "boxes", "kind": "logged", "role": "Observation",  "unlocked_at_ms": null,  "first_gaze_at_ms": null, "first_gaze_in_turn_ms": null, "observed_at_ms": null,  "dwell_total_ms": 0,    "dwell_in_turn_ms": null, "gaze_gaps_in_turn": null, "max_gap_ms_in_turn": null, "pulses_shown": null }
   ],
   "events": [
     { "t_ms": 0,     "kind": "fade_in_complete" },
+    { "t_ms": 3100,  "kind": "gaze_enter", "target": "spark" },
+    { "t_ms": 3520,  "kind": "gaze_exit",  "target": "spark" },
     { "t_ms": 5800,  "kind": "observe_phase_start" },
-    { "t_ms": 5800,  "kind": "unlocked", "target": "O1" },
-    { "t_ms": 6230,  "kind": "gaze_enter", "target": "O1" },
-    { "t_ms": 7730,  "kind": "observed",  "target": "O1" },
-    "…"
+    { "t_ms": 5800,  "kind": "unlocked", "target": "smoke" },
+    { "t_ms": 6230,  "kind": "gaze_enter", "target": "smoke" },
+    { "t_ms": 8120,  "kind": "observed",  "target": "smoke" },
+    { "t_ms": 8120,  "kind": "act_phase_start" },
+    { "t_ms": 8120,  "kind": "unlocked", "target": "alarm" },
+    "…",
+    { "t_ms": 12120, "kind": "exit_fade_start" },
+    { "t_ms": 14120, "kind": "session_end", "reason": "completed" }
   ]
 }
 ```
@@ -230,9 +241,8 @@ Rules the logger must follow so dashboards from different builds stay comparable
 
 ## Interaction, hands and movement
 
-- **Door.** When I1 is observed, S4 plays and the door swings open on its own over about 1.5 s. No grab, no button.
-- **Corridor.** Short corridor behind the door with a wall-mounted extinguisher in clear view. It only needs to seem like the scene continues beyond the door. Build it so a later scene could load from it on a new level.
-- **Hands.** Tracked hands (Quest hand tracking) with the hands material we supply. No controllers. Hands are for presence only; nothing is grabbed or pressed.
+- **Fire alarm.** The fire alarm pull station on the far wall is the exit interaction. When it is observed (gaze dwell meets its threshold), S4 plays and the scene fades to black over 2 s. No arm reach, no grab, no button press — the dwell is the pull. Visually, the lever can tilt down a few degrees as feedback, but that is cosmetic.
+- **Hands.** Tracked hands with Quest hand tracking; apply the gloves from Assets for presence. No controllers. Hands are for presence only; nothing is grabbed or pressed.
 - **Movement.** Restricted. No locomotion, teleport or snap turn. The player can turn and lean physically. Clamp the player to about a 1 m radius around the start point so they cannot walk into panels or through walls; fade to black briefly if they push past it. The clamp replaces collision setup, so no collisions are needed.
 
 ## Visual and audio direction
@@ -254,7 +264,7 @@ Rules the logger must follow so dashboards from different builds stay comparable
 | S1 | `hum-electric.mp3` | Room hum. Loop from the fade-in. Non-spatial or very wide. |
 | S2 | `crackle.mp3` | Spatialized at P3. Plays with each spark, randomized pitch (plus or minus 10%). |
 | S3 | `EnterApp.mp3` | Plays once over the black screen at app start, leading into the fade-in. Non-spatial. |
-| S4 | `unlocking-metal-door.mp3` | Spatialized at the door. Plays when I1 is observed, before the door swings open, and again during the 2 s fade to black at the restart/quit transition. |
+| S4 | `fire-alarm.mp3` | Spatialized at the fire alarm pull station. Plays when `alarm` is observed and continues through the 2 s fade to black at the restart/quit transition. |
 
 No other sounds. The trainee should be able to turn toward P3 by ear alone.
 
@@ -267,31 +277,32 @@ Three sources: paid packs and our own files, which BlendXR supplies; free Fab li
 | Asset | Use for |
 | --- | --- |
 | [Hospital Generator & Utility Room](https://www.fab.com/listings/738ef059-522b-4909-b9c5-52a280b9eadc) by Red Blue Pixel Studio (download from BlendXR's Fab account, see below) | Floor and wall materials, cardboard boxes, crates, cables, vents, signs, utility props |
-| [Realistic Gloves Pack](https://www.fab.com/listings/58794730-2855-4361-8f89-6af80d947f13) (download from BlendXR's Fab account, see below) | VR hands material |
 | `hum-electric.mp3` (S1, download below) | Room hum |
 | `crackle.mp3` (S2, download below) | Spark crackle |
 | `EnterApp.mp3` (S3, download below) | App start |
-| `unlocking-metal-door.mp3` (S4, download below) | Door unlock and the restart/quit fade |
+| `fire-alarm.mp3` (S4, download below) | Alarm pull and the exit fade |
 | Highlight pulse reference | Video above |
 
-Download the Hospital Generator & Utility Room pack and the Realistic Gloves Pack from BlendXR's Fab account (airem). airem@blendxr.online will send the login separately and handle sign-in codes during reply windows. Sign in, add both packs to your project, sign out, and email us when it's done. The password will be changed after that. Use the account only for these two packs: no other downloads, purchases or setting changes. Use the packs only for this project, do not share them further, and delete them when the test ends.
+Download the Hospital Generator & Utility Room pack from BlendXR's Fab account (airem). airem@blendxr.online will send the login separately and handle sign-in codes during reply windows. Sign in, add the pack to your project, sign out, and email us when it is done. The password will be changed after that. Use the account only for that pack: no other downloads, purchases or setting changes. Use the pack only for this project, do not share it further, and delete it when the test ends.
 
 **Free on Fab** (download directly)
 
 | Listing | Use for |
 | --- | --- |
+| [Gloves material](https://www.fab.com/listings/58794730-2855-4361-8f89-6af80d947f13) | Mesh and material for the tracked hands |
+| [Fire Alarm Button](https://www.fab.com/search?q=fire+alarm+pull+station) | Pull station on the far wall (pick the listing closest to a US / EU red-faceplate pull; email us before swapping to a toggle or push style) |
+| [Fire extinguisher](https://www.fab.com/listings/28f9f3a5-6ab9-4de3-8aec-a492b1cce4e4) | Wall-mounted dressing near the alarm (visual only; not interacted with) |
 | [Industrial items](https://www.fab.com/listings/060bde6d-33f7-46b8-9c8a-b209d6036d5e) | Panels and industrial dressing |
 | [Safety factory pack](https://www.fab.com/listings/bf7f4251-d518-42b9-a2f9-7094016e7ecc) | Safety equipment and signage |
-| [Fire extinguisher](https://www.fab.com/listings/28f9f3a5-6ab9-4de3-8aec-a492b1cce4e4) | Corridor extinguisher |
 | [Fluorescent ceiling lamp (Megascans)](https://www.fab.com/listings/ed5b0308-d5e5-44ba-b271-af87bedcb547) | Ceiling fixtures |
 | [Dawn sky](https://www.fab.com/listings/6d7cdbd3-4d9e-48ba-982a-f4aa07d078e4) | Window exterior |
 
 **Build in Unreal**
 
 - Keep-clear floor markings: simple planes with a flat yellow material. No asset needed.
-- Corridor, lighting and the window frame, using the packs above where they fit.
+- The far-wall mount plate and conduit around the alarm, using the packs above where they fit.
 
-This build stays private, so free and non-commercial assets are fine. The 14-day clock starts when you tick the Day 0 confirmation below to confirm you can access every asset linked here. Please tick the Day 0 confirmation below by Tuesday, November 3.
+This build stays private, so free and non-commercial assets are fine. The 14-day clock starts when you tick the Day 0 confirmation below to confirm you can access every asset linked here. Please tick the Day 0 confirmation below by end of day Friday, November 6.
 
 <!-- DOWNLOADS PANEL: rendered here by the page (see page-spec.md) -->
 
@@ -301,14 +312,14 @@ The project matters as much as the APK. We are testing how you build, solve prob
 
 | Day | Checkpoint | What we receive |
 | --- | --- | --- |
-| 0 | Start | Tick the Day 0 confirmation below. Clock starts on tick. |
-| 4 | Gray box | Headset capture video: room blocked out, gaze working on all 4 targets with debug reticle on. |
-| 9 | First APK | Full flow from fade-in through the restart loop, pulses and the session log export writing to headset storage with the schema in Session data, placeholder art acceptable |
-| 14 | Final | Final APK, zipped project with full Git history, README, two sample session files (one `"completed"`, one `"quit"`) that match the schema in Session data |
+| 0 | Start | Tick the Day 0 confirmation below. Clock starts on tick. Day 4, 9 and 14 due dates appear once Day 0 is recorded. |
+| 4 | Gray box | Headset capture video: room blocked out, gaze working on all 4 targets (`smoke`, `alarm`, `spark`, `boxes`) with the debug reticle on. |
+| 9 | First APK | Full flow from fade-in through the restart loop, the two pulsed targets working, the two logged targets writing dwell, and the session log export writing to headset storage with the schema in Session data. Placeholder art acceptable. |
+| 14 | Final | Final APK, zipped project with full Git history, README, two sample session files (one `"completed"`, one `"quit"`) that match the schema in Session data. |
 
 **Performance**
 
-- 72 fps locked minimum on Quest 3, 90 fps if achievable. No drops on fade-in, smoke start, door or exit.
+- 72 fps locked minimum on Quest 3, 90 fps if achievable. No drops on fade-in, smoke start, alarm or exit fade.
 - Run the Meta XR Project Setup Tool for Quest 3 ([docs](https://developers.meta.com/horizon/documentation/unreal/unreal-project-setup-tool)) and apply all Required and Recommended rules. List any rule you ignored and why.
 - Baked lighting, no dynamic shadows, no volumetrics.
 

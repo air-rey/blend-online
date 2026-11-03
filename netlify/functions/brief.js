@@ -36,10 +36,10 @@ const CURRENT_NDA_VERSION = '2026-11-02';
 // `volga/<key>` in the `downloads` private bucket. The upload step is a
 // one-time admin action; see README.md.
 const DOWNLOADS = [
-  { label: 'S1 Room hum',        key: 'hum-electric.mp3' },
-  { label: 'S2 Spark crackle',   key: 'crackle.mp3' },
-  { label: 'S3 App start',       key: 'EnterApp.mp3' },
-  { label: 'S4 Door unlock and app quit', key: 'unlocking-metal-door.mp3' }
+  { label: 'S1 Room hum',             key: 'hum-electric.mp3' },
+  { label: 'S2 Spark crackle',        key: 'crackle.mp3' },
+  { label: 'S3 App start',            key: 'EnterApp.mp3' },
+  { label: 'S4 Fire alarm (app exit)', key: 'fire-alarm.mp3' }
 ];
 
 // Checkpoints for the uploads panel. Day 0 is a confirmation checkbox,
@@ -102,10 +102,17 @@ function panelHtml (which, state = {}) {
       // that, Day 4/9/14 start locked and the Day 0 checkbox handler peels
       // the lock off Day 4 on success.
       const locked = (idx > 0) && !day0TickedAt;
+      // Day N due date = Day 0 tick + N days. Shown only once Day 0 is
+      // ticked; before that, the row is locked and the due date is hidden.
+      let dueCell = '';
+      if (day0TickedAt) {
+        const dueAt = new Date(new Date(day0TickedAt).getTime() + cp.day * 24 * 60 * 60 * 1000);
+        dueCell = `<div style="color:var(--muted); font-size:12px; margin-top:4px;">Due ${esc(dueAt.toUTCString())}</div>`;
+      }
       return `
         <tr data-day="${cp.day}" class="up-row"${locked ? ' data-locked="1"' : ''}>
           <td><strong>Day ${cp.day}</strong></td>
-          <td>${esc(cp.label)}<div style="color:var(--muted); font-size:12px; margin-top:4px;">${esc(cp.hint)}</div></td>
+          <td>${esc(cp.label)}<div style="color:var(--muted); font-size:12px; margin-top:4px;">${esc(cp.hint)}</div>${dueCell}</td>
           <td style="text-align:right;">
             <input type="file" class="up-input" accept="${esc(cp.accepts)}" style="display:none;">
             <button type="button" class="btn btn--ghost up-pick">Choose file…</button>

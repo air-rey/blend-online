@@ -12,7 +12,7 @@ const ALLOWED = new Set([
   'hum-electric.mp3',
   'crackle.mp3',
   'EnterApp.mp3',
-  'unlocking-metal-door.mp3'
+  'fire-alarm.mp3'
 ]);
 
 exports.handler = async function (event) {

@@ -8,15 +8,16 @@ These notes cover only this resource. The site-wide rules (gate, tokens, waterma
 | --- | --- |
 | Type | `brief` |
 | Slug (admin only, never in the URL) | `volga-test-scene` |
-| Access URL | `blendxr.online/r/<token>`, one token for Volga's contact email |
-| Agreement | `BlendXR_Volga_Contractor_Agreement_v2.docx` (contractor agreement, not the mutual NDA) |
+| Access URL | `blendxr.online/r`, gated by the session cookie minted after the agreement |
+| Agreement | `BlendXR_Volga_Test_Agreement_v3.docx` (test agreement, not the mutual NDA). Current text in `private-content/volga-test-scene/agreement.txt`, version `2026-11-03`. |
 | Content | `brief.md` (this folder), rendered in the BlendXR design system |
-| Expires | Project end date + 7 days. Day 0 is not fixed yet, so set `expires_at` to 2026-11-24 for now and extend from admin once day 0 is confirmed. |
+| Day 0 window | Open 2026-11-03. Due end of day 2026-11-06. If not ticked by then, send a one-shot reminder to `airem@blendxr.online`. |
+| Expires | 2026-11-27 (grant `expires_at`). Project end date + buffer; extend from admin if Day 0 slips. |
 
 ## Page flow
 
-1. **Token check.** Valid token for this resource and email, or back to the gate.
-2. **Agreement step.** Show the full agreement text. The signer types their full name, title and company legal name, and ticks "I am authorized to sign for Volga Infosys". Store name, title, email, timestamp (UTC), IP, user agent, and a SHA-256 hash of the agreement file version shown. No content renders before this succeeds.
+1. **Token check.** Valid session for this resource and email, or back to the gate.
+2. **Agreement step.** Show the full agreement text. The signer provides company name, signer name, title and email, then ticks "I am authorised to sign for this company." Store name, title, email, timestamp (UTC), IP, user agent, and a SHA-256 hash of the agreement file version shown. No content renders before this succeeds. "I'm not the signatory" opens the handoff flow (`not-signatory.js`). A countersigned PDF is emailed to the signer + airem + vedika; the user-facing download has been removed.
 3. **Brief.** Render `brief.md` top to bottom. Two HTML comments in it mark where panels go:
    - `<!-- DOWNLOADS PANEL -->` after the Assets section
    - `<!-- UPLOADS PANEL -->` at the end, before Sources
@@ -33,14 +34,16 @@ These notes cover only this resource. The site-wide rules (gate, tokens, waterma
 
 ## Downloads panel
 
+Exactly four files, all audio:
+
 | Label | File |
 | --- | --- |
 | S1 Room hum | `hum-electric.mp3` |
 | S2 Spark crackle | `crackle.mp3` |
 | S3 App start | `EnterApp.mp3` |
-| S4 Door unlock and app quit | `unlocking-metal-door.mp3` |
+| S4 Fire alarm (app exit) | `fire-alarm.mp3` |
 
-The gloves/hands material is NOT downloaded through the deal room any more: Volga pulls the Realistic Gloves Pack from BlendXR's Fab account, same flow as the Hospital Generator & Utility Room pack. See brief.md.
+The gloves pack is NOT downloaded through the deal room: Volga pulls the Gloves material listing from Fab directly, per the Assets table in `brief.md`.
 
 Log every download (who, file, time).
 
@@ -50,15 +53,19 @@ One row per checkpoint. Each row has a checkbox the partner ticks when uploaded,
 
 | Day | Checkpoint | Accepts | Required files |
 | --- | --- | --- | --- |
-| 0 | Start confirmation | No upload. Checkbox only: "We can access every asset and the setup works." Ticking it emails airem@blendxr.online and records the time as day 0. | None |
+| 0 | Start confirmation | No upload. Checkbox only: "We can access every asset and the setup works." Ticking it records `checkpoint_status.ticked_at`, emails airem + vedika, and locks the checkbox so it cannot be un-ticked. | None |
 | 4 | Gray box | `.mp4`, `.mov` | 1 headset capture video |
 | 9 | First APK | `.apk` | 1 APK |
-| 14 | Final delivery | `.apk`, `.zip`, `.md`, `.json` | Final APK, project zip (with .git and LFS), README, sample session file |
+| 14 | Final delivery | `.apk`, `.zip`, `.md`, `.json` | Final APK, project zip (with .git and LFS), README, two sample session files (one `"completed"`, one `"quit"`) |
 
 - Uploads are versioned, never overwritten. Show the partner only filename, size, time and a status of Received, then Reviewed or Changes requested (set by BlendXR in admin).
 - Record uploader, checkpoint, filename, size, SHA-256 and timestamp. Email airem@blendxr.online on every upload.
 - Day 14 zips can be several GB: use resumable uploads, per the deal room spec.
-- Show the day 4, 9 and 14 due dates once day 0 is recorded (day 0 + 4, + 9, + 14).
+- Day 4, 9 and 14 due dates render only after Day 0 is recorded (day 0 + 4, + 9, + 14).
+
+## Day 0 reminder
+
+A scheduled Netlify Function (`netlify/functions/day0-reminder.js`, cron-driven) runs daily and, if the Volga grant has no Day 0 checkpoint_status row by the end of 2026-11-06 UTC, sends a one-shot email to airem@blendxr.online and inserts an `events` row (`kind: "day0_missed_reminder_sent"`) so it does not fire twice.
 
 ## Do not render
 

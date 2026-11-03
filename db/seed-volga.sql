@@ -22,14 +22,13 @@ values ('00000000-0000-0000-0000-000000000001'::uuid, 'Shivam', 'shivam@volgainf
 on conflict (email) do nothing;
 
 -- Shivam's grant.
---   Start:   2026-11-01 (today)
---   Expiry:  2026-11-14 end of day (14 days, Day 0 .. Day 14 inclusive)
--- Once Shivam ticks Day 0 to confirm he has everything and can start, we
--- can update expires_at to be exactly 14 days from his tick timestamp.
--- Until then, keep the hard 2026-11-14 ceiling.
+--   Start:   2026-11-03 (brief issued)
+--   Expiry:  2026-11-27 end of day (Day 0 window closes 2026-11-06, then
+--            14-day build runs through 2026-11-20; add a 7-day admin buffer).
+-- expires_at can be bumped from admin once Day 0 is actually ticked.
 insert into grants (resource_id, person_id, expires_at, agreement_required)
 select '00000000-0000-0000-0000-000000000002'::uuid, id,
-       '2026-11-14T23:59:59Z'::timestamptz, true
+       '2026-11-27T23:59:59Z'::timestamptz, true
 from people where email = 'shivam@volgainfosys.com'
 and not exists (
   select 1 from grants

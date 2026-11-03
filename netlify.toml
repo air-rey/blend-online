@@ -52,6 +52,12 @@
   to     = "/.netlify/functions/download-url/:splat"
   status = 200
 
+# Scheduled jobs. Netlify fires the function at `schedule` (UTC cron)
+# with no HTTP request body; the function also responds to manual POSTs
+# for QA.
+[functions."day0-reminder"]
+  schedule = "0 9 * * *"
+
 # Deal room pages must never be indexed and must never be cached by a
 # shared cache. Function responses set their own headers too; this is a
 # belt-and-suspenders rule for the static gate page.
