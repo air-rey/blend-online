@@ -1,7 +1,9 @@
 // Tiny markdown-to-HTML renderer. Supports: headings, paragraphs, ordered
-// and bulleted lists, bold, italic, inline code, links, images, pipe-tables,
-// HTML comments (preserved for panel markers), and raw <video> blocks that
-// the brief uses for inline video. Enough for brief.md as it is today.
+// and bulleted lists, bold, italic, inline code, fenced code blocks
+// (```lang ... ```), links, images, pipe-tables, HTML comments (preserved
+// for panel markers), raw <video> blocks that the brief uses for inline
+// video, and raw <details>/<summary> blocks for collapsible sections.
+// Enough for brief.md as it is today.
 //
 // NOT a full CommonMark parser: nested blocks (list in a quote, list in a
 // list beyond one level) are not supported. The brief does not use them.
@@ -93,6 +95,29 @@ function render (md, opts = {}) {
       // skip until </video> on its own line
       while (i < lines.length && !/<\/video>/i.test(lines[i])) i++;
       i++; // past </video>
+      continue;
+    }
+
+    // Raw <details>, </details>, <summary>…</summary> pass through
+    // verbatim. Content between them is still processed as markdown.
+    if (/^\s*<details(\s[^>]*)?>\s*$/i.test(line) ||
+        /^\s*<\/details>\s*$/i.test(line) ||
+        /^\s*<summary(\s[^>]*)?>.*<\/summary>\s*$/i.test(line) ||
+        /^\s*<\/?summary(\s[^>]*)?>\s*$/i.test(line)) {
+      out.push(line.trim());
+      i++;
+      continue;
+    }
+
+    // Fenced code block ```lang ... ```
+    if (/^```/.test(line)) {
+      const lang = line.replace(/^```/, '').trim();
+      i++;
+      const buf = [];
+      while (i < lines.length && !/^```\s*$/.test(lines[i])) { buf.push(lines[i]); i++; }
+      i++; // past closing ```
+      const cls = lang ? ` class="language-${esc(lang)}"` : '';
+      out.push(`<pre><code${cls}>${esc(buf.join('\n'))}</code></pre>`);
       continue;
     }
 

@@ -62,7 +62,17 @@ function page ({ title, bodyHtml, extraHead = '', extraCss = '', extraJs = '' })
   em { color: var(--text-strong); font-style: italic; }
   code { font-family: ui-monospace, Menlo, monospace; font-size: 0.92em; background: rgba(255,255,255,0.06); padding: 0 4px; border-radius: 3px; }
   pre { background: #0a0a0a; border: 1px solid var(--hairline); border-radius: 8px; padding: 14px; overflow-x: auto; }
+  pre, pre code { font-size: 12px; line-height: 1.5; }
   pre code { background: none; padding: 0; }
+  details { background: rgba(255,255,255,0.025); border: 1px solid var(--hairline); border-radius: 8px; padding: 10px 16px; margin: 0 0 1.4em; }
+  details[open] { padding-bottom: 16px; }
+  details > *:not(summary):not(:last-child) { margin-bottom: 1em; }
+  details > *:first-child + * { margin-top: 12px; }
+  summary { cursor: pointer; font: 500 12px/1.4 'Teko', sans-serif; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); padding: 4px 0; list-style: none; user-select: none; }
+  summary::-webkit-details-marker, summary::marker { display: none; content: ''; }
+  summary::before { content: '▸'; display: inline-block; width: 14px; color: var(--text-strong); }
+  details[open] > summary::before { content: '▾'; }
+  summary:hover { color: var(--text-strong); }
   hr { border: 0; border-top: 1px solid var(--hairline); margin: 2em 0; }
   table { width: 100%; border-collapse: collapse; margin: 0 0 1.4em; font: 400 14px/1.55 'Rajdhani', sans-serif; }
   table th, table td { border-top: 1px solid var(--hairline); padding: 10px 12px; text-align: left; vertical-align: top; }

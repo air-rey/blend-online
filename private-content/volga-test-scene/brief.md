@@ -88,13 +88,7 @@ Pacing: under 12 s for a fast trainee, about 22 s well paced, longer is fine. No
 
 ## Target logic
 
-**Input is head gaze.** Quest 3 has no eye-tracking hardware, so the ray comes from the center of the headset view. Build it so true eye tracking can replace the ray source later without touching the targets.
-
-- Use Meta XR Interaction SDK gaze: enable gaze in project settings and add the gaze rig component to the pawn.
-- If that blocks you, a sphere trace from the HMD camera each tick is acceptable (radius 5 cm, range 6 m, dedicated `Gaze` trace channel). Email us which you used.
-- No visible reticle in the shipping build. A debug reticle behind a console toggle is welcome.
-
-**Targets**
+Input is head gaze. Quest 3 has no eye-tracking hardware, so the ray comes from the center of the headset view. Four gaze targets, two kinds:
 
 | ID | Target | Kind | Role | Gaze volume |
 | --- | --- | --- | --- | --- |
@@ -103,7 +97,16 @@ Pacing: under 12 s for a fast trainee, about 22 s well paced, longer is fine. No
 | `spark` | Spark at the right edge of P3's vent | Logged | Observation | Small box around the spark point, separate from `smoke` |
 | `boxes` | Cardboard boxes in the keep-clear zone | Logged | Observation | Box stack meshes |
 
-Two kinds. **Pulsed** targets drive the scene: they unlock in order (`smoke`, then `alarm` once `smoke` is observed), use the Notice / Alert pulse logic below, and the second one ending triggers the exit. **Logged** targets are visible from fade-in and never pulse; their only job is to record where the trainee looked without prompting. All four write the same `BP_GazeTarget` events, so the dashboard treats them uniformly.
+**Pulsed** targets drive the scene: `smoke` unlocks at 5.8 s; `alarm` unlocks the moment `smoke` is observed; observing `alarm` fires the exit. Each pulsed target cycles through grace → notice pulse → alert pulse until observed. **Logged** targets are visible from fade-in and never pulse; their only job is to record where the trainee looked without prompting. All four write the same `BP_GazeTarget` events so the dashboard treats them uniformly.
+
+<details>
+<summary>Target rules in detail (SDK, pulse timings, dwell thresholds, pulse look)</summary>
+
+**Gaze input**
+
+- Use Meta XR Interaction SDK gaze: enable gaze in project settings and add the gaze rig component to the pawn.
+- If that blocks you, a sphere trace from the HMD camera each tick is acceptable (radius 5 cm, range 6 m, dedicated `Gaze` trace channel). Email us which you used.
+- No visible reticle in the shipping build. A debug reticle behind a console toggle is welcome.
 
 **Rules per pulsed target**
 
@@ -135,11 +138,16 @@ Reference from our police sim (the pulsing toolbox). Ignore its text panel: ther
 - Color #ebfcf7. Base cycle 1.2 s at 1.0x speed. Subtle peak: it should read as the object catching light, not a game pickup.
 - Logged targets never show this overlay.
 
+</details>
+
 ## Session data
 
-The scene does no scoring. It writes a JSON file per session to the app's storage on the headset so BlendXR's dashboard can score and compare runs. No network calls in this test. Build the logger as one component (`BP_SessionLogger`); the schema below is the deliverable contract.
+The scene writes a JSON file per session to the app's storage on the headset so BlendXR's dashboard can score and compare runs. No network calls in this test. A fresh `session_id` is minted every time the room fades back in, so back-to-back private demos stay as separate files.
 
-The loop in Flow mints a fresh `session_id` every time the room fades back in, so back-to-back private demos stay as separate files.
+Build the logger as one component (`BP_SessionLogger`). Per session it records: target IDs, when each pulsed target unlocked, first-gaze time, dwell duration (total and in-turn), observed time, which pulse level fired, and total scenario time. Field names and types are frozen in the schema below so the Unreal build and the BlendXR dashboard converge on the same contract.
+
+<details>
+<summary>Full session-file schema (field names, event list, sample file)</summary>
 
 **Session header**
 
@@ -190,7 +198,8 @@ The loop in Flow mints a fresh `session_id` every time the room fades back in, s
 | `exit_fade_start` | — |
 | `session_end` | `reason` ∈ {`completed`, `quit`, `restart`} |
 
-**Example** (abbreviated):
+<details>
+<summary>Sample session file (abbreviated JSON)</summary>
 
 ```json
 {
@@ -232,12 +241,16 @@ The loop in Flow mints a fresh `session_id` every time the room fades back in, s
 }
 ```
 
+</details>
+
 Rules the logger must follow so dashboards from different builds stay comparable:
 
 - Keep every field name and enum value exactly as above. If a field is unknown, write `null`, never omit it.
 - Write the file atomically (temp file + rename) at the `restart_or_quit_ms` moment so the loop never produces a half-flushed file.
 - Also print each event to the output log for debugging.
 - Document the file location and format in the README with two sample files: one `"completed"` and one `"quit"`.
+
+</details>
 
 ## Interaction, hands and movement
 
@@ -250,6 +263,9 @@ Rules the logger must follow so dashboards from different builds stay comparable
 **Look.** A real plant room at 6 am, not a showroom. Sealed concrete floor, painted block walls, grey panels with real wear. Fewer props, better made.
 
 **Light.** Volga sets this up. Cool white fluorescent overhead, slightly underexposed. Warm, low dawn light through the window as the only contrast. Baked lighting. One fluorescent above P3 flickers faintly from the start.
+
+<details>
+<summary>Window, smoke, spark and audio detail</summary>
 
 **Window.** A simple HDRI or skybox plane with an early-dawn sky and a soft industrial silhouette. It only needs to read as outside and morning.
 
@@ -267,6 +283,8 @@ Rules the logger must follow so dashboards from different builds stay comparable
 | S4 | `fire-alarm.mp3` | Spatialized at the fire alarm pull station. Plays when `alarm` is observed and continues through the 2 s fade to black at the restart/quit transition. |
 
 No other sounds. The trainee should be able to turn toward P3 by ear alone.
+
+</details>
 
 ## Assets
 
@@ -317,6 +335,9 @@ The project matters as much as the APK. We are testing how you build, solve prob
 | 9 | First APK | Full flow from fade-in through the restart loop, the two pulsed targets working, the two logged targets writing dwell, and the session log export writing to headset storage with the schema in Session data. Placeholder art acceptable. |
 | 14 | Final | Final APK, zipped project with full Git history, README, two sample session files (one `"completed"`, one `"quit"`) that match the schema in Session data. |
 
+<details>
+<summary>Build standards (performance, project hygiene, final delivery format)</summary>
+
 **Performance**
 
 - 72 fps locked minimum on Quest 3, 90 fps if achievable. No drops on fade-in, smoke start, alarm or exit fade.
@@ -335,6 +356,8 @@ The project matters as much as the APK. We are testing how you build, solve prob
 
 - Upload every checkpoint through the upload panel at the bottom of this page. No Drive links or email attachments. Uploads are versioned, so re-upload rather than replace.
 - Final project as one zip of the full repo, including the .git folder and pulled LFS files, that we can open, modify and rebuild with only the README.
+
+</details>
 
 ## Communication
 
