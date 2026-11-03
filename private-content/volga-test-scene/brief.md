@@ -290,7 +290,7 @@ Download the Hospital Generator & Utility Room pack from BlendXR's Fab account (
 | Listing | Use for |
 | --- | --- |
 | [Gloves material](https://www.fab.com/listings/58794730-2855-4361-8f89-6af80d947f13) | Mesh and material for the tracked hands |
-| [Fire Alarm Button](https://www.fab.com/search?q=fire+alarm+pull+station) | Pull station on the far wall (pick the listing closest to a US / EU red-faceplate pull; email us before swapping to a toggle or push style) |
+| [Fire Alarm Button](https://www.fab.com/listings/991d908f-d632-4010-921c-2870013be0e4) | Pull station on the far wall. If you have reason to swap for a different pull or push style, email us before you do. |
 | [Fire extinguisher](https://www.fab.com/listings/28f9f3a5-6ab9-4de3-8aec-a492b1cce4e4) | Wall-mounted dressing near the alarm (visual only; not interacted with) |
 | [Industrial items](https://www.fab.com/listings/060bde6d-33f7-46b8-9c8a-b209d6036d5e) | Panels and industrial dressing |
 | [Safety factory pack](https://www.fab.com/listings/bf7f4251-d518-42b9-a2f9-7094016e7ecc) | Safety equipment and signage |
