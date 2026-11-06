@@ -320,7 +320,7 @@ Download the Hospital Generator & Utility Room pack from BlendXR's Fab account (
 - Keep-clear floor markings: simple planes with a flat yellow material. No asset needed.
 - The far-wall mount plate and conduit around the alarm, using the packs above where they fit.
 
-This build stays private, so free and non-commercial assets are fine. The 14-day clock starts when you tick the Day 0 confirmation below to confirm you can access every asset linked here. Please tick the Day 0 confirmation below by end of day Friday, November 6.
+This build stays private, so free and non-commercial assets are fine. Day 0 is Wednesday, 11 November 2026. The 14-day clock runs from it, with final delivery on Wednesday, 25 November. Tick the Day 0 confirmation below on 11 November once you have confirmed access to every asset linked here.
 
 <!-- DOWNLOADS PANEL: rendered here by the page (see page-spec.md) -->
 
@@ -328,12 +328,12 @@ This build stays private, so free and non-commercial assets are fine. The 14-day
 
 The project matters as much as the APK. We are testing how you build, solve problems and leave a project others can join.
 
-| Day | Checkpoint | What we receive |
-| --- | --- | --- |
-| 0 | Start | Tick the Day 0 confirmation below. Clock starts on tick. Day 4, 9 and 14 due dates appear once Day 0 is recorded. |
-| 4 | Gray box | Headset capture video: room blocked out, gaze working on all 4 targets (`smoke`, `alarm`, `spark`, `boxes`) with the debug reticle on. |
-| 9 | First APK | Full flow from fade-in through the restart loop, the two pulsed targets working, the two logged targets writing dwell, and the session log export writing to headset storage with the schema in Session data. Placeholder art acceptable. |
-| 14 | Final | Final APK, zipped project with full Git history, README, two sample session files (one `"completed"`, one `"quit"`) that match the schema in Session data. |
+| Day | Date | Checkpoint | What we receive |
+| --- | --- | --- | --- |
+| 0 | Wed, 11 Nov | Start | Tick the Day 0 confirmation below on 11 November. Clock starts on tick. |
+| 4 | Sun, 15 Nov | Gray box | Headset capture video: room blocked out, gaze working on all 4 targets (`smoke`, `alarm`, `spark`, `boxes`) with the debug reticle on. |
+| 9 | Fri, 20 Nov | First APK | Full flow from fade-in through the restart loop, the two pulsed targets working, the two logged targets writing dwell, and the session log export writing to headset storage with the schema in Session data. Placeholder art acceptable. |
+| 14 | Wed, 25 Nov | Final | Final APK, zipped project with full Git history, README, two sample session files (one `"completed"`, one `"quit"`) that match the schema in Session data. |
 
 <details>
 <summary>Build standards (performance, project hygiene, final delivery format)</summary>

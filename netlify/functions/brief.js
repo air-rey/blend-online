@@ -32,6 +32,11 @@ const BRIEF_PATH = path.join(__dirname, '..', '..', 'private-content', 'volga-te
 // Keep in sync with NDA_VERSION in netlify/functions/nda.js.
 const CURRENT_NDA_VERSION = '2026-11-02';
 
+// Anchor for Day 4 / 9 / 14 due-date rendering before Day 0 is ticked. Volga
+// starts on 2026-11-11 (pushed from 2026-11-03 for the Diwali weekend). Once
+// Day 0 is actually ticked the panel switches to the real tick timestamp.
+const DAY0_ANCHOR_MS = Date.UTC(2026, 10, 11); // Nov is month index 10.
+
 // Downloads list drives the panel UI. Each file is stored at
 // `volga/<key>` in the `downloads` private bucket. The upload step is a
 // one-time admin action; see README.md.
@@ -98,17 +103,20 @@ function panelHtml (which, state = {}) {
             </td>
           </tr>`;
       }
-      // After Day 0 is ticked, downstream rows unlock automatically. Before
-      // that, Day 4/9/14 start locked and the Day 0 checkbox handler peels
-      // the lock off Day 4 on success.
+      // Day 4/9/14 upload controls are locked until Day 0 is ticked — the
+      // Day 0 tick starts the engagement clock. Rows still render their
+      // due dates ahead of time so Shivam can plan.
       const locked = (idx > 0) && !day0TickedAt;
-      // Day N due date = Day 0 tick + N days. Shown only once Day 0 is
-      // ticked; before that, the row is locked and the due date is hidden.
-      let dueCell = '';
-      if (day0TickedAt) {
-        const dueAt = new Date(new Date(day0TickedAt).getTime() + cp.day * 24 * 60 * 60 * 1000);
-        dueCell = `<div style="color:var(--muted); font-size:12px; margin-top:4px;">Due ${esc(dueAt.toUTCString())}</div>`;
-      }
+      // Day N due date = anchor + N days. Anchor is the Day 0 tick if it
+      // has happened; otherwise the configured DAY0_ANCHOR (Volga starts
+      // 2026-11-11 after the Diwali weekend push). All four due dates
+      // render immediately so Shivam can plan the build around them.
+      const anchorMs = day0TickedAt ? new Date(day0TickedAt).getTime() : DAY0_ANCHOR_MS;
+      const dueAt = new Date(anchorMs + cp.day * 24 * 60 * 60 * 1000);
+      // "Wed, 11 Nov 2026" — strip the time of day since the deadline is
+      // end-of-day UTC and a 00:00:00 stamp would read as the opposite.
+      const dueLabel = dueAt.toUTCString().replace(/\s\d{2}:\d{2}:\d{2}\sGMT$/, '');
+      const dueCell = `<div style="color:var(--muted); font-size:12px; margin-top:4px;">Due by end of ${esc(dueLabel)}</div>`;
       return `
         <tr data-day="${cp.day}" class="up-row"${locked ? ' data-locked="1"' : ''}>
           <td><strong>Day ${cp.day}</strong></td>

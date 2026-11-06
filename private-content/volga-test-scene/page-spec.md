@@ -11,8 +11,8 @@ These notes cover only this resource. The site-wide rules (gate, tokens, waterma
 | Access URL | `blendxr.online/r`, gated by the session cookie minted after the agreement |
 | Agreement | `BlendXR_Volga_Test_Agreement_v3.docx` (test agreement, not the mutual NDA). Current text in `private-content/volga-test-scene/agreement.txt`, version `2026-11-03`. |
 | Content | `brief.md` (this folder), rendered in the BlendXR design system |
-| Day 0 window | Open 2026-11-03. Due end of day 2026-11-06. If not ticked by then, send a one-shot reminder to `airem@blendxr.online`. |
-| Expires | 2026-11-27 (grant `expires_at`). Project end date + buffer; extend from admin if Day 0 slips. |
+| Day 0 window | Opens Wed 2026-11-11 (IST). Due end of day 2026-11-11 UTC. If not ticked by then, send a one-shot reminder to `airem@blendxr.online`. Pushed from 2026-11-06 for the Diwali weekend. |
+| Expires | 2026-12-02 (grant `expires_at`). Day 0 2026-11-11, Day 14 2026-11-25, plus a 7-day admin buffer. Extend from admin if Day 0 slips. |
 
 ## Page flow
 
@@ -61,11 +61,11 @@ One row per checkpoint. Each row has a checkbox the partner ticks when uploaded,
 - Uploads are versioned, never overwritten. Show the partner only filename, size, time and a status of Received, then Reviewed or Changes requested (set by BlendXR in admin).
 - Record uploader, checkpoint, filename, size, SHA-256 and timestamp. Email airem@blendxr.online on every upload.
 - Day 14 zips can be several GB: use resumable uploads, per the deal room spec.
-- Day 4, 9 and 14 due dates render only after Day 0 is recorded (day 0 + 4, + 9, + 14).
+- Day 4, 9 and 14 due dates render immediately from the fixed anchor (Day 0 = 2026-11-11), so Shivam sees the full timeline on open. Upload controls on Day 4/9/14 are still locked until Day 0 is ticked. Once Day 0 is ticked, due dates recompute from the real tick timestamp.
 
 ## Day 0 reminder
 
-A scheduled Netlify Function (`netlify/functions/day0-reminder.js`, cron-driven) runs daily and, if the Volga grant has no Day 0 checkpoint_status row by the end of 2026-11-06 UTC, sends a one-shot email to airem@blendxr.online and inserts an `events` row (`kind: "day0_missed_reminder_sent"`) so it does not fire twice.
+A scheduled Netlify Function (`netlify/functions/day0-reminder.js`, cron-driven) runs daily and, if the Volga grant has no Day 0 checkpoint_status row by the end of 2026-11-11 UTC, sends a one-shot email to airem@blendxr.online and inserts an `events` row (`kind: "day0_missed_reminder_sent"`) so it does not fire twice.
 
 ## Do not render
 
