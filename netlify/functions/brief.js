@@ -33,9 +33,10 @@ const BRIEF_PATH = path.join(__dirname, '..', '..', 'private-content', 'volga-te
 const CURRENT_NDA_VERSION = '2026-11-02';
 
 // Anchor for Day 4 / 9 / 14 due-date rendering before Day 0 is ticked. Volga
-// starts on 2026-11-11 (pushed from 2026-11-03 for the Diwali weekend). Once
-// Day 0 is actually ticked the panel switches to the real tick timestamp.
-const DAY0_ANCHOR_MS = Date.UTC(2026, 10, 11); // Nov is month index 10.
+// starts on 2026-11-14 (pushed from 2026-11-11 after Volga finished Fab
+// setup on 14 Nov IST). Once Day 0 is actually ticked the panel switches
+// to the real tick timestamp.
+const DAY0_ANCHOR_MS = Date.UTC(2026, 10, 14); // Nov is month index 10.
 
 // Downloads list drives the panel UI. Each file is stored at
 // `volga/<key>` in the `downloads` private bucket. The upload step is a

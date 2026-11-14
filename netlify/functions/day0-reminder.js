@@ -21,8 +21,11 @@ const { send } = require('./_lib/email');
 
 const VOLGA_SLUG     = 'volga-test-scene';
 const SHIVAM_EMAIL   = 'shivam@volgainfosys.com';
-const DAY0_DUE_DATE  = '2026-11-11'; // end-of-day UTC. Volga's start moved
-                                     // to 11 Nov 2026 (Diwali weekend).
+const DAY0_DUE_DATE  = '2026-11-14'; // end-of-day IST (= 2026-11-14 18:30
+                                     // UTC). Daily cron at 09:00 UTC fires
+                                     // the first eligible reminder on
+                                     // 2026-11-15. Volga finished Fab setup
+                                     // on 14 Nov IST, pushing from 11-11.
 
 function todayUtcDate () {
   const d = new Date();
