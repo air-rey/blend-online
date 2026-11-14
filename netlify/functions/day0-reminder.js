@@ -15,14 +15,13 @@
 //   5. Otherwise: emails airem@blendxr.online once, inserts the sentinel
 //      event, returns `{ reminded: true }`.
 //
-// Netlify also exposes it as a plain HTTP function. Two QA hooks:
-//   - A plain POST runs the full flow above:
-//       curl -X POST https://blendxr.online/.netlify/functions/day0-reminder
-//   - `?test=1` bypasses the date check, the prior-sentinel check and the
-//     sentinel insert, and just sends a delivery-test email with the
-//     Resend response surfaced in the HTTP body so we can confirm
-//     end-to-end delivery today:
-//       curl -X POST 'https://blendxr.online/.netlify/functions/day0-reminder?test=1'
+// This function is scheduled in netlify.toml, which makes Netlify treat
+// it as internal-only: public HTTP requests get a 403 at the edge. To
+// confirm end-to-end delivery without waiting for a real missed Day 0,
+// use the HTTP-only sibling netlify/functions/day0-reminder-test.js.
+// The ?test=1 branch below is kept so an internal invocation (future
+// Netlify CLI, or an internal trigger) can still exercise send() here
+// without touching DB state.
 
 const { supa } = require('./_lib/supa');
 const { send } = require('./_lib/email');
