@@ -1,59 +1,59 @@
-// GET /r : server-renders the Volga brief.
+// GET /r : server-renders the brief for the viewer's current resource.
 //
 // Guards:
 //   - Must have a session cookie (set by /.netlify/functions/enter).
-//   - Session's resource_slug must match the brief we serve today (volga-test-scene).
-//   - The org must have an executed agreement (session.agreement_ok). If not,
-//     redirect to /agreement. The real check is server-side via org_agreements.
+//   - The session's `resource_slug` must resolve to a known resource via
+//     _lib/resources.js. Resources are configured there (brief path,
+//     per-resource downloads list, Day-0 anchor, storage prefix).
+//   - The org must have an executed agreement (contractor resources) or
+//     the person must have an NDA signature (mutual-NDA resources). The
+//     real check is server-side via org_agreements / nda_signatures, not
+//     the cookie's `agreement_ok` flag alone.
 //
 // Rendering:
 //   - Markdown converted inline via _lib/markdown.js.
-//   - Images and video are rewritten to /media/<path> which hits our signed
-//     URL endpoint, so Supabase storage is never public.
-//   - Downloads panel + Uploads panel inject where brief.md has HTML comments.
-//   - A tiled SVG watermark with the viewer's identity sits over the page
-//     and over every image and video (an inner .wm--img overlay).
+//   - Images and video are rewritten to /media/<path> which hits our
+//     signed URL endpoint, so Supabase storage is never public.
+//   - Downloads panel + Uploads panel inject where brief.md has HTML
+//     comments. Per-resource panel content comes from the resource's
+//     config in _lib/resources.js.
+//   - A tiled SVG watermark with the viewer's identity sits over the
+//     page and over every image and video.
 //
 // Logging:
-//   - Each render inserts a `brief_viewed` event. The browser-side heartbeat
-//     function (event.js) extends this with `time_on_page` and section reads.
+//   - Each render inserts a `brief_viewed` event. The browser-side
+//     heartbeat function (event.js) extends this with `time_on_page`
+//     and section reads.
 
 const fs = require('fs');
 const path = require('path');
-const crypto = require('crypto');
 
 const { supa } = require('./_lib/supa');
 const { readSession } = require('./_lib/cookie');
 const { page, htmlResponse, redirectResponse, esc, watermarkCss, watermarkDataUrl } = require('./_lib/html');
 const md = require('./_lib/markdown');
+const { getResource } = require('./_lib/resources');
 
-const BRIEF_PATH = path.join(__dirname, '..', '..', 'private-content', 'volga-test-scene', 'brief.md');
+// Netlify's function bundler auto-includes files referenced by
+// fs.readFileSync with __dirname and a static string. Keep these
+// explicit so the bundler ships every brief alongside the function:
+//   require.resolve-like inclusion for private-content/<slug>/brief.md
+const BRIEF_PATHS = {
+  'volga-test-scene':       path.join(__dirname, '..', '..', 'private-content', 'volga-test-scene', 'brief.md'),
+  'apexdream-confined-space': path.join(__dirname, '..', '..', 'private-content', 'apexdream-confined-space', 'brief.md')
+};
 
 // Keep in sync with NDA_VERSION in netlify/functions/nda.js.
 const CURRENT_NDA_VERSION = '2026-11-02';
 
-// Anchor for Day 4 / 9 / 14 due-date rendering before Day 0 is ticked. Volga
-// starts on 2026-11-14 (pushed from 2026-11-11 after Volga finished Fab
-// setup on 14 Nov IST). Once Day 0 is actually ticked the panel switches
-// to the real tick timestamp.
-const DAY0_ANCHOR_MS = Date.UTC(2026, 10, 14); // Nov is month index 10.
-
-// Downloads list drives the panel UI. Each file is stored at
-// `volga/<key>` in the `downloads` private bucket. The upload step is a
-// one-time admin action; see README.md.
-const DOWNLOADS = [
-  { label: 'S1 Room hum',             key: 'hum-electric.mp3' },
-  { label: 'S2 Spark crackle',        key: 'crackle.mp3' },
-  { label: 'S3 App start',            key: 'EnterApp.mp3' },
-  { label: 'S4 Fire alarm (app exit)', key: 'fire-alarm.mp3' }
-];
-
 // Checkpoints for the uploads panel. Day 0 is a confirmation checkbox,
-// Days 4/9/14 are real uploads. These should match the DB rows created
-// by the seed in db/schema.sql.
+// Days 4/9/14 are real uploads. Checkpoint rows in the DB are per
+// resource; this UI config is shared because every brief currently uses
+// the same four-checkpoint shape. If a future brief needs a different
+// shape, move this into _lib/resources.js like downloads.
 const CHECKPOINTS = [
   { day: 0,  label: 'Start confirmation', accepts: '',               hint: 'Tick to confirm you can access every asset and the setup works. Emails airem@blendxr.online and starts the clock.' },
-  { day: 4,  label: 'Gray box',           accepts: '.mp4,.mov',      hint: 'One headset capture video of the blocked-out room with gaze working on all 4 targets, debug reticle on.' },
+  { day: 4,  label: 'Gray box',           accepts: '.mp4,.mov',      hint: 'One headset capture video of the blocked-out scene with gaze working on all targets, debug reticle on.' },
   { day: 9,  label: 'First APK',          accepts: '.apk',           hint: 'Full flow fade-in to app exit, pulses and session file working, placeholder art acceptable.' },
   { day: 14, label: 'Final delivery',     accepts: '.apk,.zip,.md,.json', hint: 'Final APK, project zip (with .git and LFS), README, sample session file.' }
 ];
@@ -63,9 +63,11 @@ function fmtDate (d) {
 }
 
 function panelHtml (which, state = {}) {
-  const day0TickedAt = state.day0TickedAt || null;
+  const day0TickedAt  = state.day0TickedAt || null;
+  const downloads     = state.downloads || [];
+  const day0AnchorMs  = state.day0AnchorMs; // null allowed
   if (which === 'DOWNLOADS') {
-    const rows = DOWNLOADS.map(d => `
+    const rows = downloads.map(d => `
       <tr>
         <td>${esc(d.label)}</td>
         <td class="caps" style="color:var(--muted);">${esc(d.key.split('.').pop().toUpperCase())}</td>
@@ -104,20 +106,22 @@ function panelHtml (which, state = {}) {
             </td>
           </tr>`;
       }
-      // Day 4/9/14 upload controls are locked until Day 0 is ticked — the
-      // Day 0 tick starts the engagement clock. Rows still render their
-      // due dates ahead of time so Shivam can plan.
-      const locked = (idx > 0) && !day0TickedAt;
-      // Day N due date = anchor + N days. Anchor is the Day 0 tick if it
-      // has happened; otherwise the configured DAY0_ANCHOR (Volga starts
-      // 2026-11-11 after the Diwali weekend push). All four due dates
-      // render immediately so Shivam can plan the build around them.
-      const anchorMs = day0TickedAt ? new Date(day0TickedAt).getTime() : DAY0_ANCHOR_MS;
-      const dueAt = new Date(anchorMs + cp.day * 24 * 60 * 60 * 1000);
-      // "Wed, 11 Nov 2026" — strip the time of day since the deadline is
-      // end-of-day UTC and a 00:00:00 stamp would read as the opposite.
-      const dueLabel = dueAt.toUTCString().replace(/\s\d{2}:\d{2}:\d{2}\sGMT$/, '');
-      const dueCell = `<div style="color:var(--muted); font-size:12px; margin-top:4px;">Due by end of ${esc(dueLabel)}</div>`;
+      // Day 4/9/14 upload controls are locked until Day 0 is ticked. Rows
+      // still render their due dates ahead of time, if the resource has
+      // a Day-0 anchor configured; otherwise they show a "set on Day 0"
+      // placeholder (used for resources whose Day 0 date is not yet
+      // fixed).
+      const locked  = (idx > 0) && !day0TickedAt;
+      const anchor  = day0TickedAt ? new Date(day0TickedAt).getTime()
+                                   : (typeof day0AnchorMs === 'number' ? day0AnchorMs : null);
+      let dueCell;
+      if (anchor === null) {
+        dueCell = `<div style="color:var(--muted); font-size:12px; margin-top:4px;">Due date is set once Day 0 is ticked.</div>`;
+      } else {
+        const dueAt = new Date(anchor + cp.day * 24 * 60 * 60 * 1000);
+        const dueLabel = dueAt.toUTCString().replace(/\s\d{2}:\d{2}:\d{2}\sGMT$/, '');
+        dueCell = `<div style="color:var(--muted); font-size:12px; margin-top:4px;">Due by end of ${esc(dueLabel)}</div>`;
+      }
       return `
         <tr data-day="${cp.day}" class="up-row"${locked ? ' data-locked="1"' : ''}>
           <td><strong>Day ${cp.day}</strong></td>
@@ -288,7 +292,9 @@ function uploadsScript () {
 exports.handler = async function (event) {
   const session = await readSession(event.headers || {});
   if (!session) return redirectResponse('/');
-  if (session.resource_slug !== 'volga-test-scene') return redirectResponse('/');
+  const resource = getResource(session.resource_slug);
+  const briefPath = BRIEF_PATHS[session.resource_slug];
+  if (!resource || !briefPath) return redirectResponse('/');
 
   const db = supa();
 
@@ -298,9 +304,9 @@ exports.handler = async function (event) {
   // nda_signatures row for the current version; 'contractor' resources
   // require org_agreements.status='executed'.
   if (session.org_id && session.resource_id) {
-    const { data: resource } = await db.from('resources')
+    const { data: dbResource } = await db.from('resources')
       .select('agreement_type').eq('id', session.resource_id).maybeSingle();
-    if (resource && resource.agreement_type === 'mutual_nda') {
+    if (dbResource && dbResource.agreement_type === 'mutual_nda') {
       const { data: sig } = await db.from('nda_signatures')
         .select('id')
         .eq('person_id', session.sub)
@@ -320,7 +326,7 @@ exports.handler = async function (event) {
   const justSigned = ((event.queryStringParameters || {}).signed || '') === '1';
 
   // Load the brief body + frontmatter.
-  const briefMd = fs.readFileSync(BRIEF_PATH, 'utf-8');
+  const briefMd = fs.readFileSync(briefPath, 'utf-8');
   const fm = md.frontmatter(briefMd);
   const title = fm.title || 'BlendXR brief';
   const version = fm.version || '';
@@ -351,7 +357,11 @@ exports.handler = async function (event) {
       const url = '/media/' + src.replace(/^media\//, '').replace(/^\/+/, '');
       return `<span class="wm-shell"><video src="${esc(url)}" muted autoplay loop playsinline controlslist="nodownload" disablepictureinpicture></video><span class="wm--img" aria-hidden="true"></span></span>`;
     },
-    onPanel: (which) => panelHtml(which, { day0TickedAt })
+    onPanel: (which) => panelHtml(which, {
+      day0TickedAt,
+      downloads:    resource.downloads,
+      day0AnchorMs: resource.day0AnchorMs
+    })
   });
 
   // Watermark data URL baked in server-side.
@@ -409,7 +419,7 @@ exports.handler = async function (event) {
   ${justSigned ? `
   <div class="just-signed" role="status">
     <div>
-      <strong>Mutual NDA signed.</strong>
+      <strong>Agreement signed.</strong>
       <span style="color:var(--body);">A countersigned PDF will be sent to your email shortly.</span>
     </div>
   </div>` : ''}
@@ -434,7 +444,7 @@ exports.handler = async function (event) {
     const ip = (h['x-nf-client-connection-ip'] || h['x-forwarded-for'] || '').split(',')[0].trim() || null;
     await db.from('events').insert({
       grant_id: session.grant_id, kind: 'brief_viewed',
-      meta: { version, ip, ua: h['user-agent'] || null }
+      meta: { version, slug: session.resource_slug, ip, ua: h['user-agent'] || null }
     }).then(() => {}, () => {});
   }
 

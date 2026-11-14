@@ -17,6 +17,8 @@ FORBIDDEN=(
   "crackle.mp3"
   "EnterApp.mp3"
   "unlocking-metal-door.mp3"
+  "fan-off.m4a"
+  "carbon-monoxide-detector.m4a"
   "mantleplace-sample"
 )
 

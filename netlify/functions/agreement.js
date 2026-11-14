@@ -154,8 +154,12 @@ exports.handler = async function (event) {
   const session = await readSession(event.headers || {});
   if (!session) return redirectResponse('/');
 
-  // Resource must be the Volga brief (we only serve one today).
-  if (session.resource_slug !== 'volga-test-scene') return redirectResponse('/');
+  // Session's resource must be one of the contractor-agreement briefs we
+  // know about. The agreement text itself is shared across contractor
+  // resources (the signer fills in their org details on the form); this
+  // guard just rejects unknown slugs so a stale cookie cannot be used.
+  const { isKnownSlug } = require('./_lib/resources');
+  if (!isKnownSlug(session.resource_slug)) return redirectResponse('/');
 
   const db = supa();
 

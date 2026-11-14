@@ -58,6 +58,29 @@
 [functions."day0-reminder"]
   schedule = "0 9 * * *"
 
+# Server-rendered briefs read their markdown off disk. Netlify's bundler
+# auto-includes files referenced with a static __dirname path, but list
+# them explicitly so a future rename doesn't silently drop a brief from
+# the bundle.
+[functions."brief"]
+  included_files = [
+    "private-content/volga-test-scene/brief.md",
+    "private-content/apexdream-confined-space/brief.md"
+  ]
+
+# One-shot seeder for ApexDream's Supabase Storage objects. Bundle the
+# actual media and download binaries so the function can POST them to
+# Storage using the service-role key already in Netlify env. Safe to
+# remove this function and its included_files once the seed is done.
+[functions."admin-upload-apex-storage"]
+  included_files = [
+    "private-content/apexdream-confined-space/media/highlight-pulse-ref.mp4",
+    "private-downloads/apexdream-confined-space/hum-electric.mp3",
+    "private-downloads/apexdream-confined-space/fan-off.m4a",
+    "private-downloads/apexdream-confined-space/EnterApp.mp3",
+    "private-downloads/apexdream-confined-space/carbon-monoxide-detector.m4a"
+  ]
+
 # Deal room pages must never be indexed and must never be cached by a
 # shared cache. Function responses set their own headers too; this is a
 # belt-and-suspenders rule for the static gate page.

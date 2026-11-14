@@ -16,7 +16,8 @@ exports.handler = async function (event) {
   if (event.httpMethod !== 'POST') return jsonResponse(405, { error: 'POST only' });
   const session = await readSession(event.headers || {});
   if (!session || !session.grant_id) return redirectResponse('/');
-  if (session.resource_slug !== 'volga-test-scene') return redirectResponse('/');
+  const { isKnownSlug } = require('./_lib/resources');
+  if (!isKnownSlug(session.resource_slug)) return redirectResponse('/');
 
   let payload = {};
   try { payload = JSON.parse(event.body || '{}'); } catch (_) { return jsonResponse(400, { error: 'bad json' }); }

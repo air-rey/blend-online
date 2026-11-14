@@ -77,6 +77,14 @@ async function uploadDir (localDir, bucket, remotePrefix) {
 
 (async () => {
   const root = path.resolve(__dirname, '..');
+
+  // Volga section kept at its historical `volga-test-scene/` remote
+  // prefix for reference. In practice Volga's live objects sit at the
+  // ROOT of each bucket (the serving code in media.js / download-url.js
+  // uses an empty prefix for the Volga slug), so running this section
+  // today would upload to a parallel `volga-test-scene/` folder the
+  // serving code wouldn't read. Not touched here because the instruction
+  // is to leave Volga's folders alone.
   await uploadDir(
     path.join(root, 'private-content', 'volga-test-scene', 'media'),
     'media', 'volga-test-scene'
@@ -85,6 +93,19 @@ async function uploadDir (localDir, bucket, remotePrefix) {
     path.join(root, 'private-downloads', 'volga-test-scene'),
     'downloads', 'volga-test-scene'
   );
+
+  // ApexDream (and any further resource) lives under <slug>/ in the
+  // bucket. media.js and download-url.js resolve the per-resource
+  // storage prefix via netlify/functions/_lib/resources.js.
+  await uploadDir(
+    path.join(root, 'private-content', 'apexdream-confined-space', 'media'),
+    'media', 'apexdream-confined-space'
+  );
+  await uploadDir(
+    path.join(root, 'private-downloads', 'apexdream-confined-space'),
+    'downloads', 'apexdream-confined-space'
+  );
+
   if (process.exitCode) {
     console.error('\nOne or more uploads failed. See messages above.');
   } else {
