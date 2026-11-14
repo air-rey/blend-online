@@ -58,10 +58,10 @@ const RESOURCES = {
     day0AnchorMs: null,
     storagePrefix: 'apexdream-confined-space/',
     downloads: [
-      { label: 'S1 Room hum',                       key: 'hum-electric.mp3' },
-      { label: 'S2 Fan off (clunk and wind-down)',  key: 'fan-off.m4a' },
-      { label: 'S3 App start',                      key: 'EnterApp.mp3' },
-      { label: 'S4 CO detector alarm',              key: 'carbon-monoxide-detector.m4a' }
+      { label: 'S1 Room hum',  key: 'hum-electric.mp3' },
+      { label: 'S2 Air duct',  key: 'fan-off.m4a' },
+      { label: 'S3 App start', key: 'EnterApp.mp3' },
+      { label: 'S4 Gas alarm', key: 'carbon-monoxide-detector.m4a' }
     ]
   }
 };

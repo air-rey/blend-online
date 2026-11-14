@@ -68,6 +68,15 @@
     "private-content/apexdream-confined-space/brief.md"
   ]
 
+# One-shot seeder for the two ApexDream reference images added in the
+# 2026-11-14 final revision. Removed in a follow-up commit right after
+# the seed runs.
+[functions."admin-upload-apex-images"]
+  included_files = [
+    "private-content/apexdream-confined-space/media/confined-space-start.jpg",
+    "private-content/apexdream-confined-space/media/confined-space-ladder.jpg"
+  ]
+
 # Deal room pages must never be indexed and must never be cached by a
 # shared cache. Function responses set their own headers too; this is a
 # belt-and-suspenders rule for the static gate page.

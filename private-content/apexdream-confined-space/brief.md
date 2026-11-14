@@ -1,6 +1,6 @@
 ---
 title: "BlendXR x ApexDream: Confined Space Test Brief"
-version: "2026-11-13"
+version: "2026-11-14"
 resource_type: brief
 partner: ApexDream
 contact: airem@blendxr.online
@@ -49,7 +49,7 @@ If time runs short, cut visual detail, not frame rate, project hygiene, timing o
 
 ## Scene concept: Valve Chamber, Air Turning Bad
 
-The trainee stands at a gate valve inside an underground concrete valve chamber, reached by a fixed ladder from a manhole above. The ventilation fan is running. Then it cuts out and winds down to silence. Soon after, the fixed gas detector beside the ladder alarms. The trainee recognizes both warning signs and turns to the ladder, their way out. The scene ends there.
+The trainee stands at a gate valve inside an underground concrete valve chamber, reached by a fixed ladder from a manhole above. Fresh air is blowing down a ventilation duct from the surface. Then the blower cuts out and winds down to silence. Soon after, the gas detector beside the ladder starts flashing. The trainee recognizes the warning signs and turns to the ladder, their way out. If they ignore the warnings, the detector's alarm sounds and the scene ends.
 
 No text, no arrows, no menus, no score shown. The trainee is never told where to look. Cues exist to build awareness and raise alerts, not anxiety. Every look is recorded so awareness can be measured afterwards.
 
@@ -60,11 +60,11 @@ No text, no arrows, no menus, no score shown. The trainee is never told where to
 | Chamber | Cast concrete box, about 3.0 m x 3.0 m floor, about 3.0 m from floor to the underside of the roof slab. Dry concrete with dust and old water stains. A small sump grate in one corner. |
 | Player start | About 1.4 m from the front wall, centered side to side, facing the valve. About 1.5 m clear to the side and back walls, so outstretched arms never reach a wall. |
 | Valve (task) | One pipe, about 300 mm diameter, runs wall to wall about 0.8 m from the front wall, its center about 0.5 m above the floor on two concrete plinths. Gate valve in the middle of the run, directly in front of the player, with its handwheel on top: about 0.45 m across, about 1.0 m above the floor (waist height), about 0.6 m from the player. |
-| Ladder | Galvanized steel fixed ladder bolted to the left wall, rising to the manhole. About 90 degrees to the player's left. |
+| Ladder | Galvanized steel fixed ladder bolted to the left wall, rising to the manhole. About 90 degrees to the player's left. Rungs about 300 mm apart, about 180 mm off the wall. |
 | Manhole | Round opening about 750 mm wide in the roof slab above the ladder. Pale early-morning daylight above. |
-| Tripod | Metal rescue tripod standing over the manhole, a winch line running down beside the ladder. Seen from below against the sky. |
-| Ventilation fan | Fixed wall fan on the right wall, opposite the ladder, about 2.4 m up, angled toward the player. Blades visibly spinning until the fan stops. |
-| Gas detector | Fixed on the left wall beside the ladder at head height, about 1.6 m up. Red lens unlit until the alarm. A conduit runs from it up to the roof slab. |
+| Tripod | Metal rescue tripod standing over the manhole. Its winch line runs down beside the ladder toward the player and out of view, as if clipped to the trainee's harness. Seen from below against the sky. |
+| Ventilation duct | Flexible duct, about 300 mm diameter, coming down through the manhole beside the ladder's right rail, strapped to the rail, outlet just above the floor beside the left plinth. Flutters slightly while air flows. |
+| Gas detector | Fixed on the left wall beside the ladder at head height, about 1.6 m up. Red lens unlit until it starts flashing at 19.8 s. A conduit runs from it up to the roof slab. |
 | Light | One caged bulkhead light, cool white, on the front wall above the valve, about 2.2 m up. |
 | Dressing | None beyond the above. Fewer props, better made. |
 
@@ -72,7 +72,11 @@ Build everything at real-world scale and check it in headset: the handwheel shou
 
 The daylight through the manhole is the only warm, bright point in the scene, so the way out always reads clearly.
 
-**Reference images:** to be added.
+**Reference images** (AI-generated, for mood and layout only. Duct color varies: use the supplied duct as it comes.)
+
+![Chamber, wide view from behind the start point. At the start, the valve is about 0.6 m in front of the player.](media/confined-space-start.jpg)
+
+![Looking up the ladder. Hands are shown for mood only: the trainee never grabs or climbs.](media/confined-space-ladder.jpg)
 
 ## Flow
 
@@ -80,18 +84,19 @@ Times are from the moment the chamber is fully faded in.
 
 | Phase | Time | What happens |
 | --- | --- | --- |
-| Enter | Before 0:00 | App opens to black and S3 plays. Recenter so the player faces the valve. 2 s fade into the chamber. S1 hum and S2 fan already playing, fan blades spinning. |
-| Settle | 0 to 9.8 s | Routine. Fan running, nothing changes and nothing pulses. |
-| Recognize | 9.8 s | The fan cuts out: S2 plays its clunk and wind-down, and the blades slow with the sound. |
-|  | 13.3 s | S2 ends and the blades stop. The fan target unlocks. |
-|  | 16.1 s | Fan notice pulse starts, only if the fan has not been observed yet. |
-|  | 19.8 s | The gas detector alarms: S4 plays, then 5 s of silence, repeating until the app quits. The red lens flashes with each beep. The detector target unlocks. |
-|  | 22.6 s | Detector notice pulse starts, only if the detector has not been observed yet. |
-| Respond | Detector observed | The ladder target unlocks. |
-|  | Detector observed + 2.8 s | Ladder notice pulse starts, only if the ladder has not been observed yet. |
-| Exit | Ladder observed | 2 s fade to black while S4 continues, then the app quits. |
+| Enter | Before 0:00 | App opens to black and S3 plays. Recenter so the player faces the valve. 2 s fade into the chamber. S1 hum and S2 air already playing, duct fluttering. |
+| Settle | 0 to 9.8 s | Routine. Air flowing, nothing changes and nothing pulses. |
+| Recognize | 9.8 s | The blower cuts out: S2 plays its clunk and wind-down, and the duct's flutter eases with the sound. |
+|  | 13.3 s | S2 ends and the duct goes still. DUCT unlocks. |
+|  | 16.1 s | Duct notice pulse, only if the duct has not been observed yet. |
+|  | 19.8 s | The detector's red lens starts flashing, silently. |
+|  | 22.6 s | Detector notice pulse, only if the detector has not been observed yet. |
+| Respond | Detector observed | LADDER unlocks. |
+|  | Detector observed + 2.8 s | Ladder notice pulse, only if the ladder has not been observed yet. |
+| Exit | Ladder observed | 2 s fade to black, then the app quits. No alarm. |
+| Exit (ignored) | Active target still not observed 5.8 s after its notice pulses end | S4 alarm plays once, 2 s fade to black, then the app quits. |
 
-Pacing: about 25 s for a fast trainee, longer is fine. Nothing times out.
+Pacing: about 25 s for a fast trainee. If warnings are ignored, the alarm ends the scene by about 43 s at the latest.
 
 ## Gaze targets and cues
 
@@ -105,24 +110,28 @@ Pacing: about 25 s for a fast trainee, longer is fine. Nothing times out.
 
 | ID | Target | Role | Pulses | Gaze volume |
 | --- | --- | --- | --- | --- |
-| FAN | Wall fan | Recognize | Notice only | Fan housing and blades |
+| DUCT | Ventilation duct | Recognize | Notice only | Full duct length |
 | DETECTOR | Gas detector by the ladder | Recognize | Yes | Detector mesh plus a small margin |
 | LADDER | Fixed ladder and manhole | Respond | Yes | Full ladder up to and including the manhole ring |
 | VALVE | Gate valve and handwheel | Logged only | Never | Valve body and handwheel |
 
 One reusable component, `BP_GazeTarget`, drives all four. Each carries a `Role` field (Recognize, Respond, Logged only). Every target is tracked and logged for the whole session, from fade-in to exit, whether or not it is unlocked.
 
+<details>
+<summary>Target rules in detail (unlock, pulse timings, dwell thresholds, alarm, pulse look)</summary>
+
 **Rules for pulsed targets**
 
-1. **Unlock.** FAN unlocks when S2 ends (13.3 s). DETECTOR unlocks at the first alarm (19.8 s). LADDER unlocks the moment DETECTOR is observed.
-2. **Hold.** No pulse until 2.8 s after the target unlocks. If the target is observed before then, it never pulses.
+1. **Unlock.** DUCT unlocks when S2 ends (13.3 s). DETECTOR unlocks when the air stops (9.8 s), so checking it before the lens flashes still counts. LADDER unlocks the moment DETECTOR is observed.
+2. **Hold.** No pulse until 2.8 s after unlock. DETECTOR is the exception: 2.8 s after the lens starts flashing (22.6 s). If observed before then, the target never pulses.
 3. **Notice.** At the pulse time, play exactly 2 notice pulses at 0.8x speed (1.5 s per pulse, 3 s total). If observed during them, fade out over 0.3 s.
-4. **Alert.** DETECTOR and LADDER only: if still not observed after both notice pulses, fade in the alert pulse at 2.8x speed (about 0.43 s per pulse), looping until observed. Then fade out over 0.3 s. FAN has no alert pulse: after its notice pulses it stays still.
+4. **Alert.** DETECTOR and LADDER only: if still not observed after both notice pulses, fade in the alert pulse at 2.8x speed (about 0.43 s per pulse), looping until observed. Then fade out over 0.3 s. DUCT has no alert pulse: after its notice pulses it stays still.
 5. **Observed.** Continuous dwell reaches the target's threshold while it is unlocked. Gaps under 0.25 s do not reset dwell. Looks before a target unlocks are logged but do not count as observed.
+6. **Alarm.** The active target is DETECTOR until it is observed, then LADDER. If the active target is still not observed 5.8 s after its notice pulses end, S4 plays once, then a 2 s fade to black and the app quits. A trainee who observes the detector and then the ladder never hears the alarm.
 
 **Dwell thresholds**
 
-- Tunable from 1.2 to 1.8 s per target. Defaults: FAN 1.5 s, DETECTOR 1.5 s, LADDER 1.5 s.
+- Tunable from 1.2 to 1.8 s per target. Defaults: DUCT 1.5 s, DETECTOR 1.5 s, LADDER 1.5 s.
 - Every timing and threshold on this page is a variable on the component or a data asset, never hardcoded.
 
 **Pulse look**
@@ -131,8 +140,10 @@ Reference from our police sim (the pulsing toolbox), shown on this page. Ignore 
 
 <video src="media/highlight-pulse-ref.mp4" controls muted playsinline></video>
 
-- Overlay material: unlit, additive, fresnel edge glow on the target's mesh (fan housing, detector, ladder rails). No post-process outline.
+- Overlay material: unlit, additive, fresnel edge glow on the target's mesh (duct, detector, ladder rails). No post-process outline.
 - Color #ebfcf7. Base cycle 1.2 s at 1.0x speed. Subtle peak: it should read as the object catching light, not a game pickup.
+
+</details>
 
 ## Session data
 
@@ -140,19 +151,24 @@ The scene does no scoring. It records raw events so BlendXR can calculate awaren
 
 All times are in milliseconds from fade-in complete.
 
+<details>
+<summary>Session file schema (header, cue events, target events, head direction, data quality, summary)</summary>
+
 **Session header**
 
 - Session ID, build version, device model, Horizon OS build, start time (UTC)
 - Total session duration, from fade-in complete to app quit
-- Phase times: fade-in complete, fan stop, fan still, fan observed, alarm start, detector observed, ladder observed, fade-out start
+- Exit reason: ladder or alarm
+- Phase times: fade-in complete, air stop, air still, duct observed, lens flash, alarm (if any), detector observed, ladder observed, fade-out start
 
 **Cue events**
 
 | Event | When |
 | --- | --- |
-| `cue_fan_stop` | Fan cuts out, S2 clunk (9.8 s) |
-| `cue_fan_still` | S2 ends and the blades stop (13.3 s) |
-| `cue_gas_alarm` | Every alarm cycle, with its lens flash (first at 19.8 s) |
+| `cue_air_stop` | Blower cuts out, S2 clunk (9.8 s) |
+| `cue_air_still` | S2 ends and the duct goes still (13.3 s) |
+| `cue_lens_flash` | Detector lens starts flashing (19.8 s) |
+| `cue_alarm` | S4 starts (ignored exit only) |
 | `cue_fade_out` | Fade to black starts |
 
 **Target events** (one row per event, with target ID)
@@ -191,9 +207,11 @@ Rules:
 - Also print each event to the output log for debugging.
 - Document the file location and format in the README with one sample file.
 
+</details>
+
 ## Interaction, hands and movement
 
-- **Interaction is gaze only.** Looking at the ladder ends the scene. Nothing is grabbed, pressed or pinched.
+- **Interaction is gaze only.** Looking at the ladder ends the scene. Ignoring the warnings ends it with the alarm. Nothing is grabbed, pressed or pinched.
 - **Hands.** Tracked hands (Quest hand tracking) with the gloves material we supply, for presence only. No controllers.
 - **Standing, real height.** The trainee stands. Set the tracking origin to floor level so the trainee's real height sets their eye height and the chamber floor sits on their real floor. Recenter resets position and facing only, never height. No seated mode and no height offset.
 - **Movement.** Restricted. No locomotion, teleport or snap turn. The player can turn and lean physically. Clamp the player to about a 0.4 m radius around the start point so they cannot walk into the valve or toward the walls; fade to black briefly if they push past it. The clamp replaces collision setup, so no collisions are needed.
@@ -202,22 +220,29 @@ Rules:
 
 **Look.** A working utility valve chamber, not a dungeon. Dry cast concrete with real wear, dust and old water stains. Fewer props, better made.
 
-**Light.** ApexDream sets this up. One cool white bulkhead light above the valve, slightly underexposed. Pale daylight through the manhole as the only warm contrast. Baked lighting. The detector's red lens is an emissive material that flashes with each beep.
+**Light.** ApexDream sets this up. One cool white bulkhead light above the valve, slightly underexposed. Pale daylight through the manhole as the only warm contrast. Baked lighting. The detector's red lens is an emissive material that flashes from 19.8 s until the app quits.
 
-**Fan.** Blades spin from the fade-in, slow down in sync with the S2 wind-down, and come to a full stop the moment S2 ends.
+<details>
+<summary>Window, duct and audio detail</summary>
 
-**No fog, smoke or visible gas.** The hazard is invisible. The trainee only knows from the fan and the alarm.
+**Window above the manhole.** A simple HDRI or skybox plane with an early-dawn sky and a soft industrial silhouette. It only needs to read as outside and morning.
+
+**Duct.** A subtle flutter while air flows (a material world position offset is enough), easing out with the S2 wind-down and fully still the moment S2 ends.
+
+**No fog, smoke or visible gas.** The hazard is invisible. The trainee only knows from the duct and the detector.
 
 **Audio (4 sounds, supplied)**
 
 | ID | Sound | Behavior |
 | --- | --- | --- |
 | S1 | `hum-electric.mp3` | Low room tone. Loop from the fade-in. Non-spatial or very wide. |
-| S2 | `fan-off.m4a` | Spatialized at the fan. Loop the steady running section (start to about 11 s) from the fade-in. At 9.8 s, play from the clunk (about 11 s) to the end of the file: the wind-down to silence. |
+| S2 | `fan-off.m4a` | Spatialized at the duct outlet. Starts at 0:00 and plays once. The file is cut to the scene: running, clunk at 9.8 s, wind-down to silence. No looping or trimming needed. |
 | S3 | `EnterApp.mp3` | Plays once over the black screen at app start, leading into the fade-in. Non-spatial. |
-| S4 | `carbon-monoxide-detector.m4a` | Spatialized at the detector. From 19.8 s, play the file, then 5 s of silence, and repeat until the app quits, including through the 2 s fade to black. |
+| S4 | `carbon-monoxide-detector.m4a` | Spatialized at the detector. Plays once, only on the ignored-warnings exit, and carries through the 2 s fade. |
 
-No other sounds. The trainee should be able to turn toward the fan and the detector by ear alone.
+No other sounds. The trainee should be able to turn toward the duct by ear alone.
+
+</details>
 
 ## Assets
 
@@ -227,7 +252,7 @@ No other sounds. The trainee should be able to turn toward the fan and the detec
 | --- | --- |
 | [Hospital Generator & Utility Room](https://www.fab.com/listings/738ef059-522b-4909-b9c5-52a280b9eadc) by Red Blue Pixel Studio | Concrete and wall materials, conduit, sump grate, bulkhead light if it fits |
 | [Gloves material](https://www.fab.com/listings/58794730-2855-4361-8f89-6af80d947f13) | VR hands |
-| [Fans For Metro](https://www.fab.com/listings/3003be80-442b-4454-82bb-37c65d4bae66) | Wall fan (FAN). Use fan 1. |
+| [Flexible Duct Tubes](https://www.fab.com/listings/bbbe87e9-8857-42d7-9982-ad8a59d61eba) by PropHaus | Ventilation duct (DUCT). Use SM_DuctTube_4m_Var_01 or two SM_DuctTube_2m_Low, not the 6 m mesh. |
 | [Detector Beep](https://www.fab.com/listings/71564afb-8af3-4c75-bffa-b0f726662b4d) | Gas detector (DETECTOR). Use the mesh only: ignore its detection Blueprint and sounds. Mount it on a simple wall bracket and make the red lens emissive. |
 | [Industrial items](https://www.fab.com/listings/060bde6d-33f7-46b8-9c8a-b209d6036d5e) | Pipe and industrial dressing |
 | [Safety factory pack](https://www.fab.com/listings/bf7f4251-d518-42b9-a2f9-7094016e7ecc) | Safety equipment, only where it fits |
@@ -246,7 +271,7 @@ Download the Fab items above from BlendXR's Fab account. airem@blendxr.online wi
 
 For anything else, use free Fab or Quixel Megascans assets and list each one (name, source link, license) in the README. This build stays private, so free and non-commercial assets are fine.
 
-Day 0 is [date]. Tick the day 0 confirmation at the bottom of this page that day. The 14-day clock runs from it, with final delivery on [date].
+Tick the day 0 confirmation at the bottom of this page by Tuesday, November 17 (IST). The 14-day clock starts the day you tick it.
 
 <!-- DOWNLOADS PANEL: rendered here by the page (see page-spec.md) -->
 
@@ -254,16 +279,19 @@ Day 0 is [date]. Tick the day 0 confirmation at the bottom of this page that day
 
 The project matters as much as the APK. We are testing how you build, solve problems and leave a project others can join.
 
-| Day | Date | Checkpoint | What we receive |
+| Day | Date (IST) | Checkpoint | What we receive |
 | --- | --- | --- | --- |
-| 0 | [date] | Start | Day 0 confirmation: you can access every asset and the setup above works |
-| 4 | [date] | Gray box | Headset capture video: chamber blocked out at real scale, gaze working on all 4 targets with debug reticle on |
-| 9 | [date] | First APK | Full flow from fade-in to app quit, fan and alarm timing, pulses and session file working, placeholder art acceptable |
-| 14 | [date] | Final | Final APK, zipped project with full Git history, README, one sample session file |
+| 0 | By Tue, Nov 17 | Start | Day 0 confirmation: you can access every asset and the setup above works |
+| 4 | Day 0 + 4 | Gray box | Headset capture video: chamber blocked out at real scale, gaze working on all 4 targets with debug reticle on |
+| 9 | Day 0 + 9 | First APK | Full flow from fade-in to app quit, air stop and ignored-exit alarm timing, pulses and session file working, placeholder art acceptable |
+| 14 | Day 0 + 14 | Final | Final APK, zipped project with full Git history, README, one sample session file |
+
+<details>
+<summary>Build standards (performance, project hygiene, final delivery format)</summary>
 
 **Performance**
 
-- 72 fps locked minimum on Quest 3, 90 fps if achievable. No drops on fade-in, fan stop or alarm start, door or exit.
+- 72 fps locked minimum on Quest 3, 90 fps if achievable. No drops on fade-in, air stop or exit.
 - Run the Meta XR Project Setup Tool for Quest 3 ([docs](https://developers.meta.com/horizon/documentation/unreal/unreal-project-setup-tool)) and apply all Required and Recommended rules. List any rule you ignored and why.
 - Baked lighting, no dynamic shadows, no volumetrics.
 
@@ -279,6 +307,8 @@ The project matters as much as the APK. We are testing how you build, solve prob
 
 - Upload every checkpoint through the upload panel at the bottom of this page. No Drive links or email attachments. Uploads are versioned, so re-upload rather than replace.
 - Final project as one zip of the full repo, including the .git folder and pulled LFS files, that we can open, modify and rebuild with only the README.
+
+</details>
 
 ## Communication
 

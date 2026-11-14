@@ -19,6 +19,8 @@ FORBIDDEN=(
   "unlocking-metal-door.mp3"
   "fan-off.m4a"
   "carbon-monoxide-detector.m4a"
+  "confined-space-start.jpg"
+  "confined-space-ladder.jpg"
   "mantleplace-sample"
 )
 
