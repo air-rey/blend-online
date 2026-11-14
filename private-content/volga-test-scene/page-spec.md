@@ -12,7 +12,7 @@ These notes cover only this resource. The site-wide rules (gate, tokens, waterma
 | Agreement | `BlendXR_Volga_Test_Agreement_v3.docx` (test agreement, not the mutual NDA). Current text in `private-content/volga-test-scene/agreement.txt`, version `2026-11-03`. |
 | Content | `brief.md` (this folder), rendered in the BlendXR design system |
 | Day 0 window | Opens Sat 2026-11-14 (IST). Due end of day 2026-11-14 IST. If not ticked by then, send a one-shot reminder to `airem@blendxr.online`. Pushed from 2026-11-11 after Volga finished Fab setup on 14 Nov IST. |
-| Expires | 2026-12-05 (grant `expires_at`). Day 0 2026-11-14, Day 14 2026-11-28, plus a 7-day admin buffer. Extend from admin if Day 0 slips. |
+| Expires | 2026-12-05 IST end of day (grant `expires_at`). Day 0 2026-11-14 IST, Day 14 2026-11-28 IST, plus a 7-day admin buffer. Extend from admin if Day 0 slips. |
 
 ## Page flow
 

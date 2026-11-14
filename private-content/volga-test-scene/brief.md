@@ -320,7 +320,7 @@ Download the Hospital Generator & Utility Room pack from BlendXR's Fab account (
 - Keep-clear floor markings: simple planes with a flat yellow material. No asset needed.
 - The far-wall mount plate and conduit around the alarm, using the packs above where they fit.
 
-This build stays private, so free and non-commercial assets are fine. Day 0 is Saturday, 14 November 2026. The 14-day clock runs from it, with final delivery on Saturday, 28 November. Tick the Day 0 confirmation below on 14 November once you have confirmed access to every asset linked here.
+This build stays private, so free and non-commercial assets are fine. Day 0 is Saturday, 14 November 2026 (IST). The 14-day clock runs from it, with final delivery on Saturday, 28 November (IST). Tick the Day 0 confirmation below by the end of 14 November IST once you have confirmed access to every asset linked here.
 
 <!-- DOWNLOADS PANEL: rendered here by the page (see page-spec.md) -->
 
@@ -328,9 +328,11 @@ This build stays private, so free and non-commercial assets are fine. Day 0 is S
 
 The project matters as much as the APK. We are testing how you build, solve problems and leave a project others can join.
 
-| Day | Date | Checkpoint | What we receive |
+All dates below are end of day in IST.
+
+| Day | Date (IST) | Checkpoint | What we receive |
 | --- | --- | --- | --- |
-| 0 | Sat, 14 Nov | Start | Tick the Day 0 confirmation below on 14 November. Clock starts on tick. |
+| 0 | Sat, 14 Nov | Start | Tick the Day 0 confirmation below by the end of 14 November IST. Clock starts on tick. |
 | 4 | Wed, 18 Nov | Gray box | Headset capture video: room blocked out, gaze working on all 4 targets (`smoke`, `alarm`, `spark`, `boxes`) with the debug reticle on. |
 | 9 | Mon, 23 Nov | First APK | Full flow from fade-in through the restart loop, the two pulsed targets working, the two logged targets writing dwell, and the session log export writing to headset storage with the schema in Session data. Placeholder art acceptable. |
 | 14 | Sat, 28 Nov | Final | Final APK, zipped project with full Git history, README, two sample session files (one `"completed"`, one `"quit"`) that match the schema in Session data. |

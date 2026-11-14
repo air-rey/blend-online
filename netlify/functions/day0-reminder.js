@@ -2,19 +2,27 @@
 //
 // Runs every day via the schedule in netlify.toml. Each run:
 //
-//   1. Checks whether today (UTC) is on or after the day AFTER the Day 0
-//      due date (DAY0_DUE_DATE). Before then, no-op.
+//   1. Checks whether today (UTC) is after the Day 0 due date
+//      (DAY0_DUE_DATE). On or before, no-op.
 //   2. Looks up Shivam's live grant on volga-test-scene.
 //   3. Checks checkpoint_status for the Day 0 checkpoint on that grant.
 //      If the ticked_at row exists, no-op.
 //   4. Checks events for a prior `day0_missed_reminder_sent` on that
-//      grant. If one exists, no-op (one-shot guard).
+//      grant WHOSE meta.due_date MATCHES THE CURRENT DAY0_DUE_DATE. If
+//      one exists, no-op (one-shot guard, keyed to the deadline so a
+//      past reminder for an earlier deadline does not block a fresh
+//      reminder when the deadline is moved).
 //   5. Otherwise: emails airem@blendxr.online once, inserts the sentinel
 //      event, returns `{ reminded: true }`.
 //
-// Netlify also exposes it as a plain HTTP function so we can trigger it
-// by hand during QA with
-//   curl -X POST https://blendxr.online/.netlify/functions/day0-reminder
+// Netlify also exposes it as a plain HTTP function. Two QA hooks:
+//   - A plain POST runs the full flow above:
+//       curl -X POST https://blendxr.online/.netlify/functions/day0-reminder
+//   - `?test=1` bypasses the date check, the prior-sentinel check and the
+//     sentinel insert, and just sends a delivery-test email with the
+//     Resend response surfaced in the HTTP body so we can confirm
+//     end-to-end delivery today:
+//       curl -X POST 'https://blendxr.online/.netlify/functions/day0-reminder?test=1'
 
 const { supa } = require('./_lib/supa');
 const { send } = require('./_lib/email');
@@ -35,8 +43,44 @@ function todayUtcDate () {
   return `${y}-${m}-${day}`;
 }
 
-exports.handler = async function () {
+function isTestMode (event) {
+  const q = event && event.queryStringParameters;
+  if (!q) return false;
+  const v = q.test;
+  return v === '1' || v === 'true';
+}
+
+async function sendDeliveryTest (today) {
+  // A delivery test. Same from/to/subject shape as the live reminder so
+  // we are testing exactly the path Shivam's reminder would take.
+  const r = await send({
+    to: 'airem@blendxr.online',
+    subject: `BlendXR x Volga — Day 0 reminder delivery test (${today})`,
+    text: `This is a delivery test from the day0-reminder function run at ${new Date().toISOString()}.\n\nIf you see this in your inbox, the Resend path works. If you only see it in Spam, the live reminder would land there too.\n\nNo sentinel event was recorded for this message.`
+  });
+  return r;
+}
+
+exports.handler = async function (event) {
   const today = todayUtcDate();
+
+  // Test mode: send one delivery-test email, no DB writes.
+  if (isTestMode(event)) {
+    try {
+      const resend = await sendDeliveryTest(today);
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ test: true, sent: true, resend })
+      };
+    } catch (err) {
+      console.error('day0-reminder test send failed', err);
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ test: true, sent: false, error: String(err && err.message || err) })
+      };
+    }
+  }
+
   if (today <= DAY0_DUE_DATE) {
     return { statusCode: 200, body: JSON.stringify({ skipped: 'before_due', today, DAY0_DUE_DATE }) };
   }
@@ -78,12 +122,15 @@ exports.handler = async function () {
     }
   }
 
-  // One-shot guard: have we already emailed on this grant?
+  // One-shot guard keyed to the deadline. An old `day0_missed_reminder_sent`
+  // row whose meta.due_date is for an EARLIER deadline (e.g. 2026-11-11)
+  // is history and must not block the fresh reminder for the current
+  // deadline. Only a row with the same due_date counts.
   const { data: prior } = await db.from('events')
     .select('id').eq('grant_id', grant.id).eq('kind', 'day0_missed_reminder_sent')
-    .limit(1).maybeSingle();
+    .eq('meta->>due_date', DAY0_DUE_DATE).limit(1).maybeSingle();
   if (prior) {
-    return { statusCode: 200, body: JSON.stringify({ skipped: 'already_reminded' }) };
+    return { statusCode: 200, body: JSON.stringify({ skipped: 'already_reminded', due_date: DAY0_DUE_DATE }) };
   }
 
   // Send the one reminder, then record the sentinel so we never double-fire.
@@ -91,7 +138,7 @@ exports.handler = async function () {
     await send({
       to: 'airem@blendxr.online',
       subject: `BlendXR x Volga — Day 0 missed by Shivam (${today})`,
-      text: `Shivam has not ticked the Day 0 confirmation on the Volga brief by the end of ${DAY0_DUE_DATE} UTC.\n\nReach out to Shivam at ${SHIVAM_EMAIL}. The brief and the checkbox remain available at https://blendxr.online/r.\n\nThis email is sent once per grant; this scheduled job will not email again for this grant.`
+      text: `Shivam has not ticked the Day 0 confirmation on the Volga brief by the end of ${DAY0_DUE_DATE} IST.\n\nReach out to Shivam at ${SHIVAM_EMAIL}. The brief and the checkbox remain available at https://blendxr.online/r.\n\nThis email is sent once per grant per deadline; this scheduled job will not email again for deadline ${DAY0_DUE_DATE}.`
     });
   } catch (err) {
     console.error('day0-reminder: email failed, not recording sentinel so we retry tomorrow', err);
@@ -103,5 +150,5 @@ exports.handler = async function () {
     meta: { at: new Date().toISOString(), to: 'airem@blendxr.online', due_date: DAY0_DUE_DATE }
   }).then(() => {}, () => {});
 
-  return { statusCode: 200, body: JSON.stringify({ reminded: true, grant: grant.id }) };
+  return { statusCode: 200, body: JSON.stringify({ reminded: true, grant: grant.id, due_date: DAY0_DUE_DATE }) };
 };

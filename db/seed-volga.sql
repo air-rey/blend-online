@@ -22,10 +22,10 @@ values ('00000000-0000-0000-0000-000000000001'::uuid, 'Shivam', 'shivam@volgainf
 on conflict (email) do nothing;
 
 -- Shivam's grant.
---   Start:   2026-11-14 (Volga finished Fab setup on 14 Nov IST; shifted
---            from 11-11 which had shifted from 11-03 for Diwali).
---   Expiry:  2026-12-05 end of day (Day 0 on 2026-11-14, 14-day build runs
---            through 2026-11-28, add a 7-day admin buffer).
+--   Start:   2026-11-14 IST (Volga finished Fab setup on 14 Nov IST;
+--            shifted from 11-11 which had shifted from 11-03 for Diwali).
+--   Expiry:  2026-12-05 end of day IST (Day 0 on 2026-11-14 IST, 14-day
+--            build runs through 2026-11-28 IST, add a 7-day admin buffer).
 -- expires_at can be bumped from admin once Day 0 is actually ticked.
 insert into grants (resource_id, person_id, expires_at, agreement_required)
 select '00000000-0000-0000-0000-000000000002'::uuid, id,
