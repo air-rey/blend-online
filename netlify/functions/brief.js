@@ -46,17 +46,12 @@ const BRIEF_PATHS = {
 // Keep in sync with NDA_VERSION in netlify/functions/nda.js.
 const CURRENT_NDA_VERSION = '2026-11-02';
 
-// Checkpoints for the uploads panel. Day 0 is a confirmation checkbox,
-// Days 4/9/14 are real uploads. Checkpoint rows in the DB are per
-// resource; this UI config is shared because every brief currently uses
-// the same four-checkpoint shape. If a future brief needs a different
-// shape, move this into _lib/resources.js like downloads.
-const CHECKPOINTS = [
-  { day: 0,  label: 'Start confirmation', accepts: '',               hint: 'Tick to confirm you can access every asset and the setup works. Emails airem@blendxr.online and starts the clock.' },
-  { day: 4,  label: 'Gray box',           accepts: '.mp4,.mov',      hint: 'One headset capture video of the blocked-out scene with gaze working on all targets, debug reticle on.' },
-  { day: 9,  label: 'First APK',          accepts: '.apk',           hint: 'Full flow fade-in to app exit, pulses and session file working, placeholder art acceptable.' },
-  { day: 14, label: 'Final delivery',     accepts: '.apk,.zip,.md,.json', hint: 'Final APK, project zip (with .git and LFS), README, sample session file.' }
-];
+// Checkpoints for the uploads panel come from the per-resource config
+// in _lib/resources.js. Volga's shape is Day 0 + Day 4/9/14 uploads;
+// ApexDream's reduced scope is Day 0 + one demo-APK delivery row with a
+// `dueText` override (its due date is "Day 0 + 7 working days", not a
+// calendar offset). The Day 0 row always behaves the same way; the rest
+// are rendered as upload rows with the per-row `accepts` filter.
 
 function fmtDate (d) {
   try { return new Date(d).toUTCString(); } catch (_) { return String(d); }
@@ -66,6 +61,7 @@ function panelHtml (which, state = {}) {
   const day0TickedAt  = state.day0TickedAt || null;
   const downloads     = state.downloads || [];
   const day0AnchorMs  = state.day0AnchorMs; // null allowed
+  const checkpoints   = state.checkpoints || [];
   if (which === 'DOWNLOADS') {
     const rows = downloads.map(d => `
       <tr>
@@ -89,7 +85,7 @@ function panelHtml (which, state = {}) {
 </section>`;
   }
   if (which === 'UPLOADS') {
-    const rows = CHECKPOINTS.map((cp, idx) => {
+    const rows = checkpoints.map((cp, idx) => {
       if (cp.day === 0) {
         const alreadyTicked = !!day0TickedAt;
         const stampedAt = alreadyTicked ? new Date(day0TickedAt).toUTCString() : '';
@@ -106,16 +102,19 @@ function panelHtml (which, state = {}) {
             </td>
           </tr>`;
       }
-      // Day 4/9/14 upload controls are locked until Day 0 is ticked. Rows
-      // still render their due dates ahead of time, if the resource has
-      // a Day-0 anchor configured; otherwise they show a "set on Day 0"
-      // placeholder (used for resources whose Day 0 date is not yet
-      // fixed).
+      // Upload rows are locked until Day 0 is ticked. Rows still
+      // render their due dates ahead of time: the resource may give a
+      // literal dueText string (used when the due date is not a simple
+      // "Day 0 + N days" offset, e.g. "Day 0 + 7 working days"), or
+      // we compute "Day 0 + day" from the resource's Day 0 anchor.
+      // If neither is available we show a "set on Day 0" placeholder.
       const locked  = (idx > 0) && !day0TickedAt;
       const anchor  = day0TickedAt ? new Date(day0TickedAt).getTime()
                                    : (typeof day0AnchorMs === 'number' ? day0AnchorMs : null);
       let dueCell;
-      if (anchor === null) {
+      if (cp.dueText) {
+        dueCell = `<div style="color:var(--muted); font-size:12px; margin-top:4px;">${esc(cp.dueText)}</div>`;
+      } else if (anchor === null) {
         dueCell = `<div style="color:var(--muted); font-size:12px; margin-top:4px;">Due date is set once Day 0 is ticked.</div>`;
       } else {
         const dueAt = new Date(anchor + cp.day * 24 * 60 * 60 * 1000);
@@ -196,8 +195,11 @@ function uploadsScript () {
         if (!r.ok) throw new Error('day0 notify failed');
         var s = document.querySelector('.up-status[data-day="0"]');
         if (s) { s.textContent = 'Day 0 confirmed. Clock started.'; s.style.color = 'var(--success)'; }
-        var next = document.querySelector('.up-row[data-day="4"]');
-        if (next) next.removeAttribute('data-locked');
+        // Unlock every upload row now that Day 0 is confirmed. The
+        // server-rendered page does the same on next load; this keeps
+        // the UI in sync before a refresh for both the 4-row Volga
+        // sequence and the 2-row ApexDream (Day 0 + Demo APK) layout.
+        document.querySelectorAll('.up-row').forEach(function (n) { n.removeAttribute('data-locked'); });
       }).catch(function () {
         // Server didn't accept — undo the lock and the tick so the viewer
         // can retry.
@@ -360,7 +362,8 @@ exports.handler = async function (event) {
     onPanel: (which) => panelHtml(which, {
       day0TickedAt,
       downloads:    resource.downloads,
-      day0AnchorMs: resource.day0AnchorMs
+      day0AnchorMs: resource.day0AnchorMs,
+      checkpoints:  resource.checkpoints
     })
   });
 

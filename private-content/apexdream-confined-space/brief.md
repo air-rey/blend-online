@@ -1,6 +1,6 @@
 ---
 title: "BlendXR x ApexDream: Confined Space Test Brief"
-version: "2026-11-14"
+version: "2026-11-17"
 resource_type: brief
 partner: ApexDream
 contact: airem@blendxr.online
@@ -21,25 +21,23 @@ Confirm you have all of this before day 0. If anything is missing or conflicts, 
 | Headset | Meta Quest 3, developer mode on, hand tracking on |
 | Headset OS | Latest public Meta Horizon OS release. Note the exact build number you tested on. |
 | Input | Head gaze only. Hand tracking for visible hands. No controllers. |
-| Version control | Git with Git LFS from day 1, delivered as a zip with full history (see Deliverables) |
 
 We install the APK on our own Quest 3 from macOS with SideQuest or Meta Quest Developer Hub, so it must sideload and run with no extra setup. Set a clear app name, app icon and package name so it shows cleanly in the headset library.
 
 ## Purpose and test terms
 
-One short Unreal scene, about 20 to 40 seconds, delivered as an optimized Quest 3 APK and a clean project within 14 days. BlendXR owns scenario, design and interaction logic. ApexDream owns technical art, implementation and an optimized build.
+One short Unreal scene, about 25 to 45 seconds, delivered as a demo Quest 3 APK within 7 working days of day 0. BlendXR owns scenario, design and interaction logic. ApexDream owns implementation and the build.
 
 This is professional safety training content: realistic, restrained, no game effects.
 
-We will evaluate five things:
+We will evaluate four things:
 
-1. **On time.** Both check-ins and the final delivery hit.
-2. **Runs clean in headset.** Sideloads, holds frame rate, no hitches on load, cue changes or exit.
+1. **On time.** The APK delivery hits.
+2. **Runs in headset.** Sideloads and runs smoothly.
 3. **Gaze feels right.** Targets register when looked at: never by accident while scanning, and never needing an overly long look to count as *observed*.
-4. **Project quality.** Someone outside your team can open, understand, modify and rebuild it quickly.
-5. **Communication.** Questions asked early, blockers flagged the day they appear.
+4. **Communication.** Questions asked early, blockers flagged the day they appear.
 
-If time runs short, cut visual detail, not frame rate, project hygiene, timing or logging.
+If time runs short, cut visual detail, not timing or pulse behavior.
 
 **Terms**
 
@@ -51,7 +49,7 @@ If time runs short, cut visual detail, not frame rate, project hygiene, timing o
 
 The trainee stands at a gate valve inside an underground concrete valve chamber, reached by a fixed ladder from a manhole above. Fresh air is blowing down a ventilation duct from the surface. Then the blower cuts out and winds down to silence. Soon after, the gas detector beside the ladder starts flashing. The trainee recognizes the warning signs and turns to the ladder, their way out. If they ignore the warnings, the detector's alarm sounds and the scene ends.
 
-No text, no arrows, no menus, no score shown. The trainee is never told where to look. Cues exist to build awareness and raise alerts, not anxiety. Every look is recorded so awareness can be measured afterwards.
+No text, no arrows, no menus, no score shown. The trainee is never told where to look. Cues exist to build awareness and raise alerts, not anxiety.
 
 **Chamber layout**
 
@@ -113,9 +111,8 @@ Pacing: about 25 s for a fast trainee. If warnings are ignored, the alarm ends t
 | DUCT | Ventilation duct | Recognize | Notice only | Full duct length |
 | DETECTOR | Gas detector by the ladder | Recognize | Yes | Detector mesh plus a small margin |
 | LADDER | Fixed ladder and manhole | Respond | Yes | Full ladder up to and including the manhole ring |
-| VALVE | Gate valve and handwheel | Logged only | Never | Valve body and handwheel |
 
-One reusable component, `BP_GazeTarget`, drives all four. Each carries a `Role` field (Recognize, Respond, Logged only). Every target is tracked and logged for the whole session, from fade-in to exit, whether or not it is unlocked.
+One reusable component, `BP_GazeTarget`, drives all three. Each carries a `Role` field (Recognize, Respond).
 
 <details>
 <summary>Target rules in detail (unlock, pulse timings, dwell thresholds, alarm, pulse look)</summary>
@@ -126,7 +123,7 @@ One reusable component, `BP_GazeTarget`, drives all four. Each carries a `Role` 
 2. **Hold.** No pulse until 2.8 s after unlock. DETECTOR is the exception: 2.8 s after the lens starts flashing (22.6 s). If observed before then, the target never pulses.
 3. **Notice.** At the pulse time, play exactly 2 notice pulses at 0.8x speed (1.5 s per pulse, 3 s total). If observed during them, fade out over 0.3 s.
 4. **Alert.** DETECTOR and LADDER only: if still not observed after both notice pulses, fade in the alert pulse at 2.8x speed (about 0.43 s per pulse), looping until observed. Then fade out over 0.3 s. DUCT has no alert pulse: after its notice pulses it stays still.
-5. **Observed.** Continuous dwell reaches the target's threshold while it is unlocked. Gaps under 0.25 s do not reset dwell. Looks before a target unlocks are logged but do not count as observed.
+5. **Observed.** Continuous dwell reaches the target's threshold while it is unlocked. Gaps under 0.25 s do not reset dwell. Looks before a target unlocks do not count as observed.
 6. **Alarm.** The active target is DETECTOR until it is observed, then LADDER. If the active target is still not observed 5.8 s after its notice pulses end, S4 plays once, then a 2 s fade to black and the app quits. A trainee who observes the detector and then the ladder never hears the alarm.
 
 **Dwell thresholds**
@@ -142,70 +139,6 @@ Reference from our police sim (the pulsing toolbox), shown on this page. Ignore 
 
 - Overlay material: unlit, additive, fresnel edge glow on the target's mesh (duct, detector, ladder rails). No post-process outline.
 - Color #ebfcf7. Base cycle 1.2 s at 1.0x speed. Subtle peak: it should read as the object catching light, not a game pickup.
-
-</details>
-
-## Session data
-
-The scene does no scoring. It records raw events so BlendXR can calculate awareness and observation later. Build the logger as one component (`BP_SessionLogger`) that writes one JSON file per session to the app's storage on the headset. No network calls.
-
-All times are in milliseconds from fade-in complete.
-
-<details>
-<summary>Session file schema (header, cue events, target events, head direction, data quality, summary)</summary>
-
-**Session header**
-
-- Session ID, build version, device model, Horizon OS build, start time (UTC)
-- Total session duration, from fade-in complete to app quit
-- Exit reason: ladder or alarm
-- Phase times: fade-in complete, air stop, air still, duct observed, lens flash, alarm (if any), detector observed, ladder observed, fade-out start
-
-**Cue events**
-
-| Event | When |
-| --- | --- |
-| `cue_air_stop` | Blower cuts out, S2 clunk (9.8 s) |
-| `cue_air_still` | S2 ends and the duct goes still (13.3 s) |
-| `cue_lens_flash` | Detector lens starts flashing (19.8 s) |
-| `cue_alarm` | S4 starts (ignored exit only) |
-| `cue_fade_out` | Fade to black starts |
-
-**Target events** (one row per event, with target ID)
-
-| Event | When |
-| --- | --- |
-| `gaze_enter` | The gaze ray starts hitting a target |
-| `gaze_exit` | The ray stops hitting it, after the 0.25 s gap tolerance. Include the duration of that look. |
-| `unlocked` | A pulsed target becomes active |
-| `pulse_notice_start` | First notice pulse begins |
-| `pulse_alert_start` | Alert pulse fades in |
-| `observed` | Dwell threshold reached while unlocked |
-
-Every `gaze_enter` and `gaze_exit` pair is one look. Log every look on every target for the whole session, including before unlock and on VALVE, which never pulses. For example: VALVE looked at from 2.0 s for 6.0 s, and again from 21.0 s for 1.5 s.
-
-**Head direction**
-
-- Sample head position and rotation 10 times per second for the whole session, as a compact array in the same file.
-
-**Data quality events**
-
-| Event | When |
-| --- | --- |
-| `recenter` | The view is recentered |
-| `headset_removed` / `headset_worn` | Proximity sensor changes |
-| `app_paused` / `app_resumed` | App loses or regains focus |
-
-**Summary block** (written at the end of the file)
-
-- Per target: first look time, number of looks, total look time, observed time (if any)
-
-Rules:
-
-- Keep event names and fields exactly as above so files from different builds stay comparable.
-- Write the file even if the session ends early, with whatever was recorded.
-- Also print each event to the output log for debugging.
-- Document the file location and format in the README with one sample file.
 
 </details>
 
@@ -254,8 +187,8 @@ No other sounds. The trainee should be able to turn toward the duct by ear alone
 | [Gloves material](https://www.fab.com/listings/58794730-2855-4361-8f89-6af80d947f13) | VR hands |
 | [Flexible Duct Tubes](https://www.fab.com/listings/bbbe87e9-8857-42d7-9982-ad8a59d61eba) by PropHaus | Ventilation duct (DUCT). Use SM_DuctTube_4m_Var_01 or two SM_DuctTube_2m_Low, not the 6 m mesh. |
 | [Detector Beep](https://www.fab.com/listings/71564afb-8af3-4c75-bffa-b0f726662b4d) | Gas detector (DETECTOR). Use the mesh only: ignore its detection Blueprint and sounds. Mount it on a simple wall bracket and make the red lens emissive. |
-| [Industrial items](https://www.fab.com/listings/060bde6d-33f7-46b8-9c8a-b209d6036d5e) | Pipe and industrial dressing |
-| [Safety factory pack](https://www.fab.com/listings/bf7f4251-d518-42b9-a2f9-7094016e7ecc) | Safety equipment, only where it fits |
+| [Metal Ladder](https://www.fab.com/listings/9bc28fe9-13df-4c19-bc1e-ad8b6ff402bd) (Quixel Megascans) | Fixed ladder (LADDER). Scale to the chamber height and widen to about 41 cm. |
+| [Warehouse](https://www.fab.com/listings/a3149fab-3906-4043-b6ee-3937b752a06c) (Quixel Megascans) | Electrical boxes, conduit, cable and lamp dressing. |
 | S1, S2, S3, S4 sound files (download below) | Audio |
 | Highlight pulse reference | Video above |
 
@@ -264,51 +197,25 @@ Download the Fab items above from BlendXR's Fab account. airem@blendxr.online wi
 **Build in Unreal**
 
 - Chamber shell: walls, floor and roof slab with the manhole opening.
-- Fixed ladder and manhole ring.
+- Manhole ring.
 - Rescue tripod and winch line, from simple cube bars.
-- Gate valve with handwheel, pipe and plinths. Simple hard-surface modelling is fine: it reads at arm's length, so keep the handwheel clean.
-- Lighting, using the packs above where they fit.
+- Gate valve with handwheel, pipe and plinths.
+- Greybox is fine for any of the above.
 
-For anything else, use free Fab or Quixel Megascans assets and list each one (name, source link, license) in the README. This build stays private, so free and non-commercial assets are fine.
+For anything else, greybox it or use free Fab or Megascans assets.
 
-Tick the day 0 confirmation at the bottom of this page by Tuesday, November 17 (IST). The 14-day clock starts the day you tick it.
+Tick the day 0 confirmation at the bottom of this page by Thursday, November 19 (IST). The delivery clock starts the day you tick it.
 
 <!-- DOWNLOADS PANEL: rendered here by the page (see page-spec.md) -->
 
 ## Deliverables and timeline
 
-The project matters as much as the APK. We are testing how you build, solve problems and leave a project others can join.
-
 | Day | Date (IST) | Checkpoint | What we receive |
 | --- | --- | --- | --- |
-| 0 | By Tue, Nov 17 | Start | Day 0 confirmation: you can access every asset and the setup above works |
-| 4 | Day 0 + 4 | Gray box | Headset capture video: chamber blocked out at real scale, gaze working on all 4 targets with debug reticle on |
-| 9 | Day 0 + 9 | First APK | Full flow from fade-in to app quit, air stop and ignored-exit alarm timing, pulses and session file working, placeholder art acceptable |
-| 14 | Day 0 + 14 | Final | Final APK, zipped project with full Git history, README, one sample session file |
+| Day 0 | By Thu, Nov 19 | Start | Day 0 confirmation: you can access every asset and the setup works |
+| Delivery | Day 0 + 7 working days | Demo APK | Full flow from fade-in to app quit with all three gaze targets, pulses, timings and both exits |
 
-<details>
-<summary>Build standards (performance, project hygiene, final delivery format)</summary>
-
-**Performance**
-
-- 72 fps locked minimum on Quest 3, 90 fps if achievable. No drops on fade-in, air stop or exit.
-- Run the Meta XR Project Setup Tool for Quest 3 ([docs](https://developers.meta.com/horizon/documentation/unreal/unreal-project-setup-tool)) and apply all Required and Recommended rules. List any rule you ignored and why.
-- Baked lighting, no dynamic shadows, no volumetrics.
-
-**Project standards**
-
-- Git with Git LFS from day 1. Commit as you go: we read the history.
-- One root content folder (e.g. `/Content/BlendXR/`), consistent asset naming (`BP_`, `M_`, `MI_`, `T_`, `SM_`, `NS_`).
-- Scene logic in reusable Blueprints or C++, not level script. Every timing and threshold exposed.
-- No unused or duplicate assets in the final project.
-- README: how to open and build, engine and SDK versions, gaze method, Project Setup Tool exceptions, measured frame rate, session file location and format, assets used with sources, known issues.
-
-**Final delivery**
-
-- Upload every checkpoint through the upload panel at the bottom of this page. No Drive links or email attachments. Uploads are versioned, so re-upload rather than replace.
-- Final project as one zip of the full repo, including the .git folder and pulled LFS files, that we can open, modify and rebuild with only the README.
-
-</details>
+Upload the APK through the upload panel at the bottom of this page. No Drive links or email attachments.
 
 ## Communication
 
@@ -331,4 +238,3 @@ Your key contact for the test is **airem@blendxr.online**. All test communicatio
 
 - [Installing Unreal Engine for Meta Quest (Meta)](https://developers.meta.com/vr/documentation/unreal/unreal-quick-start-install-unreal-engine)
 - [Meta XR Interaction SDK for Unreal v203.0 (Meta)](https://developers.meta.com/horizon/downloads/package/meta-xr-interaction-sdk-unreal/203.0/)
-- [Unreal Project Setup Tool (Meta)](https://developers.meta.com/horizon/documentation/unreal/unreal-project-setup-tool)

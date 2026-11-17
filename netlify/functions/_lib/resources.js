@@ -21,6 +21,15 @@
 // `downloads` drives the downloads panel UI AND the per-resource
 // allowlist used by download-url.js. Keeping a single source of truth
 // here avoids drift between the two.
+//
+// `checkpoints` drives the uploads panel UI (one row per entry). It is
+// per-resource because resources can have different checkpoint shapes:
+// Volga runs a 14-day build with gray-box + first-APK + final rows;
+// ApexDream's reduced scope has just Day 0 + a single demo-APK
+// delivery. Each entry carries the `day` integer used by upload-url.js
+// / upload-notify.js to look up the matching `checkpoints` row in the
+// DB, plus optional `dueText` for entries whose due date is not a
+// simple "Day 0 + N days" offset.
 
 const path = require('path');
 
@@ -47,14 +56,21 @@ const RESOURCES = {
       { label: 'S2 Spark crackle',         key: 'crackle.mp3' },
       { label: 'S3 App start',             key: 'EnterApp.mp3' },
       { label: 'S4 Fire alarm (app exit)', key: 'fire-alarm.mp3' }
+    ],
+    checkpoints: [
+      { day: 0,  label: 'Start confirmation', accepts: '',                     hint: 'Tick to confirm you can access every asset and the setup works. Emails airem@blendxr.online and starts the clock.' },
+      { day: 4,  label: 'Gray box',           accepts: '.mp4,.mov',            hint: 'One headset capture video of the blocked-out scene with gaze working on all targets, debug reticle on.' },
+      { day: 9,  label: 'First APK',          accepts: '.apk',                 hint: 'Full flow fade-in to app exit, pulses and session file working, placeholder art acceptable.' },
+      { day: 14, label: 'Final delivery',     accepts: '.apk,.zip,.md,.json',  hint: 'Final APK, project zip (with .git and LFS), README, sample session file.' }
     ]
   },
   [APEX_SLUG]: {
     slug: APEX_SLUG,
     briefPath: APEX_BRIEF,
-    // Day 0 is not fixed yet for ApexDream (see page-spec.md). Null
-    // tells the uploads panel to render "Due date set once Day 0 is
-    // ticked" for Day 4 / 9 / 14 instead of concrete calendar dates.
+    // Day 0 is not fixed yet for ApexDream (brief sets the deadline as
+    // end of 2026-11-19 IST but the clock itself starts on the tick).
+    // null tells the uploads panel to render "Due date is set once Day
+    // 0 is ticked" for delivery rows instead of concrete dates.
     day0AnchorMs: null,
     storagePrefix: 'apexdream-confined-space/',
     downloads: [
@@ -62,6 +78,16 @@ const RESOURCES = {
       { label: 'S2 Air duct',  key: 'fan-off.m4a' },
       { label: 'S3 App start', key: 'EnterApp.mp3' },
       { label: 'S4 Gas alarm', key: 'carbon-monoxide-detector.m4a' }
+    ],
+    // Reduced scope: Day 0 + one demo-APK delivery. The delivery row's
+    // due date is "Day 0 + 7 working days", not a fixed calendar day,
+    // so it carries a dueText override and the uploads panel renders
+    // that string instead of computing from day * 24h. The `day: 7`
+    // integer is still used as the DB checkpoint key (see upload-url.js).
+    checkpoints: [
+      { day: 0, label: 'Start confirmation', accepts: '',    hint: 'Tick to confirm you can access every asset and the setup works. Emails airem@blendxr.online and starts the clock.' },
+      { day: 7, label: 'Demo APK',           accepts: '.apk', hint: 'Full flow from fade-in to app quit with all three gaze targets, pulses, timings and both exits.',
+        dueText: 'Due Day 0 + 7 working days' }
     ]
   }
 };

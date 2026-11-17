@@ -39,11 +39,13 @@ const REMINDERS = [
   {
     slug:        'apexdream-confined-space',
     personEmail: 'aashish@apexdreamstudio.com',
-    contactName: 'Rahul',
-    // ApexDream final revision: Day 0 checkbox opens today (14 Nov) and
-    // is due end of 2026-11-17 IST. Daily cron at 09:00 UTC fires the
-    // first eligible reminder on 2026-11-18.
-    dueDate:     '2026-11-17'
+    // The signer on the agreement is Aashish Sharma (CEO), so address
+    // the reminder to Aashish by name.
+    contactName: 'Aashish',
+    // ApexDream reduced-scope revision (2026-11-17): Day 0 checkbox is
+    // due end of 2026-11-19 IST. Daily cron at 09:00 UTC fires the
+    // first eligible reminder on 2026-11-20.
+    dueDate:     '2026-11-19'
   }
 ];
 
