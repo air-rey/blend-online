@@ -24,9 +24,17 @@ const { page, htmlResponse, jsonResponse, redirectResponse, esc } = require('./_
 const { buildExecutedPdf } = require('./_lib/pdf');
 const { getResource } = require('./_lib/resources');
 
-// Fixed date when Vedika pre-authorised BlendXR's side of the contractor
-// agreement. The contractor's date comes from their actual signing time.
-const BLENDXR_SIGN_DATE = 'Fri, 30 Oct 2026 17:54:06 GMT';
+// BlendXR's side of the contractor agreement is dated to the day that
+// version of the agreement went live (= the version string, which is a
+// YYYY-MM-DD date). Each new agreement version carries its own
+// BlendXR-side date on its executed PDF; the contractor's date still
+// comes from their actual signing time.
+function blendxrDateFromVersion (version) {
+  const [y, m, d] = String(version).split('-').map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  // "Tue, 17 Nov 2026" — same date-only format as the signer's date line.
+  return dt.toUTCString().replace(/\s\d{2}:\d{2}:\d{2}\sGMT$/, '');
+}
 
 // Netlify's function bundler auto-includes files referenced by a static
 // __dirname path. The shared template is bundled here because
@@ -245,7 +253,7 @@ exports.handler = async function (event) {
         agreementSha256:  agreementSha,
         contractor: { legalName: form.legal_name },
         signer:   { name: form.signer_name, title: form.signer_title },
-        blendxr:  { name: 'Vedika Bhasin', title: 'Founder', date: BLENDXR_SIGN_DATE },
+        blendxr:  { name: 'Vedika Bhasin', title: 'Founder', date: blendxrDateFromVersion(resource.agreementVersion) },
         auditRecord
       });
     } catch (err) {
