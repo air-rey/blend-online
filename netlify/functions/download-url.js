@@ -3,8 +3,8 @@
 // in the `downloads` private bucket. Also logs the download in `events`.
 // Per-resource allowlist and storagePrefix come from _lib/resources.js
 // so each resource exposes only its own download set and reads from its
-// own folder under the bucket (Volga's prefix is the empty string for
-// the legacy root layout).
+// own folder under the bucket (the first resource's prefix is the empty
+// string for the legacy root layout).
 
 const { supa } = require('./_lib/supa');
 const { readSession } = require('./_lib/cookie');

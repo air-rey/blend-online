@@ -3,8 +3,8 @@
 // or video inside the `media` private bucket. Session cookie required;
 // the session's resource_slug picks the per-resource storagePrefix so
 // each resource serves its own set of media objects out of the same
-// bucket. Volga's prefix is the empty string (legacy root layout);
-// new resources live under `<slug>/`. See _lib/resources.js.
+// bucket. The first resource's prefix is the empty string (legacy root
+// layout); newer resources live under `<slug>/`. See _lib/resources.js.
 
 const { supa } = require('./_lib/supa');
 const { readSession } = require('./_lib/cookie');

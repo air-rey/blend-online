@@ -23,7 +23,7 @@ exports.handler = async function () {
   try {
     const resend = await send({
       to: 'airem@blendxr.online',
-      subject: `BlendXR x Volga — Day 0 reminder delivery test (${today})`,
+      subject: `BlendXR — Day 0 reminder delivery test (${today})`,
       text: `Delivery test from day0-reminder-test at ${now.toISOString()}.\n\nThis uses the same from/to/subject shape as the live Day 0 missed-tick reminder, so inbox vs. spam placement here matches what the real reminder would see. No sentinel event was recorded.`
     });
     return {

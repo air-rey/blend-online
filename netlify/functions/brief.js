@@ -47,14 +47,29 @@ const BRIEF_PATHS = {
 const CURRENT_NDA_VERSION = '2026-11-02';
 
 // Checkpoints for the uploads panel come from the per-resource config
-// in _lib/resources.js. Volga's shape is Day 0 + Day 4/9/14 uploads;
-// ApexDream's reduced scope is Day 0 + one demo-APK delivery row with a
-// `dueText` override (its due date is "Day 0 + 7 working days", not a
-// calendar offset). The Day 0 row always behaves the same way; the rest
-// are rendered as upload rows with the per-row `accepts` filter.
+// in _lib/resources.js. The first resource shipped uses a Day 0 + Day
+// 4/9/14 upload shape; ApexDream's reduced scope is Day 0 + one demo-
+// APK delivery row with `dueBusinessDays` + a `dueText` placeholder
+// (its due date is "Day 0 + 7 business days (Mon–Fri)", not a calendar
+// offset). The Day 0 row always behaves the same way; the rest are
+// rendered as upload rows with the per-row `accepts` filter.
 
 function fmtDate (d) {
   try { return new Date(d).toUTCString(); } catch (_) { return String(d); }
+}
+
+// Add N business days to a date (skipping Sat/Sun). Uses UTC day fields
+// so the result doesn't jitter with the server's local timezone. Days
+// 0 = Sunday, 6 = Saturday in getUTCDay().
+function addBusinessDays (start, n) {
+  const date = new Date(start);
+  let added = 0;
+  while (added < n) {
+    date.setUTCDate(date.getUTCDate() + 1);
+    const dow = date.getUTCDay();
+    if (dow !== 0 && dow !== 6) added++;
+  }
+  return date;
 }
 
 function panelHtml (which, state = {}) {
@@ -102,17 +117,25 @@ function panelHtml (which, state = {}) {
             </td>
           </tr>`;
       }
-      // Upload rows are locked until Day 0 is ticked. Rows still
-      // render their due dates ahead of time: the resource may give a
-      // literal dueText string (used when the due date is not a simple
-      // "Day 0 + N days" offset, e.g. "Day 0 + 7 working days"), or
-      // we compute "Day 0 + day" from the resource's Day 0 anchor.
-      // If neither is available we show a "set on Day 0" placeholder.
+      // Upload rows are locked until Day 0 is ticked. Due-date display
+      // picks the first rule that fits:
+      //   1. cp.dueBusinessDays set AND Day 0 ticked: compute Day 0 +
+      //      N business days (Mon-Fri), render that calendar date.
+      //   2. cp.dueText set (e.g. "Due Day 0 + 7 business days"): show
+      //      that string. Used pre-tick for business-days rows, and
+      //      for any row whose due date is not a numeric offset.
+      //   3. Resource has a fixed Day 0 anchor: render Day 0 + cp.day
+      //      calendar days. Used by Volga's 4/9/14 rows.
+      //   4. Neither anchor nor override: "set on Day 0" placeholder.
       const locked  = (idx > 0) && !day0TickedAt;
       const anchor  = day0TickedAt ? new Date(day0TickedAt).getTime()
                                    : (typeof day0AnchorMs === 'number' ? day0AnchorMs : null);
       let dueCell;
-      if (cp.dueText) {
+      if (cp.dueBusinessDays && day0TickedAt) {
+        const dueAt = addBusinessDays(new Date(day0TickedAt), cp.dueBusinessDays);
+        const dueLabel = dueAt.toUTCString().replace(/\s\d{2}:\d{2}:\d{2}\sGMT$/, '');
+        dueCell = `<div style="color:var(--muted); font-size:12px; margin-top:4px;">Due by end of ${esc(dueLabel)}</div>`;
+      } else if (cp.dueText) {
         dueCell = `<div style="color:var(--muted); font-size:12px; margin-top:4px;">${esc(cp.dueText)}</div>`;
       } else if (anchor === null) {
         dueCell = `<div style="color:var(--muted); font-size:12px; margin-top:4px;">Due date is set once Day 0 is ticked.</div>`;
@@ -316,12 +339,18 @@ exports.handler = async function (event) {
         .maybeSingle();
       if (!sig) return redirectResponse('/nda');
     } else {
+      // Contractor-agreement gate: require an executed row for this
+      // resource's CURRENT required version. Older executed rows (e.g.
+      // the pre-revision version a signer first signed) stay in the
+      // table as history but no longer satisfy the gate; the brief
+      // redirects to /agreement so the signer re-executes.
       const { data: oa } = await db.from('org_agreements')
-        .select('status')
+        .select('id')
         .eq('org_id', session.org_id)
-        .order('signed_at', { ascending: false, nullsFirst: false })
+        .eq('agreement_version', resource.agreementVersion)
+        .eq('status', 'executed')
         .limit(1).maybeSingle();
-      if (!oa || oa.status !== 'executed') return redirectResponse('/agreement');
+      if (!oa) return redirectResponse('/agreement');
     }
   }
 

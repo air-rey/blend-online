@@ -9,9 +9,9 @@ These notes cover only this resource. The site-wide rules (gate, tokens, waterma
 | Type | `brief` |
 | Slug (admin only, never in the URL) | `apexdream-confined-space` |
 | Access URL | `blendxr.online/r/<token>`, one token per invited contact at ApexDream |
-| Agreement | `BlendXR_Volga_Contractor_Agreement_v2.docx` in `agreements/` (contractor agreement, not the mutual NDA). Same template as Volga: the signer fills in their org details (legal name, entity type, registration, PAN, address) on the form, so one template serves both briefs. |
+| Agreement | Shared contractor-agreement template at `private-content/_shared/agreement.txt.template`. ApexDream requires `agreementVersion` `2026-11-17` (see `netlify/functions/_lib/resources.js`); the signer fills in their org details on the form and `agreement.js` substitutes the per-resource brief title and delivery phrase at render time. |
 | Content | `brief.md` (this folder), rendered in the BlendXR design system |
-| Expires | 2026-12-08 IST end of day (grant `expires_at`). Day 0 due end of 2026-11-19 IST, delivery Day 0 + 7 working days, plus an admin buffer. Extend from admin if Day 0 slips. |
+| Expires | Day 0 + 14 calendar days (grant `expires_at`). Pre-tick default is 2026-12-03 (the 2026-11-19 IST Day 0 deadline + 14 days). `upload-notify.js` bumps this to `tick_date + 14` the moment Day 0 is actually ticked. |
 
 ## Page flow
 
@@ -27,7 +27,7 @@ These notes cover only this resource. The site-wide rules (gate, tokens, waterma
 
 | Path in brief.md | File | Notes |
 | --- | --- | --- |
-| `media/highlight-pulse-ref.mp4`      | `highlight-pulse-ref.mp4`      | Inline video, muted, loop, no download control, overlay watermark. Carried unchanged from the Volga brief. |
+| `media/highlight-pulse-ref.mp4`      | `highlight-pulse-ref.mp4`      | Inline video, muted, loop, no download control, overlay watermark. Shared pulse-reference clip. |
 | `media/confined-space-start.jpg`     | `confined-space-start.jpg`     | AI-generated chamber reference, inline + watermarked. |
 | `media/confined-space-ladder.jpg`    | `confined-space-ladder.jpg`    | AI-generated ladder reference, inline + watermarked. |
 
@@ -40,25 +40,24 @@ These notes cover only this resource. The site-wide rules (gate, tokens, waterma
 | S3 App start | `EnterApp.mp3` |
 | S4 Gas alarm | `carbon-monoxide-detector.m4a` |
 
-`hum-electric.mp3` and `EnterApp.mp3` are the same files Volga uses; `fan-off.m4a` and `carbon-monoxide-detector.m4a` are specific to this brief.
+`hum-electric.mp3` and `EnterApp.mp3` are shared sound files; `fan-off.m4a` and `carbon-monoxide-detector.m4a` are specific to this brief.
 
 Log every download (who, file, time).
 
-The Fab-sourced packs listed in the brief (Hospital Generator, Gloves, Flexible Duct Tubes, Detector Beep, Metal Ladder, Warehouse) are NOT downloaded through the deal room: ApexDream pulls them from BlendXR's Fab account, same flow as Volga. See brief.md.
+The Fab-sourced packs listed in the brief (Hospital Generator, Gloves, Flexible Duct Tubes, Detector Beep, Metal Ladder, Warehouse) are NOT downloaded through the deal room: ApexDream pulls them from BlendXR's Fab account. See brief.md.
 
 ## Uploads panel: interactive checklist
 
-Two rows. Per-resource checkpoint config lives in `netlify/functions/_lib/resources.js`; the second row carries a `dueText` override because its due date is "Day 0 + 7 working days", not a simple calendar offset.
+Two rows. Per-resource checkpoint config lives in `netlify/functions/_lib/resources.js`; the Demo APK row carries `dueBusinessDays: 7` and a `dueText` placeholder because its due date is "Day 0 + 7 business days (Mon–Fri)", not a simple calendar offset.
 
 | Day | Checkpoint | Accepts | Required files |
 | --- | --- | --- | --- |
-| 0 | Start confirmation | No upload. Checkbox only: "We can access every asset and the setup works." Ticking it emails airem@blendxr.online and records the time as day 0. | None |
-| 7 | Demo APK          | `.apk` | Full flow from fade-in to app quit with all three gaze targets, pulses, timings and both exits. Due Day 0 + 7 working days. |
+| 0 | Start confirmation | No upload. Checkbox only: "We can access every asset and the setup works." Ticking it emails airem@blendxr.online and vedika@blendxr.online, and stamps the time as day 0. | None |
+| 7 | Demo APK          | `.apk` | Full flow from fade-in to app quit with all three gaze targets, pulses, timings and both exits. Due Day 0 + 7 business days (Mon–Fri). |
 
 - Uploads are versioned, never overwritten. Show the partner only filename, size, time and a status of Received, then Reviewed or Changes requested (set by BlendXR in admin).
-- Record uploader, checkpoint, filename, size, SHA-256 and timestamp. Email airem@blendxr.online on every upload.
 - The Demo APK can be several hundred MB: use resumable uploads, per the deal room spec.
-- The Demo APK row's due text renders immediately; the exact calendar date is set by Aashish's Day 0 tick + 7 working days.
+- Pre-tick, the Demo APK row shows the `dueText` placeholder. Once Day 0 is ticked, `brief.js` renders the exact calendar date computed as `addBusinessDays(tick_date, 7)` (skipping Sat/Sun).
 
 ## Day 0 reminder
 

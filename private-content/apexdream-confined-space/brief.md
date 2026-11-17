@@ -26,7 +26,7 @@ We install the APK on our own Quest 3 from macOS with SideQuest or Meta Quest De
 
 ## Purpose and test terms
 
-One short Unreal scene, about 25 to 45 seconds, delivered as a demo Quest 3 APK within 7 working days of day 0. BlendXR owns scenario, design and interaction logic. ApexDream owns implementation and the build.
+One short Unreal scene, about 25 to 45 seconds, delivered as a demo Quest 3 APK within 7 business days of day 0. BlendXR owns scenario, design and the interaction behaviour. ApexDream owns implementation and the build.
 
 This is professional safety training content: realistic, restrained, no game effects.
 
@@ -42,7 +42,7 @@ If time runs short, cut visual detail, not timing or pulse behavior.
 **Terms**
 
 - This test is unpaid. Budgets are discussed only if we move to full experiences.
-- The scenario, interaction logic and this brief are confidential. Do not share, reuse or show them, including in your portfolio, without written permission. The agreement you signed to open this page covers everything in it.
+- The scenario, interaction behaviour and this brief are confidential. Do not share, reuse or show them, including in your portfolio, without written permission. The agreement you signed to open this page covers everything in it.
 - All work produced for this test belongs to BlendXR.
 
 ## Scene concept: Valve Chamber, Air Turning Bad
@@ -192,7 +192,7 @@ No other sounds. The trainee should be able to turn toward the duct by ear alone
 | S1, S2, S3, S4 sound files (download below) | Audio |
 | Highlight pulse reference | Video above |
 
-Download the Fab items above from BlendXR's Fab account. airem@blendxr.online will send the login separately and handle sign-in codes during reply windows. Sign in, add them to your project, sign out, and email us when it's done. The password will be changed after that. Use the account only for these items: no other downloads, purchases or setting changes. Use them only for this project, do not share them further, and delete them when the test ends.
+Download the Fab items above from BlendXR's Fab account. airem@blendxr.online will send the credentials separately and handle sign-in codes during reply windows. Sign in, add them to your project, sign out, and email us when it's done. The password will be changed after that. Use the account only for these items: no other downloads, purchases or setting changes. Use them only for this project, do not share them further, and delete them when the test ends.
 
 **Build in Unreal**
 
@@ -204,7 +204,7 @@ Download the Fab items above from BlendXR's Fab account. airem@blendxr.online wi
 
 For anything else, greybox it or use free Fab or Megascans assets.
 
-Tick the day 0 confirmation at the bottom of this page by Thursday, November 19 (IST). The delivery clock starts the day you tick it.
+Tick the day 0 confirmation at the bottom of this page by Thursday, November 19 (IST). The delivery clock (7 business days, Mon–Fri) starts the day you tick it.
 
 <!-- DOWNLOADS PANEL: rendered here by the page (see page-spec.md) -->
 
@@ -213,7 +213,7 @@ Tick the day 0 confirmation at the bottom of this page by Thursday, November 19 
 | Day | Date (IST) | Checkpoint | What we receive |
 | --- | --- | --- | --- |
 | Day 0 | By Thu, Nov 19 | Start | Day 0 confirmation: you can access every asset and the setup works |
-| Delivery | Day 0 + 7 working days | Demo APK | Full flow from fade-in to app quit with all three gaze targets, pulses, timings and both exits |
+| Delivery | Day 0 + 7 business days (Mon–Fri) | Demo APK | Full flow from fade-in to app quit with all three gaze targets, pulses, timings and both exits |
 
 Upload the APK through the upload panel at the bottom of this page. No Drive links or email attachments.
 

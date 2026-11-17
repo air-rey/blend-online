@@ -239,20 +239,9 @@ exports.handler = async function (event) {
     await db.from('orgs').update({ legal_name: form.counterparty_legal_name })
       .eq('id', session.org_id).is('legal_name', null).then(() => {}, () => {});
 
-    try {
-      const b64 = pdf.toString('base64');
-      await send({
-        to: [session.email, 'airem@blendxr.online'],
-        subject: `Executed: BlendXR x ${form.counterparty_legal_name} mutual NDA`,
-        text: `Attached: executed copy of the BlendXR mutual NDA, version ${NDA_VERSION}, signed by ${form.signer_name} (${form.signer_title}) for ${form.counterparty_legal_name} on ${now.toUTCString()}.\n\nAccess continues at https://blendxr.online/r`,
-        attachments: [{
-          filename: `BlendXR-${safeName}-NDA-${NDA_VERSION}.pdf`,
-          content:  b64
-        }]
-      });
-    } catch (err) {
-      console.warn('NDA email failed', err);
-    }
+    // No auto-email on NDA execution. The executed PDF lives in
+    // Supabase Storage at `storagePath`; Vedika sends it to the
+    // counterparty herself if she chooses to.
 
     const token = await makeSession(Object.assign({}, session, { agreement_ok: true }));
 

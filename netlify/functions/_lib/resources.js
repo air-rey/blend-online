@@ -39,10 +39,24 @@ const APEX_SLUG  = 'apexdream-confined-space';
 const VOLGA_BRIEF = path.join(__dirname, '..', '..', '..', 'private-content', 'volga-test-scene', 'brief.md');
 const APEX_BRIEF  = path.join(__dirname, '..', '..', '..', 'private-content', 'apexdream-confined-space', 'brief.md');
 
+// Shared contractor-agreement template with {{VERSION}}, {{BRIEF_TITLE}}
+// and {{DELIVERY_PHRASE}} placeholders. Each resource below supplies its
+// own values; agreement.js substitutes at render time so one legal text
+// serves every contractor brief without a partner-specific file.
+const SHARED_AGREEMENT_TEMPLATE = path.join(__dirname, '..', '..', '..', 'private-content', '_shared', 'agreement.txt.template');
+
 const RESOURCES = {
   [VOLGA_SLUG]: {
     slug: VOLGA_SLUG,
+    title: 'BlendXR x Volga — Test Scene Brief',
     briefPath: VOLGA_BRIEF,
+    // Contractor-agreement version this resource requires an executed
+    // org_agreements row for. The gate in brief.js / agreement.js
+    // compares against this exact string.
+    agreementVersion: '2026-11-03',
+    agreementPath:    SHARED_AGREEMENT_TEMPLATE,
+    agreementBriefTitle:     'BlendXR x Volga — Test Scene Brief',
+    agreementDeliveryPhrase: 'including the complete source project',
     // Day 0 for Volga is anchored to 2026-11-14 UTC until Shivam ticks
     // Day 0 in the uploads panel. See brief.js for the recompute-on-tick
     // behaviour.
@@ -66,7 +80,16 @@ const RESOURCES = {
   },
   [APEX_SLUG]: {
     slug: APEX_SLUG,
+    title: 'BlendXR x ApexDream: Confined Space Test Brief',
     briefPath: APEX_BRIEF,
+    // ApexDream's reduced-scope revision needs the signer to re-execute
+    // the agreement under this version. Any older row for ApexDream's
+    // org (e.g. the 2026-11-03 copy Aashish signed on Nov 15) stays as
+    // history but no longer satisfies the brief gate.
+    agreementVersion: '2026-11-17',
+    agreementPath:    SHARED_AGREEMENT_TEMPLATE,
+    agreementBriefTitle:     'BlendXR x ApexDream: Confined Space Test Brief',
+    agreementDeliveryPhrase: 'the demo APK',
     // Day 0 is not fixed yet for ApexDream (brief sets the deadline as
     // end of 2026-11-19 IST but the clock itself starts on the tick).
     // null tells the uploads panel to render "Due date is set once Day
@@ -79,15 +102,15 @@ const RESOURCES = {
       { label: 'S3 App start', key: 'EnterApp.mp3' },
       { label: 'S4 Gas alarm', key: 'carbon-monoxide-detector.m4a' }
     ],
-    // Reduced scope: Day 0 + one demo-APK delivery. The delivery row's
-    // due date is "Day 0 + 7 working days", not a fixed calendar day,
-    // so it carries a dueText override and the uploads panel renders
-    // that string instead of computing from day * 24h. The `day: 7`
-    // integer is still used as the DB checkpoint key (see upload-url.js).
+    // Reduced scope: Day 0 + one demo-APK delivery. dueBusinessDays
+    // tells the panel to compute (Day 0 tick + N business days, Mon-
+    // Fri) after the tick lands. Before the tick, the panel shows the
+    // dueText placeholder.
     checkpoints: [
       { day: 0, label: 'Start confirmation', accepts: '',    hint: 'Tick to confirm you can access every asset and the setup works. Emails airem@blendxr.online and starts the clock.' },
       { day: 7, label: 'Demo APK',           accepts: '.apk', hint: 'Full flow from fade-in to app quit with all three gaze targets, pulses, timings and both exits.',
-        dueText: 'Due Day 0 + 7 working days' }
+        dueBusinessDays: 7,
+        dueText: 'Due Day 0 + 7 business days (Mon–Fri)' }
     ]
   }
 };

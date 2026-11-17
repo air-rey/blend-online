@@ -1,10 +1,18 @@
 // GET  /agreement : renders the agreement text + contractor fields form
-// POST /.netlify/functions/agreement : signs it (generates PDF, emails,
-//                                      flips org_agreements.status to executed)
+// POST /.netlify/functions/agreement : signs it (generates PDF, stores
+//                                      it, inserts the executed row,
+//                                      marks older rows superseded,
+//                                      flips the brief gate)
 //
 // Requires a session cookie minted by /.netlify/functions/enter.
-// Does not render for anyone whose agreement is already executed; they go
-// straight to /r (brief).
+// Does not render for anyone whose agreement is already executed FOR
+// THE CURRENT RESOURCE'S CURRENT VERSION; they go straight to /r. Older
+// executed rows (e.g. a 2026-11-03 copy when the resource now requires
+// 2026-11-17) do not satisfy the gate and the form is re-presented with
+// the signer's previous details pre-filled.
+//
+// Vedika sends the executed PDF to the signer herself. This function
+// does not email anyone (no partner-facing automation).
 
 const fs   = require('fs');
 const path = require('path');
@@ -14,18 +22,24 @@ const { supa } = require('./_lib/supa');
 const { readSession, setCookieHeader, makeSession } = require('./_lib/cookie');
 const { page, htmlResponse, jsonResponse, redirectResponse, esc } = require('./_lib/html');
 const { buildExecutedPdf } = require('./_lib/pdf');
-const { send } = require('./_lib/email');
-
-const AGREEMENT_PATH = path.join(__dirname, '..', '..', 'private-content', 'volga-test-scene', 'agreement.txt');
-const AGREEMENT_VERSION = '2026-11-03';
+const { getResource } = require('./_lib/resources');
 
 // Fixed date when Vedika pre-authorised BlendXR's side of the contractor
 // agreement. The contractor's date comes from their actual signing time.
 const BLENDXR_SIGN_DATE = 'Fri, 30 Oct 2026 17:54:06 GMT';
 
-function readAgreement () {
-  const text = fs.readFileSync(AGREEMENT_PATH, 'utf-8');
-  const sha  = crypto.createHash('sha256').update(text).digest('hex');
+// Netlify's function bundler auto-includes files referenced by a static
+// __dirname path. The shared template is bundled here because
+// agreement.js reads it on every GET and POST.
+const SHARED_TEMPLATE = path.join(__dirname, '..', '..', 'private-content', '_shared', 'agreement.txt.template');
+
+function renderAgreementText (resource) {
+  const raw = fs.readFileSync(SHARED_TEMPLATE, 'utf-8');
+  const text = raw
+    .replace(/\{\{VERSION\}\}/g,         resource.agreementVersion)
+    .replace(/\{\{BRIEF_TITLE\}\}/g,     resource.agreementBriefTitle)
+    .replace(/\{\{DELIVERY_PHRASE\}\}/g, resource.agreementDeliveryPhrase);
+  const sha = crypto.createHash('sha256').update(text).digest('hex');
   return { text, sha };
 }
 
@@ -35,11 +49,9 @@ function clientIp (event) {
 }
 function userAgent (event) { return (event.headers || {})['user-agent'] || null; }
 
-function renderAgreementPage (session, agreementText, agreementVersion) {
+function renderAgreementPage (session, resource, agreementText, prefill) {
   const paragraphs = agreementText.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
   const bodyHtml = paragraphs.map(p => {
-    // All-caps paragraphs (the v3 title line, and any residual PART header
-    // from older versions) render as h2. Everything else is a paragraph.
     if (/^(PART [A-Z]\b|[A-Z][A-Z0-9 ,.()\-]{10,})$/.test(p)) {
       return `<h2>${esc(p)}</h2>`;
     }
@@ -48,6 +60,15 @@ function renderAgreementPage (session, agreementText, agreementVersion) {
     }
     return `<p>${esc(p)}</p>`;
   }).join('\n');
+
+  const prior = prefill || {};
+  const priorLegal = prior.legal_name || '';
+  const priorName  = prior.signer_name || '';
+  const priorTitle = prior.signer_title || '';
+  const priorEmail = prior.signer_email || session.email || '';
+  const priorBanner = prior.priorVersion
+    ? `<p class="prior-banner" role="status">We've updated the agreement to version ${esc(resource.agreementVersion)}. Your previous version (${esc(prior.priorVersion)}) stays as history; please re-sign the updated copy to continue. Your details are pre-filled.</p>`
+    : '';
 
   const body = `
 <div class="layout layout--wide">
@@ -64,8 +85,9 @@ function renderAgreementPage (session, agreementText, agreementVersion) {
   </div>
 
   <h1>Sign the test agreement</h1>
-  <p class="caps" style="margin-bottom:4px;">Version ${esc(agreementVersion)}</p>
+  <p class="caps" style="margin-bottom:4px;">Version ${esc(resource.agreementVersion)}</p>
   <p style="color:var(--body);">The agreement text below is live. Please read it in full. BlendXR has already signed; your signature on the fields below completes the agreement.</p>
+  ${priorBanner}
 
   <section class="agreement-body" aria-label="Agreement text">
     ${bodyHtml}
@@ -76,15 +98,15 @@ function renderAgreementPage (session, agreementText, agreementVersion) {
   <h2>Your signature</h2>
   <form id="signForm" method="POST" action="/.netlify/functions/agreement" novalidate>
     <label class="field"><span>Company name</span>
-      <input class="input" name="legal_name" required></label>
+      <input class="input" name="legal_name" required value="${esc(priorLegal)}"></label>
     <div class="row2">
       <label class="field"><span>Signer name</span>
-        <input class="input" name="signer_name" required autocomplete="name"></label>
+        <input class="input" name="signer_name" required autocomplete="name" value="${esc(priorName)}"></label>
       <label class="field"><span>Title</span>
-        <input class="input" name="signer_title" required autocomplete="organization-title"></label>
+        <input class="input" name="signer_title" required autocomplete="organization-title" value="${esc(priorTitle)}"></label>
     </div>
     <label class="field"><span>Email</span>
-      <input class="input" type="email" name="signer_email" required autocomplete="email" value="${esc(session.email || '')}"></label>
+      <input class="input" type="email" name="signer_email" required autocomplete="email" value="${esc(priorEmail)}"></label>
 
     <label class="check" style="margin-top:14px;">
       <input type="checkbox" name="authorised" value="1" required>
@@ -138,6 +160,7 @@ function renderAgreementPage (session, agreementText, agreementVersion) {
       .agreement-body p { font: 400 13px/1.65 'Rajdhani', sans-serif; color: var(--ink); margin: 0 0 0.9em; }
       .agreement-body h2 { font: 600 14px/1.3 'Sarpanch', sans-serif; margin: 1.3em 0 0.6em; letter-spacing: 1px; text-transform: uppercase; color: var(--text-strong); }
       .sig-line { color: var(--muted); font-size: 12px; }
+      .prior-banner { background: rgba(255,213,120,0.08); border: 1px solid rgba(255,213,120,0.35); border-radius: 10px; padding: 12px 16px; margin: 12px 0 18px; color: var(--text-strong); font: 500 13px/1.5 'Rajdhani', sans-serif; }
     `
   });
 }
@@ -154,24 +177,40 @@ exports.handler = async function (event) {
   const session = await readSession(event.headers || {});
   if (!session) return redirectResponse('/');
 
-  // Session's resource must be one of the contractor-agreement briefs we
-  // know about. The agreement text itself is shared across contractor
-  // resources (the signer fills in their org details on the form); this
-  // guard just rejects unknown slugs so a stale cookie cannot be used.
-  const { isKnownSlug } = require('./_lib/resources');
-  if (!isKnownSlug(session.resource_slug)) return redirectResponse('/');
+  const resource = getResource(session.resource_slug);
+  if (!resource) return redirectResponse('/');
 
   const db = supa();
 
   if (event.httpMethod === 'GET') {
-    // If already executed for this org, skip the agreement.
-    const { data: existing } = await db.from('org_agreements')
-      .select('status').eq('org_id', session.org_id)
-      .order('signed_at', { ascending: false }).limit(1).maybeSingle();
-    if (existing && existing.status === 'executed') return redirectResponse('/r');
+    // Already executed for THIS resource's CURRENT version? Skip the form.
+    const { data: current } = await db.from('org_agreements')
+      .select('id')
+      .eq('org_id', session.org_id)
+      .eq('agreement_version', resource.agreementVersion)
+      .eq('status', 'executed')
+      .limit(1).maybeSingle();
+    if (current) return redirectResponse('/r');
 
-    const { text, sha } = readAgreement();
-    return htmlResponse(renderAgreementPage(session, text, AGREEMENT_VERSION));
+    // Pre-fill from the most recent prior row for this org (any version,
+    // any status). Keeps the re-sign flow painless for a signer whose
+    // only change is the version bump.
+    const { data: prior } = await db.from('org_agreements')
+      .select('agreement_version, signer_name, signer_title, contractor_fields')
+      .eq('org_id', session.org_id)
+      .order('signed_at', { ascending: false, nullsFirst: false })
+      .limit(1).maybeSingle();
+
+    const prefill = prior ? {
+      legal_name:   (prior.contractor_fields && prior.contractor_fields.legal_name) || '',
+      signer_name:  prior.signer_name || '',
+      signer_title: prior.signer_title || '',
+      signer_email: (prior.contractor_fields && prior.contractor_fields.signer_email) || '',
+      priorVersion: prior.agreement_version || ''
+    } : null;
+
+    const { text } = renderAgreementText(resource);
+    return htmlResponse(renderAgreementPage(session, resource, text, prefill));
   }
 
   if (event.httpMethod === 'POST') {
@@ -189,7 +228,7 @@ exports.handler = async function (event) {
     const ua  = userAgent(event);
     const now = new Date();
 
-    const { text: agreementText, sha: agreementSha } = readAgreement();
+    const { text: agreementText, sha: agreementSha } = renderAgreementText(resource);
 
     const auditRecord = {
       id:        crypto.randomUUID(),
@@ -202,7 +241,7 @@ exports.handler = async function (event) {
     try {
       pdf = await buildExecutedPdf({
         agreementText,
-        agreementVersion: AGREEMENT_VERSION,
+        agreementVersion: resource.agreementVersion,
         agreementSha256:  agreementSha,
         contractor: { legalName: form.legal_name },
         signer:   { name: form.signer_name, title: form.signer_title },
@@ -214,8 +253,10 @@ exports.handler = async function (event) {
       return jsonResponse(500, { error: 'Could not generate the executed PDF. Please try again.' });
     }
 
-    // Upload the PDF to the private bucket.
-    const storagePath = `executed/${session.org_id}/${AGREEMENT_VERSION}-${auditRecord.id}.pdf`;
+    // Upload the PDF to the private bucket, keyed by org + version +
+    // audit record so re-signs under a new version don't collide with
+    // the older executed copy.
+    const storagePath = `executed/${session.org_id}/${resource.agreementVersion}-${auditRecord.id}.pdf`;
     const upload = await db.storage.from('agreements').upload(storagePath, pdf, {
       contentType: 'application/pdf', upsert: false
     });
@@ -224,10 +265,10 @@ exports.handler = async function (event) {
       return jsonResponse(500, { error: 'Could not store the executed PDF.' });
     }
 
-    // Record the org_agreements row as executed.
+    // Record the new org_agreements row as executed.
     const { data: orgAgreement, error: orgErr } = await db.from('org_agreements').insert({
       org_id: session.org_id,
-      agreement_version: AGREEMENT_VERSION,
+      agreement_version: resource.agreementVersion,
       agreement_sha256:  agreementSha,
       status: 'executed',
       signer_person_id: session.sub,
@@ -247,32 +288,29 @@ exports.handler = async function (event) {
       return jsonResponse(500, { error: 'Could not record the signed agreement.' });
     }
 
+    // Mark older executed rows for this org as superseded. They stay in
+    // the table as history (their PDF and audit record are unchanged)
+    // but no longer satisfy the brief gate.
+    await db.from('org_agreements')
+      .update({ status: 'superseded' })
+      .eq('org_id', session.org_id)
+      .eq('status', 'executed')
+      .neq('id', orgAgreement.id)
+      .then(() => {}, err => console.warn('mark superseded failed', err));
+
     // Record the per-person acknowledgement at the same time.
     await db.from('acknowledgements').insert({
       person_id: session.sub, org_agreement_id: orgAgreement.id, at: now.toISOString(), ip
     }).then(() => {}, () => {});
 
-    // Email the signer, airem@, and vedika@ with the PDF.
-    try {
-      const b64 = pdf.toString('base64');
-      await send({
-        to: [auditRecord.email, 'airem@blendxr.online', 'vedika@blendxr.online'],
-        subject: `Executed: BlendXR x ${form.legal_name} test agreement`,
-        text: `Attached: executed copy of the Test Engagement Confidentiality and Non-Replication Agreement, version ${AGREEMENT_VERSION}, signed by ${form.signer_name} (${form.signer_title}) for ${form.legal_name} on ${now.toUTCString()}.\n\nAccess continues at https://blendxr.online/r`,
-        attachments: [{
-          filename: `BlendXR-${form.legal_name.replace(/[^A-Za-z0-9]+/g, '_')}-executed-${AGREEMENT_VERSION}.pdf`,
-          content:  b64
-        }]
-      });
-    } catch (err) {
-      console.warn('agreement email failed', err);
-    }
+    // No auto-email. Vedika sends the executed PDF to the signer
+    // herself. The PDF lives in Supabase Storage at `storagePath`.
 
     // Refresh the session cookie with agreement_ok: true.
     const token = await makeSession(Object.assign({}, session, { agreement_ok: true }));
 
     await db.from('events').insert({ grant_id: session.grant_id, kind: 'agreement_executed',
-      meta: { pdf: storagePath, ip } }).then(() => {}, () => {});
+      meta: { pdf: storagePath, version: resource.agreementVersion, ip } }).then(() => {}, () => {});
 
     return {
       statusCode: 200,
