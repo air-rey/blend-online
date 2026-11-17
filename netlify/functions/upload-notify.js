@@ -29,6 +29,13 @@ exports.handler = async function (event) {
   const resource = getResource(session.resource_slug);
   if (!resource) return redirectResponse('/');
 
+  // Server-side agreement gate (XHR — 403 JSON). Guards Day 0 tick
+  // and file-upload notify paths both; neither should succeed for a
+  // viewer whose latest agreement is superseded or missing.
+  const { checkAgreement } = require('./_lib/agreement-guard');
+  const gate = await checkAgreement(session);
+  if (!gate.ok) return jsonResponse(403, { error: 'agreement_required', redirect: gate.redirect || '/agreement' });
+
   let payload = {};
   try { payload = JSON.parse(event.body || '{}'); } catch (_) { return jsonResponse(400, { error: 'bad json' }); }
 

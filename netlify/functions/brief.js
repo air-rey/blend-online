@@ -43,9 +43,6 @@ const BRIEF_PATHS = {
   'apexdream-confined-space': path.join(__dirname, '..', '..', 'private-content', 'apexdream-confined-space', 'brief.md')
 };
 
-// Keep in sync with NDA_VERSION in netlify/functions/nda.js.
-const CURRENT_NDA_VERSION = '2026-11-02';
-
 // Checkpoints for the uploads panel come from the per-resource config
 // in _lib/resources.js. The first resource shipped uses a Day 0 + Day
 // 4/9/14 upload shape; ApexDream's reduced scope is Day 0 + one demo-
@@ -337,36 +334,13 @@ exports.handler = async function (event) {
 
   const db = supa();
 
-  // Re-check the agreement status against the DB (don't trust the cookie
-  // alone, which could be stale after an agreement was voided). Branch
-  // on the resource's agreement_type: 'mutual_nda' resources require a
-  // nda_signatures row for the current version; 'contractor' resources
-  // require org_agreements.status='executed'.
-  if (session.org_id && session.resource_id) {
-    const { data: dbResource } = await db.from('resources')
-      .select('agreement_type').eq('id', session.resource_id).maybeSingle();
-    if (dbResource && dbResource.agreement_type === 'mutual_nda') {
-      const { data: sig } = await db.from('nda_signatures')
-        .select('id')
-        .eq('person_id', session.sub)
-        .eq('agreement_version', CURRENT_NDA_VERSION)
-        .maybeSingle();
-      if (!sig) return redirectResponse('/nda');
-    } else {
-      // Contractor-agreement gate: require an executed row for this
-      // resource's CURRENT required version. Older executed rows (e.g.
-      // the pre-revision version a signer first signed) stay in the
-      // table as history but no longer satisfy the gate; the brief
-      // redirects to /agreement so the signer re-executes.
-      const { data: oa } = await db.from('org_agreements')
-        .select('id')
-        .eq('org_id', session.org_id)
-        .eq('agreement_version', resource.agreementVersion)
-        .eq('status', 'executed')
-        .limit(1).maybeSingle();
-      if (!oa) return redirectResponse('/agreement');
-    }
-  }
+  // Server-side agreement gate: shared checker so every endpoint runs
+  // the same version-aware check against the live DB on each hit (not
+  // against the session cookie, which can be stale after a version
+  // bump or a void/superseded update).
+  const { checkAgreement } = require('./_lib/agreement-guard');
+  const gate = await checkAgreement(session);
+  if (!gate.ok) return redirectResponse(gate.redirect || '/agreement');
 
   const justSigned = ((event.queryStringParameters || {}).signed || '') === '1';
 

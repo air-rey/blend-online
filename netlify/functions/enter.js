@@ -167,23 +167,19 @@ exports.handler = async function (event) {
   const { data: resource } = await db.from('resources')
     .select('id, slug, agreement_type').eq('id', live.resource_id).single();
 
-  let agreementOk = false;
-  let signTarget  = '/agreement';
-  if (resource.agreement_type === 'mutual_nda') {
-    signTarget = '/nda';
-    const { data: ndaSig } = await db.from('nda_signatures')
-      .select('id')
-      .eq('person_id', person.id)
-      .eq('agreement_version', CURRENT_NDA_VERSION)
-      .maybeSingle();
-    agreementOk = !!ndaSig;
-  } else {
-    const { data: orgAgreement } = await db.from('org_agreements')
-      .select('id, status')
-      .eq('org_id', person.org_id)
-      .order('signed_at', { ascending: false, nullsFirst: false }).limit(1).maybeSingle();
-    agreementOk = !!(orgAgreement && orgAgreement.status === 'executed');
-  }
+  // Use the shared agreement guard so the version-aware check here
+  // matches the one every other gated endpoint runs. This shaves the
+  // /r → /agreement bounce for signers whose latest row is an older,
+  // now-superseded version: enter.js sends them straight to /agreement.
+  const { checkAgreement } = require('./_lib/agreement-guard');
+  const gate = await checkAgreement({
+    resource_slug: resource.slug,
+    resource_id:   live.resource_id,
+    org_id:        person.org_id,
+    sub:           person.id
+  });
+  const agreementOk = gate.ok;
+  const signTarget  = gate.ok ? '/r' : (gate.redirect || '/agreement');
 
   const token = await makeSession({
     sub:            String(person.id),
@@ -193,6 +189,8 @@ exports.handler = async function (event) {
     resource_id:    String(live.resource_id),
     resource_slug:  resource.slug,
     grant_id:       String(live.id),
+    // Cookie flag kept for compatibility with any older code paths,
+    // but every gated endpoint re-checks against the DB on each hit.
     agreement_ok:   agreementOk
   });
 

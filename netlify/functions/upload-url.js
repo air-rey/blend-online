@@ -6,26 +6,38 @@
 // with Authorization: Bearer <token> and x-upsert: false. Supabase accepts
 // files up to the plan's cap (Pro: 5 GiB per file single-shot; larger
 // needs TUS resumable, which the client-side code wires in later).
+//
+// Allowed `day` values come from the per-resource checkpoints config in
+// _lib/resources.js (excluding Day 0, which is a checkbox, not an upload).
 
 const crypto = require('crypto');
 const { supa } = require('./_lib/supa');
 const { readSession } = require('./_lib/cookie');
 const { jsonResponse, redirectResponse } = require('./_lib/html');
 
-const CHECKPOINT_DAYS = new Set(['0', '4', '9', '14']);
-
 exports.handler = async function (event) {
   if (event.httpMethod !== 'POST') return jsonResponse(405, { error: 'POST only' });
   const session = await readSession(event.headers || {});
   if (!session || !session.grant_id) return redirectResponse('/');
-  const { isKnownSlug } = require('./_lib/resources');
-  if (!isKnownSlug(session.resource_slug)) return redirectResponse('/');
+  const { getResource } = require('./_lib/resources');
+  const resource = getResource(session.resource_slug);
+  if (!resource) return redirectResponse('/');
+
+  // Server-side agreement gate (XHR — 403 JSON).
+  const { checkAgreement } = require('./_lib/agreement-guard');
+  const gate = await checkAgreement(session);
+  if (!gate.ok) return jsonResponse(403, { error: 'agreement_required', redirect: gate.redirect || '/agreement' });
+
+  // Allowed upload days = this resource's checkpoint days, minus Day 0.
+  const allowedDays = new Set(
+    resource.checkpoints.filter(cp => cp.day !== 0).map(cp => String(cp.day))
+  );
 
   let payload = {};
   try { payload = JSON.parse(event.body || '{}'); } catch (_) { return jsonResponse(400, { error: 'bad json' }); }
   const day = String(payload.day || '');
   const filename = String(payload.filename || '').replace(/[^A-Za-z0-9._-]/g, '_').slice(0, 180);
-  if (!CHECKPOINT_DAYS.has(day) || day === '0') return jsonResponse(400, { error: 'bad checkpoint' });
+  if (!allowedDays.has(day)) return jsonResponse(400, { error: 'bad checkpoint' });
   if (!filename) return jsonResponse(400, { error: 'missing filename' });
 
   const db = supa();
@@ -40,7 +52,7 @@ exports.handler = async function (event) {
 
   await db.from('events').insert({
     grant_id: session.grant_id, kind: 'upload_started',
-    meta: { day, path, filename, size: payload.size || null }
+    meta: { day, path, filename, size: payload.size || null, slug: session.resource_slug }
   }).then(() => {}, () => {});
 
   return jsonResponse(200, {

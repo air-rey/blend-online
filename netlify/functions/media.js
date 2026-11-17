@@ -17,6 +17,13 @@ exports.handler = async function (event) {
   const resource = getResource(session.resource_slug);
   if (!resource) return redirectResponse('/');
 
+  // Server-side agreement gate: no asset leaves the bucket unless the
+  // viewer has an executed row for this resource's current agreement
+  // version. The cookie flag is not trusted; the live check runs here.
+  const { checkAgreement } = require('./_lib/agreement-guard');
+  const gate = await checkAgreement(session);
+  if (!gate.ok) return redirectResponse(gate.redirect || '/agreement');
+
   // Path after /media/
   const raw = (event.path || '').replace(/^\/.netlify\/functions\/media\/?/, '').replace(/^\/media\/?/, '');
   const name = decodeURIComponent(raw).replace(/\\/g, '').replace(/\.\./g, '');

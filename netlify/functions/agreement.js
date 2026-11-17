@@ -67,7 +67,7 @@ function renderAgreementPage (session, resource, agreementText, prefill) {
   const priorTitle = prior.signer_title || '';
   const priorEmail = prior.signer_email || session.email || '';
   const priorBanner = prior.priorVersion
-    ? `<p class="prior-banner" role="status">We've updated the agreement to version ${esc(resource.agreementVersion)}. Your previous version (${esc(prior.priorVersion)}) stays as history; please re-sign the updated copy to continue. Your details are pre-filled.</p>`
+    ? `<p class="prior-banner" role="status">We've updated the agreement to reflect the new scope. Please re-sign to continue. Your details are pre-filled.</p>`
     : '';
 
   const body = `

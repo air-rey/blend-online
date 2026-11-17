@@ -17,6 +17,13 @@ exports.handler = async function (event) {
   const resource = getResource(session.resource_slug);
   if (!resource) return redirectResponse('/');
 
+  // Server-side agreement gate (XHR endpoint — 403 JSON with a
+  // redirect hint the client can follow on error, rather than a 303
+  // browser redirect the XHR layer would swallow).
+  const { checkAgreement } = require('./_lib/agreement-guard');
+  const gate = await checkAgreement(session);
+  if (!gate.ok) return jsonResponse(403, { error: 'agreement_required', redirect: gate.redirect || '/agreement' });
+
   const raw = (event.path || '').replace(/^\/.netlify\/functions\/download-url\/?/, '').replace(/^\/download\/?/, '');
   const name = decodeURIComponent(raw).replace(/\\/g, '').replace(/\.\./g, '');
   if (!name || !allowedDownloadKeys(session.resource_slug).has(name)) {
