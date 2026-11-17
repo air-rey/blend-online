@@ -26,7 +26,7 @@ We install the APK on our own Quest 3 from macOS with SideQuest or Meta Quest De
 
 ## Purpose and test terms
 
-One short Unreal scene, about 25 to 45 seconds, delivered as a demo Quest 3 APK within 7 business days of day 0. BlendXR owns scenario, design and the interaction behaviour. ApexDream owns implementation and the build.
+One short Unreal scene, about 25 to 45 seconds, delivered as a demo Quest 3 APK within 7 business days of day 0. BlendXR owns scenario, design and interaction logic. ApexDream owns implementation and the build.
 
 This is professional safety training content: realistic, restrained, no game effects.
 
@@ -42,7 +42,7 @@ If time runs short, cut visual detail, not timing or pulse behavior.
 **Terms**
 
 - This test is unpaid. Budgets are discussed only if we move to full experiences.
-- The scenario, interaction behaviour and this brief are confidential. Do not share, reuse or show them, including in your portfolio, without written permission. The agreement you signed to open this page covers everything in it.
+- The scenario, interaction logic and this brief are confidential. Do not share, reuse or show them, including in your portfolio, without written permission. The agreement you signed to open this page covers everything in it.
 - All work produced for this test belongs to BlendXR.
 
 ## Scene concept: Valve Chamber, Air Turning Bad
@@ -192,7 +192,7 @@ No other sounds. The trainee should be able to turn toward the duct by ear alone
 | S1, S2, S3, S4 sound files (download below) | Audio |
 | Highlight pulse reference | Video above |
 
-Download the Fab items above from BlendXR's Fab account. airem@blendxr.online will send the credentials separately and handle sign-in codes during reply windows. Sign in, add them to your project, sign out, and email us when it's done. The password will be changed after that. Use the account only for these items: no other downloads, purchases or setting changes. Use them only for this project, do not share them further, and delete them when the test ends.
+Download the Fab items above from BlendXR's Fab account. airem@blendxr.online will send the login separately and handle sign-in codes during reply windows. Sign in, add them to your project, sign out, and email us when it's done. The password will be changed after that. Use the account only for these items: no other downloads, purchases or setting changes. Use them only for this project, do not share them further, and delete them when the test ends.
 
 **Build in Unreal**
 

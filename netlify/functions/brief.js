@@ -58,18 +58,32 @@ function fmtDate (d) {
   try { return new Date(d).toUTCString(); } catch (_) { return String(d); }
 }
 
-// Add N business days to a date (skipping Sat/Sun). Uses UTC day fields
-// so the result doesn't jitter with the server's local timezone. Days
-// 0 = Sunday, 6 = Saturday in getUTCDay().
-function addBusinessDays (start, n) {
-  const date = new Date(start);
+// Add N business days (Mon–Fri) in India Standard Time (UTC+5:30).
+// The input is a UTC ISO timestamp (the Day 0 tick as stored). We shift
+// it by +5:30 so the resulting Date's UTC fields represent the IST
+// calendar date and weekday; we advance one day at a time and skip
+// Saturday (6) / Sunday (0) in IST. Doing the math in IST matters at
+// the day boundary: a tick at 03:00 UTC is already 08:30 IST the same
+// day, but a tick at 20:00 UTC is 01:30 IST the next day. The returned
+// Date carries IST-shifted fields and the formatter below prints them
+// as "Day, DD Mon YYYY" + an explicit (IST) suffix on the dueCell.
+const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+
+function addBusinessDaysIst (startUtc, n) {
+  const ist = new Date(new Date(startUtc).getTime() + IST_OFFSET_MS);
   let added = 0;
   while (added < n) {
-    date.setUTCDate(date.getUTCDate() + 1);
-    const dow = date.getUTCDay();
+    ist.setUTCDate(ist.getUTCDate() + 1);
+    const dow = ist.getUTCDay();
     if (dow !== 0 && dow !== 6) added++;
   }
-  return date;
+  return ist;
+}
+
+// Format an IST-shifted Date's UTC fields as a date-only string.
+// "Sun, 29 Nov 2026" rather than "Sun, 29 Nov 2026 00:00:00 GMT".
+function fmtIstDate (istShifted) {
+  return istShifted.toUTCString().replace(/\s\d{2}:\d{2}:\d{2}\sGMT$/, '');
 }
 
 function panelHtml (which, state = {}) {
@@ -132,9 +146,9 @@ function panelHtml (which, state = {}) {
                                    : (typeof day0AnchorMs === 'number' ? day0AnchorMs : null);
       let dueCell;
       if (cp.dueBusinessDays && day0TickedAt) {
-        const dueAt = addBusinessDays(new Date(day0TickedAt), cp.dueBusinessDays);
-        const dueLabel = dueAt.toUTCString().replace(/\s\d{2}:\d{2}:\d{2}\sGMT$/, '');
-        dueCell = `<div style="color:var(--muted); font-size:12px; margin-top:4px;">Due by end of ${esc(dueLabel)}</div>`;
+        const istDue = addBusinessDaysIst(day0TickedAt, cp.dueBusinessDays);
+        const dueLabel = fmtIstDate(istDue);
+        dueCell = `<div style="color:var(--muted); font-size:12px; margin-top:4px;">Due by end of ${esc(dueLabel)} (IST)</div>`;
       } else if (cp.dueText) {
         dueCell = `<div style="color:var(--muted); font-size:12px; margin-top:4px;">${esc(cp.dueText)}</div>`;
       } else if (anchor === null) {
