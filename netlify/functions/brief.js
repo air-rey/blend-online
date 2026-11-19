@@ -115,7 +115,22 @@ function panelHtml (which, state = {}) {
     const rows = checkpoints.map((cp, idx) => {
       if (cp.day === 0) {
         const alreadyTicked = !!day0TickedAt;
-        const stampedAt = alreadyTicked ? new Date(day0TickedAt).toUTCString() : '';
+        // Day 0 status line. When Day 0 is admin-pinned (an off-platform
+        // agreed date that differs from the partner's actual tick
+        // timestamp), show the pinned date as the authoritative Day 0 in
+        // IST plus the tick date as "Confirmed <D Mon>", so the panel
+        // matches the clock the partner sees. When there's no pin, keep
+        // the original "Day 0 confirmed on <tick>. Clock started." line.
+        let statusText = '';
+        if (alreadyTicked && day0AnchorOverride) {
+          const overrideIst = fmtIstDate(new Date(new Date(day0AnchorOverride).getTime() + IST_OFFSET_MS));
+          const tickIstFull = fmtIstDate(new Date(new Date(day0TickedAt).getTime() + IST_OFFSET_MS));
+          const tickDayMon  = tickIstFull.replace(/^[^,]+,\s*/, '').replace(/\s*\d{4}$/, '');
+          statusText = 'Day 0: ' + esc(overrideIst) + ' (IST). Confirmed ' + esc(tickDayMon) + '.';
+        } else if (alreadyTicked) {
+          const stampedAt = new Date(day0TickedAt).toUTCString();
+          statusText = 'Day 0 confirmed on ' + esc(stampedAt) + '. Clock started.';
+        }
         return `
           <tr data-day="0">
             <td><strong>Day 0</strong></td>
@@ -125,7 +140,7 @@ function panelHtml (which, state = {}) {
                 <input type="checkbox" class="day0-check"${alreadyTicked ? ' checked disabled' : ''}>
                 <span>We can access every asset and the setup works</span>
               </label>
-              <div class="up-status" data-day="0"${alreadyTicked ? ' style="color:var(--success); font-size:12px; margin-top:6px;"' : ''}>${alreadyTicked ? 'Day 0 confirmed on ' + esc(stampedAt) + '. Clock started.' : ''}</div>
+              <div class="up-status" data-day="0"${alreadyTicked ? ' style="color:var(--success); font-size:12px; margin-top:6px;"' : ''}>${statusText}</div>
             </td>
           </tr>`;
       }
