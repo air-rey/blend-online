@@ -105,7 +105,7 @@ Input is head gaze. Quest 3 has no eye-tracking hardware, so the ray comes from 
 **Gaze input**
 
 - Use Meta XR Interaction SDK gaze: enable gaze in project settings and add the gaze rig component to the pawn.
-- If that blocks you, a sphere trace from the HMD camera each tick is acceptable (radius 5 cm, range 6 m, dedicated `Gaze` trace channel). Email us which you used.
+- If that blocks you, a sphere trace from the HMD camera each tick is acceptable (radius 5 cm, range 12 m, dedicated `Gaze` trace channel). Email us which you used.
 - No visible reticle in the shipping build. A debug reticle behind a console toggle is welcome.
 
 **Rules per pulsed target**

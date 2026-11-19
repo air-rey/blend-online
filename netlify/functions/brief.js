@@ -84,10 +84,11 @@ function fmtIstDate (istShifted) {
 }
 
 function panelHtml (which, state = {}) {
-  const day0TickedAt  = state.day0TickedAt || null;
-  const downloads     = state.downloads || [];
-  const day0AnchorMs  = state.day0AnchorMs; // null allowed
-  const checkpoints   = state.checkpoints || [];
+  const day0TickedAt       = state.day0TickedAt || null;
+  const day0AnchorOverride = state.day0AnchorOverride || null;
+  const downloads          = state.downloads || [];
+  const day0AnchorMs       = state.day0AnchorMs; // null allowed
+  const checkpoints        = state.checkpoints || [];
   if (which === 'DOWNLOADS') {
     const rows = downloads.map(d => `
       <tr>
@@ -130,20 +131,29 @@ function panelHtml (which, state = {}) {
       }
       // Upload rows are locked until Day 0 is ticked. Due-date display
       // picks the first rule that fits:
-      //   1. cp.dueBusinessDays set AND Day 0 ticked: compute Day 0 +
-      //      N business days (Mon-Fri), render that calendar date.
+      //   1. cp.dueBusinessDays set AND we have an effective Day 0:
+      //      compute Day 0 + N business days (Mon-Fri), render that
+      //      calendar date.
       //   2. cp.dueText set (e.g. "Due Day 0 + 7 business days"): show
       //      that string. Used pre-tick for business-days rows, and
       //      for any row whose due date is not a numeric offset.
-      //   3. Resource has a fixed Day 0 anchor: render Day 0 + cp.day
-      //      calendar days. Used by Volga's 4/9/14 rows.
-      //   4. Neither anchor nor override: "set on Day 0" placeholder.
-      const locked  = (idx > 0) && !day0TickedAt;
-      const anchor  = day0TickedAt ? new Date(day0TickedAt).getTime()
-                                   : (typeof day0AnchorMs === 'number' ? day0AnchorMs : null);
+      //   3. Effective Day 0 known (admin-set override OR partner tick
+      //      OR per-resource fixed anchor): render Day 0 + cp.day
+      //      calendar days.
+      //   4. Nothing known: "set on Day 0" placeholder.
+      //
+      // "Effective Day 0" prefers an admin-set grants.day0_anchor_override
+      // over the partner's actual checkpoint_status.ticked_at, so dates
+      // agreed off-platform drive the clock even when the tick lands
+      // later.
+      const locked = (idx > 0) && !day0TickedAt;
+      const effectiveDay0 = day0AnchorOverride
+        || day0TickedAt
+        || (typeof day0AnchorMs === 'number' ? new Date(day0AnchorMs).toISOString() : null);
+      const anchor = effectiveDay0 ? new Date(effectiveDay0).getTime() : null;
       let dueCell;
-      if (cp.dueBusinessDays && day0TickedAt) {
-        const istDue = addBusinessDaysIst(day0TickedAt, cp.dueBusinessDays);
+      if (cp.dueBusinessDays && effectiveDay0) {
+        const istDue = addBusinessDaysIst(effectiveDay0, cp.dueBusinessDays);
         const dueLabel = fmtIstDate(istDue);
         dueCell = `<div style="color:var(--muted); font-size:12px; margin-top:4px;">Due by end of ${esc(dueLabel)} (IST)</div>`;
       } else if (cp.dueText) {
@@ -354,8 +364,22 @@ exports.handler = async function (event) {
   // Look up whether this viewer's grant has already ticked Day 0, so the
   // uploads panel can render the checkbox as checked+disabled and unlock
   // downstream rows across page reloads.
+  //
+  // Also read grants.day0_anchor_override: an admin-set pin used when Day
+  // 0 was agreed off-platform and the partner's actual tick timestamp
+  // should not drive due-date math (e.g. Volga agreed Day 0 = 2026-11-14
+  // by email on Nov 13; Shivam could only tick on Nov 17). The override
+  // only affects the due-date math passed to panelHtml; the tick row
+  // stays as history, the checkbox still shows "Day 0 confirmed on
+  // <tick>", and the clock the partner sees lines up with the agreed
+  // Day 0.
   let day0TickedAt = null;
+  let day0AnchorOverride = null;
   if (session.grant_id && session.resource_id) {
+    const { data: g } = await db.from('grants')
+      .select('day0_anchor_override').eq('id', session.grant_id).maybeSingle();
+    if (g && g.day0_anchor_override) day0AnchorOverride = g.day0_anchor_override;
+
     const { data: cp0 } = await db.from('checkpoints')
       .select('id').eq('resource_id', session.resource_id).eq('day', 0).maybeSingle();
     if (cp0) {
@@ -378,6 +402,7 @@ exports.handler = async function (event) {
     },
     onPanel: (which) => panelHtml(which, {
       day0TickedAt,
+      day0AnchorOverride,
       downloads:    resource.downloads,
       day0AnchorMs: resource.day0AnchorMs,
       checkpoints:  resource.checkpoints
