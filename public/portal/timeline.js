@@ -97,6 +97,10 @@
       }
       if (r.look != null) {
         marks += '<span class="tl__lat" style="left:' + pct(r.unlock) + '%;width:' + (pct(r.look) - pct(r.unlock)) + '%"></span>';
+        // Gap label, centred over the bar. No label when the first look came at unlock.
+        if (r.ttfl > 0) {
+          marks += '<span class="tl__gap" style="left:' + ((pct(r.unlock) + pct(r.look)) / 2) + '%">' + secs(r.ttfl) + '</span>';
+        }
         marks += '<span class="tl__look' + (r.observed ? ' is-observed' : ' is-miss') + (r.tunnel ? ' is-tunnel' : '') +
                  '" data-t="' + r.look + '" style="left:' + pct(r.look) + '%"></span>';
       }
@@ -126,7 +130,7 @@
           '<strong>' + esc(name) + '</strong>' +
           '<span class="tl__status">' + (r.observed ? 'Observed' : 'Not observed') +
             (r.tunnel ? ' <em class="flag">Tunnel</em>' : '') + '</span>' +
-          (dwell.length ? '<span class="tl__dwell">' + esc(dwell.join(', ')) + '</span>' : '') +
+          (dwell.length ? '<span class="tl__dwell">' + dwell.map(function (d) { return '<span>' + esc(d) + '</span>'; }).join(', ') + '</span>' : '') +
         '</span>' +
         '<div class="tl__track" role="cell">' + marks + '</div>' +
         '<span class="tl__assist" role="cell">' + assist + '</span>' +

@@ -170,7 +170,9 @@ There is no server code here and no service role key. The deal-room gate
 - `/portal` is the portal's own login. It looks like the gate and takes a
   5-digit code, which it posts only to the Supabase Edge Function
   `portal-login`. The function checks the code.
-- `/portal/session` is the session page (default session `vc-T02`).
+- `/portal/session` is the session page (default session `vc-T02`). The
+  header switcher lists the tenant's sessions from `client_scores` and
+  selects one with `?session=`.
 - Expiry: login returns `session_hard_expires_at`. The page signs out at that
   time and `/portal` shows "Your session ended. Enter your code again." The
   database enforces the same limit.

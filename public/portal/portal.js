@@ -91,8 +91,13 @@
     var code  = row.verdict_code || 'UNSCORABLE';
     var label = state.labels.get(code);
     var ratio = n(row.verdict_ratio);
+    var obsR = n(row.observation_ratio), awR = n(row.awareness_ratio);
+    var both = [];
+    if (obsR != null) both.push(state.labels.get('observation') + ' ' + pct(obsR));
+    if (awR  != null) both.push(state.labels.get('awareness') + ' ' + pct(awR));
     var bar = ratio == null
-      ? '<span class="verdict__na">Not available</span>'
+      ? (both.length ? '<span class="verdict__ratios">' + esc(both.join(', ')) + '</span>'
+                     : '<span class="verdict__na">Not available</span>')
       : '<span class="vbar" aria-hidden="true"><i style="width:' + Math.min(100, ratio * 100) + '%"></i></span>' +
         '<span class="verdict__num">' + pct(ratio) + '</span>';
     $('verdict').innerHTML =
@@ -125,7 +130,7 @@
     el.innerHTML =
       '<div class="score__dial">' + ring(ratio) +
         '<div class="score__value">' +
-          '<span class="score__num">' + (ratio != null ? pct(ratio) : 'n/a') + '</span>' +
+          '<span class="score__num' + (ratio != null && ratio >= 0.995 ? ' score__num--long' : '') + '">' + (ratio != null ? pct(ratio) : 'n/a') + '</span>' +
           '<span class="score__cap">' + (ratio != null ? 'of reference' : 'No reference yet') + '</span>' +
         '</div>' +
       '</div>' +
@@ -146,6 +151,29 @@
     show('content');
   }
 
+  // ------------------------------------------------------- session switcher
+  // Lists the tenant's sessions from client_scores; the URL parameter
+  // ?session= decides which one is shown.
+  function loadSessions () {
+    var q = state.client.from('client_scores')
+      .select('session_id,trainee_id,trainee_display_name,verdict_code,start_time_utc')
+      .order('start_time_utc', { ascending: true }).order('session_id', { ascending: true });
+    if (state.meta.tenant_id) q = q.eq('tenant_id', state.meta.tenant_id);
+    return q.then(function (res) { return res; }, function (e) { return { error: e || {} }; });
+  }
+
+  function renderSwitcher (res) {
+    var wrap = $('switchWrap'), sel = $('sessionSwitch');
+    if (!res || res.error || !Array.isArray(res.data) || res.data.length < 2) { wrap.hidden = true; return; }
+    sel.innerHTML = res.data.map(function (r) {
+      var who = r.trainee_display_name || r.trainee_id;
+      var verdict = r.verdict_code ? state.labels.get(r.verdict_code) : 'No verdict';
+      return '<option value="' + esc(r.session_id) + '"' + (r.session_id === state.sessionId ? ' selected' : '') + '>' +
+        esc(who + ' / ' + verdict) + '</option>';
+    }).join('');
+    wrap.hidden = false;
+  }
+
   // ------------------------------------------------------------------ load
 
   function load () {
@@ -154,11 +182,12 @@
       .eq('session_id', state.sessionId).limit(1);
     if (state.meta.tenant_id) q = q.eq('tenant_id', state.meta.tenant_id);
 
-    return Promise.all([q, L.load(state.client, state.meta.tenant_id)]).then(function (out) {
-      var res = out[0], lab = out[1];
-      if (isAuthFailure(res) || isAuthFailure(lab)) return P.end('ended');
+    return Promise.all([q, L.load(state.client, state.meta.tenant_id), loadSessions()]).then(function (out) {
+      var res = out[0], lab = out[1], list = out[2];
+      if (isAuthFailure(res) || isAuthFailure(lab) || isAuthFailure(list)) return P.end('ended');
       if (res.error || lab.error) { show('error'); return; }
       state.labels = lab.labels;
+      renderSwitcher(list);
       if (!res.data || res.data.length === 0) return P.end('ended'); // expired or revoked code
       state.row = res.data[0];
       render();
@@ -195,6 +224,10 @@
     }, function () { P.end('ended'); });
 
     $('signOutBtn').addEventListener('click', function () { P.end('signout'); });
+    $('sessionSwitch').addEventListener('change', function (e) {
+      var id = e.target.value;
+      if (id && id !== state.sessionId) window.location.assign('/portal/session?session=' + encodeURIComponent(id));
+    });
     $('retryBtn').addEventListener('click', load);
   }
 
