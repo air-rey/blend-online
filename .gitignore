@@ -1,7 +1,16 @@
 node_modules/
+# Local env files. Secrets live only in Netlify env vars, never on disk.
 .env
-.env.local
-.netlify/state.json
+.env.*
+!.env.example
+*.env
+# Netlify CLI / dev server local state and generated output (never deployed;
+# keeps it out of builds and secrets scanning). The committed
+# .netlify/netlify.toml and .netlify/plugins/ manifest stay tracked.
+.netlify/*
+!.netlify/netlify.toml
+!.netlify/plugins/
+.netlify/plugins/node_modules/
 *.log
 .DS_Store
 # Legacy marketing archive, not for the public build.
