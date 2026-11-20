@@ -214,59 +214,6 @@
       if (kind === 'err') msg.classList.add('is-err');
       if (kind === 'ok')  msg.classList.add('is-ok');
     }
-    function notQuite () {
-      setMsg('Not quite. Try again, or drop your email.', 'err');
-      codeIn.select();
-    }
-
-    // --- Client portal ----------------------------------------------------
-    // Loaded only when a code is not a deal-room code, so the deal-room and
-    // email paths run exactly as before.
-    var portalReady = null;
-    function loadScript (src) {
-      return new Promise(function (resolve, reject) {
-        var s = document.createElement('script');
-        s.src = src; s.async = false;
-        s.onload = resolve; s.onerror = reject;
-        document.head.appendChild(s);
-      });
-    }
-    function loadPortal () {
-      if (!portalReady) {
-        portalReady = loadScript('/portal/config.js')
-          .then(function () { return loadScript('/portal/vendor/supabase-2.109.0.js'); })
-          .then(function () { return loadScript('/portal/session.js'); })
-          .then(function () { return window.BlendPortalSession; });
-      }
-      return portalReady;
-    }
-    function tryPortal (code) {
-      submit.disabled = true;
-      loadPortal()
-        .then(function (P) {
-          return P.login(code).then(function (res) {
-            if (res.status === 200 && res.body && res.body.access_token) {
-              return P.begin(res.body).then(function () {
-                window.location.href = '/portal';
-              });
-            }
-            submit.disabled = false;
-            if (res.status === 401) { notQuite(); return; }
-            if (res.status === 429) { setMsg('Too many attempts. Try again in 15 minutes.', 'err'); return; }
-            setMsg('Something went wrong. Try again.', 'err');
-          });
-        })
-        .catch(function () {
-          submit.disabled = false;
-          setMsg('Something went wrong. Try again.', 'err');
-        });
-    }
-    try {
-      if (window.sessionStorage.getItem('bx_portal_ended') === '1') {
-        window.sessionStorage.removeItem('bx_portal_ended');
-        setMsg('Your session ended. Enter your code again.', 'err');
-      }
-    } catch (_) {}
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
@@ -298,10 +245,8 @@
             return;
           }
           if (res.status === 401 || res.status === 403) {
-            // Not a deal-room code. A well-formed 5-digit code gets one more
-            // try against the client portal; portal-login checks it server side.
-            if (/^\d{5}$/.test(code)) { tryPortal(code); return; }
-            notQuite();
+            setMsg('Not quite. Try again, or drop your email.', 'err');
+            codeIn.select();
             return;
           }
           setMsg((res.body && res.body.error) || 'Something went wrong. Try again.', 'err');

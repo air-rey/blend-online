@@ -1,0 +1,75 @@
+/* Portal login. Same look as the site gate (public/index.html): same fonts,
+   tokens and components, minus the email request path. */
+@font-face { font-family: 'Sarpanch'; src: url('/fonts/Sarpanch-SemiBold.ttf') format('truetype'); font-weight: 600; font-display: swap; }
+@font-face { font-family: 'Sarpanch'; src: url('/fonts/Sarpanch-Bold.ttf')     format('truetype'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'Rajdhani'; src: url('/fonts/Rajdhani-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Rajdhani'; src: url('/fonts/Rajdhani-Medium.ttf')  format('truetype'); font-weight: 500; font-display: swap; }
+@font-face { font-family: 'Rajdhani'; src: url('/fonts/Rajdhani-SemiBold.ttf') format('truetype'); font-weight: 600; font-display: swap; }
+@font-face { font-family: 'Teko';     src: url('/fonts/Teko-SemiBold.ttf')   format('truetype'); font-weight: 600; font-display: swap; }
+
+:root {
+  --canvas: #0C0C0C;
+  --ink: #C3C3C3;
+  --muted: #7A7A7A;
+  --muted-soft: #5B5B5B;
+  --hairline: rgba(255,255,255,0.10);
+  --primary: #FFFFFF;
+  --primary-active: #CFCFCF;
+  --on-primary: #0C0C0C;
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; padding: 0; height: 100%; }
+body {
+  background:
+    radial-gradient(90% 70% at 50% 35%, rgba(255,255,255,0.035), transparent 70%),
+    radial-gradient(60% 40% at 50% 100%, rgba(255,255,255,0.02), transparent 60%),
+    var(--canvas);
+  color: var(--ink);
+  font-family: 'Rajdhani', 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  display: grid; place-items: center;
+  padding: 32px 20px; min-height: 100vh;
+}
+.gate {
+  width: 100%; max-width: 360px;
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; gap: 14px;
+  animation: gateIn 0.7s cubic-bezier(.4,0,.2,1) both;
+}
+@keyframes gateIn { from { opacity: 0 } to { opacity: 1 } }
+.gate__mark { width: 44px; height: 44px; color: var(--ink); opacity: 0.9; margin-bottom: 6px; animation: pulse 4.5s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: 0.6 } 50% { opacity: 1 } }
+.gate__title { font: 500 clamp(26px, 4.5vw, 34px)/1.1 'Sarpanch', sans-serif; letter-spacing: -0.02em; color: var(--ink); margin: 0; }
+.gate__sub { font: 400 13px/1.5 'Rajdhani', sans-serif; color: var(--muted); margin: 0 0 10px; letter-spacing: 0.2px; }
+.gate__form { width: 100%; display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
+.gate__input {
+  width: 100%; background: transparent;
+  border: 1px solid var(--hairline); border-radius: 8px;
+  padding: 14px 16px;
+  font: 500 15px/1 'Rajdhani', sans-serif; color: var(--ink);
+  outline: none; min-height: 48px; text-align: center;
+  transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+}
+.gate__input::placeholder { color: var(--muted-soft); }
+.gate__input:focus { border-color: var(--ink); background: rgba(255,255,255,0.02); box-shadow: 0 0 0 3px rgba(255,255,255,0.05); }
+.gate__input--code { font: 600 22px/1 'Teko', sans-serif; letter-spacing: 10px; padding: 18px 16px; text-indent: 10px; }
+.gate__input--code::placeholder { letter-spacing: 6px; color: var(--muted-soft); font-weight: 400; }
+.gate__submit {
+  background: var(--primary); color: var(--on-primary);
+  border: none; border-radius: 8px;
+  min-height: 48px; padding: 0 24px;
+  font: 600 14px/1 'Rajdhani', sans-serif; letter-spacing: 0.3px;
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  transition: background 200ms ease, transform 250ms ease;
+}
+.gate__submit:hover  { background: var(--primary-active); }
+.gate__submit:active { transform: translateY(1px); }
+.gate__submit:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.gate__submit svg    { width: 16px; height: 16px; }
+.gate__submit[disabled] { opacity: 0.55; cursor: wait; }
+.gate__msg { font: 400 12px/1.5 'Rajdhani', sans-serif; color: var(--muted); min-height: 18px; letter-spacing: 0.2px; margin: 2px 0 0; }
+.gate__msg.is-err { color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }

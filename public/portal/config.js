@@ -3,8 +3,7 @@
 // enforced by RLS on the signed-in user. No service role key, no code logic.
 window.BLENDXR_PORTAL_CONFIG = {
   supabaseUrl:    'https://sgzltnhmxywjslvjwaif.supabase.co',
-  publishableKey: '',              // sb_publishable_... (set before running)
+  publishableKey: 'sb_publishable_8oI5Am5b1scbYxwAyY8v-Q_o8F55OfY',
   loginPath:      '/functions/v1/portal-login',
-  defaultSession: 'vc-T02',        // first session page: tenant BlendXR demo
-  labelsView:     'client_labels'  // read; writes go through set/reset_tenant_label
+  defaultSession: 'vc-T02'         // first session page: tenant BlendXR demo
 };

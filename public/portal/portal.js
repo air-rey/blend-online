@@ -30,6 +30,8 @@
   function n (v) { var x = v == null ? NaN : Number(v); return isFinite(x) ? x : null; }
   function f2 (v) { return v == null ? 'Not available' : v.toFixed(2); }
   function pct (r) { return Math.round(r * 100) + '%'; }
+  // Formats a data value (not a label), e.g. 'ladder' -> 'Ladder'.
+  function cap (s) { s = String(s || '').replace(/[_-]+/g, ' ').trim().toLowerCase(); return s.charAt(0).toUpperCase() + s.slice(1); }
   function signed (v) { return (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(2); }
 
   function show (which) {
@@ -87,11 +89,12 @@
       '<p class="verdict__eyebrow">Verdict</p>' +
       '<p class="verdict__label" id="verdictLabel">' + esc(label) + '</p>' +
       '<dl class="verdict__facts">' +
-        '<div><dt>Ending</dt><dd>' + esc(row.ending ? L.humanize(row.ending) : 'Not recorded') + '</dd></div>' +
+        '<div><dt>Ending</dt><dd>' + esc(row.ending ? cap(row.ending) : 'Not recorded') + '</dd></div>' +
         '<div class="verdict__ratio"><dt>Against reference</dt><dd>' + bar + '</dd></div>' +
       '</dl>' +
-      (state.labels.isPlaceholder(code)
-        ? '<p class="verdict__note">Placeholder label, pending safety manager review.</p>' : '');
+      // Every verdict label stays marked until the safety manager review is
+      // recorded; the schema has no reviewed flag yet.
+      '<p class="verdict__note">Placeholder label, pending safety manager review.</p>';
   }
 
   // 270 degree ring: fill is the trainee value on the metric scale, the
@@ -178,7 +181,7 @@
     renderScore($('scoreObservation'), 'observation', n(row.observation), n(row.observation_ratio));
     renderScore($('scoreAwareness'),   'awareness',   n(row.awareness),   n(row.awareness_ratio));
     renderAssist(row);
-    window.BlendTimeline.render($('timeline'), row.per_target, { label: state.labels.get });
+    window.BlendTimeline.render($('timeline'), row.per_target);
     show('content');
   }
 
@@ -191,10 +194,10 @@
     if (state.meta.tenant_id) q = q.eq('tenant_id', state.meta.tenant_id);
 
     return Promise.all([q, L.load(state.client, state.meta.tenant_id)]).then(function (out) {
-      var res = out[0];
-      state.labels = out[1];
-      if (isAuthFailure(res)) return P.end('ended');
-      if (res.error) { show('error'); return; }
+      var res = out[0], lab = out[1];
+      if (isAuthFailure(res) || isAuthFailure(lab)) return P.end('ended');
+      if (res.error || lab.error) { show('error'); return; }
+      state.labels = lab.labels;
       if (!res.data || res.data.length === 0) return P.end('ended'); // expired or revoked code
       state.row = res.data[0];
       render();
@@ -209,7 +212,7 @@
 
   function init () {
     var m = P.meta();
-    if (!m) { window.location.replace('/'); return; }
+    if (!m) { window.location.replace('/portal'); return; }
     if (P.expired(m)) { P.end('ended'); return; }
     state.meta = m;
     state.sessionId = sessionIdFromUrl();
@@ -224,7 +227,7 @@
       });
       P.watchExpiry();
       clock();
-      if (m.role === 'manager' && C.labelsView && window.BlendPortalSettings) {
+      if (m.role === 'manager' && window.BlendPortalSettings) {
         $('settingsBtn').hidden = false;
       }
       load();
@@ -238,7 +241,10 @@
     state: state,
     rerender: function () { if (state.row) render(); },
     reloadLabels: function () {
-      return L.load(state.client, state.meta.tenant_id).then(function (l) { state.labels = l; if (state.row) render(); });
+      return L.load(state.client, state.meta.tenant_id).then(function (lab) {
+        if (isAuthFailure(lab)) { P.end('ended'); return; }
+        if (!lab.error) { state.labels = lab.labels; if (state.row) render(); }
+      });
     }
   };
 

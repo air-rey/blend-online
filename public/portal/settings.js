@@ -16,7 +16,7 @@
   var sheet, opener, lastFocus;
 
   function field (key, labels) {
-    var tag = labels.isPlaceholder(key) ? 'Placeholder' : '';
+    var tag = labels.isVerdictKey(key) ? 'Placeholder' : '';
     return '<div class="field" data-key="' + esc(key) + '">' +
       '<div class="field__top">' +
         '<label class="field__key" for="lbl-' + esc(key) + '">' + esc(key) + '</label>' +
@@ -42,12 +42,12 @@
         '<p class="sheet__intro">Rename what your team sees. Changes apply to everyone in your organization. Reset restores the default.</p>' +
         '<section class="sheet__group">' +
           '<h3 class="sheet__group-title">Metric names</h3>' +
-          L.METRIC_KEYS.map(function (k) { return field(k, labels); }).join('') +
+          labels.metricKeys().map(function (k) { return field(k, labels); }).join('') +
         '</section>' +
         '<section class="sheet__group">' +
           '<h3 class="sheet__group-title">Verdict labels</h3>' +
-          '<p class="sheet__group-note">Default verdict labels are placeholders, pending safety manager review.</p>' +
-          L.VERDICT_KEYS.map(function (k) { return field(k, labels); }).join('') +
+          '<p class="sheet__group-note">Verdict labels are placeholders, pending safety manager review.</p>' +
+          labels.verdictKeys().map(function (k) { return field(k, labels); }).join('') +
         '</section>' +
       '</div>';
   }
@@ -94,8 +94,6 @@
       buttons.forEach(function (b) { b.disabled = false; });
       if (!handle(res, row)) return;
       return window.BlendPortal.reloadLabels().then(function () {
-        var labels = window.BlendPortal.state.labels;
-        row.querySelector('.field__tag').textContent = labels.isPlaceholder(key) ? 'Placeholder' : '';
         setMsg(row, btn.getAttribute('data-act') === 'save' ? 'Saved.' : 'Reset to default.', false);
       });
     }, function () {

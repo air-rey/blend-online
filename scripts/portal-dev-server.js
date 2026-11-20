@@ -1,17 +1,11 @@
 #!/usr/bin/env node
-// Local preview for the gate + client portal. Dev only, never deployed.
+// Local preview for the client portal. Dev only, never deployed.
 //
-//   node scripts/portal-dev-server.js          -> http://localhost:8766
+//   node scripts/portal-dev-server.js          -> http://localhost:8766/portal
 //
-// Serves ./public with the same /portal rewrite and portal headers as
-// netlify.toml. The deal-room function (enter.js) needs the service role key,
-// which is not available locally, so POST /.netlify/functions/enter is
-// stubbed: it answers 403 "Not quite." exactly as enter.js does for a code
-// that is not a deal-room code, and 202 for an email (request received).
-// Portal login then goes to the real portal-login Edge Function.
-//
-// PORTAL_PUBLISHABLE_KEY, if set, is served in place of an empty
-// publishableKey in /portal/config.js (nothing is written to disk).
+// Serves ./public with the same /portal and /portal/session rewrites and the
+// portal headers from netlify.toml. Login goes to the real portal-login
+// Edge Function. The deal-room gate and its functions are not involved.
 'use strict';
 const http = require('http');
 const fs   = require('fs');
@@ -34,23 +28,9 @@ function portalHeaders () {
 http.createServer((req, res) => {
   const url = new URL(req.url, 'http://localhost');
 
-  if (url.pathname === '/.netlify/functions/enter') {
-    let body = '';
-    req.on('data', c => { body += c; });
-    req.on('end', () => {
-      const f = new URLSearchParams(body);
-      const code = (f.get('code') || '').trim();
-      const email = (f.get('email') || '').trim();
-      res.setHeader('Content-Type', 'application/json');
-      if (code)  { res.statusCode = 403; return res.end(JSON.stringify({ error: 'Not quite.' })); }
-      if (email) { res.statusCode = 202; return res.end(JSON.stringify({ ok: true })); }
-      res.statusCode = 400; res.end(JSON.stringify({ error: 'Type a code, or your email to request access.' }));
-    });
-    return;
-  }
-
   let p = decodeURIComponent(url.pathname);
   if (p === '/portal' || p === '/portal/') p = '/portal/index.html';
+  if (p === '/portal/session') p = '/portal/session.html';
   if (p.endsWith('/')) p += 'index.html';
   const file = path.resolve(ROOT, '.' + p);
   if (!file.startsWith(ROOT + path.sep)) { res.statusCode = 403; return res.end(); }
@@ -63,10 +43,6 @@ http.createServer((req, res) => {
     if (p.startsWith('/portal/')) {
       for (const [k, v] of Object.entries(portalHeaders())) res.setHeader(k, v);
     }
-    if (p === '/portal/config.js' && process.env.PORTAL_PUBLISHABLE_KEY) {
-      buf = Buffer.from(buf.toString('utf8').replace(
-        /publishableKey:\s*''/, `publishableKey: ${JSON.stringify(process.env.PORTAL_PUBLISHABLE_KEY)}`));
-    }
     res.end(buf);
   });
-}).listen(PORT, () => console.log(`portal dev server: http://localhost:${PORT}`));
+}).listen(PORT, () => console.log(`portal dev server: http://localhost:${PORT}/portal`));

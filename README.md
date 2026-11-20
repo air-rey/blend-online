@@ -162,29 +162,32 @@ values (
   and need TUS resumable (we have `tus-js-client` on the roadmap).
 
 ## Client portal (/portal)
-Static page in `public/portal/`. The data is read in the browser with
+Static pages in `public/portal/`. The data is read in the browser with
 supabase-js and the publishable key, as the signed-in portal user, under RLS.
-There is no server code here and no service role key.
+There is no server code here and no service role key. The deal-room gate
+(`public/index.html`, `enter.js`) is separate and is not involved.
 
-- Gate: deal-room codes and the email path go through `enter.js` as before.
-  Only when `enter.js` rejects a well-formed 5-digit code does the gate post
-  it to the Supabase Edge Function `portal-login`. That function checks the
-  code. On a match the gate stores the session and opens `/portal`.
+- `/portal` is the portal's own login. It looks like the gate and takes a
+  5-digit code, which it posts only to the Supabase Edge Function
+  `portal-login`. The function checks the code.
+- `/portal/session` is the session page (default session `vc-T02`).
 - Expiry: login returns `session_hard_expires_at`. The page signs out at that
-  time and the gate shows "Your session ended. Enter your code again." The
+  time and `/portal` shows "Your session ended. Enter your code again." The
   database enforces the same limit.
 - Zero rows for a session that exists means the code expired or was revoked:
-  the page signs out and returns to the gate. It never shows this as "no data".
+  the page signs out and returns to `/portal`. It never shows this as
+  "no data".
 - Scores: `public.client_scores`. Columns are listed explicitly and attention
-  is never requested. Labels: `public.client_labels`. Writes go only through
-  `public.set_tenant_label` / `public.reset_tenant_label`, which allow
-  managers only.
+  is never requested.
+- Labels: all display names come from `public.client_labels`, with no
+  label words hard-coded. Writes go only through `public.set_tenant_label`
+  and `public.reset_tenant_label`, which allow managers only. Verdict labels
+  are marked as placeholders pending safety manager review.
 - Colors are CSS variables in `public/portal/portal.css`. Extension tokens:
   `--color-data #EFE3B0` (data) and `--color-attention #FF5F52` (alarm and
   tunnel flags only, never on the verdict).
-- Local preview: `node scripts/portal-dev-server.js` serves `public/` on
-  :8766 with the `/portal` rewrite and headers. It stubs `enter.js`, which
-  needs the service role key, so a code is answered "not a deal-room code".
+- Local preview: `node scripts/portal-dev-server.js`, then open
+  `http://localhost:8766/portal`.
 
 ## Working rules (do not change without a note)
 - Never use em dashes in UI copy, comments, or docs. Use periods, commas or colons.

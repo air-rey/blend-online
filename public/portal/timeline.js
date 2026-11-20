@@ -12,6 +12,7 @@
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
+  function cap (s) { s = String(s || '').replace(/[_-]+/g, ' ').trim().toLowerCase(); return s.charAt(0).toUpperCase() + s.slice(1); }
   function num (v) { return typeof v === 'number' && isFinite(v) ? v : null; }
   function secs (ms) {
     var s = ms / 1000;
@@ -60,7 +61,8 @@
 
   function render (el, perTarget, opts) {
     opts = opts || {};
-    var label = opts.label || function (k) { return k; };
+    // Target names and assist levels are data values, formatted for reading.
+    var label = opts.label || cap;
     var rows = normalize(perTarget);
 
     if (!rows.length) {
@@ -97,7 +99,7 @@
       }
 
       var step = r.assist && Object.prototype.hasOwnProperty.call(ASSIST_STEPS, r.assist) ? ASSIST_STEPS[r.assist] : 0;
-      var assistTxt = r.assist ? label('assist_' + r.assist) : 'Not recorded';
+      var assistTxt = r.assist ? cap(r.assist) : 'Not recorded';
       var assist = '<span class="meter" data-level="' + step + '" aria-hidden="true"><i></i><i></i></span>' +
                    '<span>' + esc(assistTxt) + '</span>';
 

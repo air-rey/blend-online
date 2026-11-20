@@ -4,114 +4,47 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Session review</title>
+<title>Client portal</title>
 <link rel="icon" type="image/svg+xml" href="/strata-mark.svg">
-<link rel="stylesheet" href="/portal/portal.css">
+<link rel="stylesheet" href="/portal/login.css">
 </head>
 <body>
 
-<header class="top">
-  <div class="top__id">
-    <span class="wordmark">blendxr.online</span>
-    <span class="top__sep" aria-hidden="true"></span>
-    <h1 class="top__title">Session review</h1>
-  </div>
-  <div class="top__actions">
-    <span class="top__clock" id="sessionClock"></span>
-    <button class="btn btn--ghost" id="settingsBtn" type="button" hidden>Settings</button>
-    <button class="btn btn--ghost" id="signOutBtn" type="button">Sign out</button>
-  </div>
-</header>
+<main class="gate" aria-label="Client portal">
+  <svg class="gate__mark" viewBox="0 0 64 64" aria-hidden="true">
+    <g transform="translate(32 32) rotate(-16)" fill="none" stroke="currentColor" stroke-width="1.4">
+      <ellipse cx="0" cy="-10" rx="26" ry="3.4" opacity=".45"/>
+      <ellipse cx="0" cy="-5"  rx="27" ry="3.8" opacity=".7"/>
+      <ellipse cx="0" cy="0"   rx="28" ry="4.2"/>
+      <ellipse cx="0" cy="5"   rx="27" ry="3.8" opacity=".7"/>
+      <ellipse cx="0" cy="10"  rx="26" ry="3.4" opacity=".45"/>
+    </g>
+  </svg>
 
-<main class="page" id="page" aria-busy="true">
-  <section class="state" id="loading">
-    <span class="state__pulse" aria-hidden="true"></span>
-    <p>Loading session.</p>
-  </section>
+  <h1 class="gate__title">Client portal.</h1>
+  <p class="gate__sub">Enter your 5-digit code to continue.</p>
 
-  <section class="state" id="loadError" hidden>
-    <p class="state__title">Could not load this session.</p>
-    <p>Check your connection and try again.</p>
-    <button class="btn btn--ghost" id="retryBtn" type="button">Try again</button>
-  </section>
+  <form class="gate__form" id="portalForm" novalidate>
+    <input type="text" name="code" id="portalCode"
+           inputmode="numeric" pattern="[0-9]*" maxlength="5"
+           placeholder="&bull; &bull; &bull; &bull; &bull;"
+           class="gate__input gate__input--code" autocomplete="off"
+           aria-label="5-digit access code" spellcheck="false">
 
-  <div id="content" hidden>
-    <div class="meta-row">
-      <p class="meta" id="sessionMeta"></p>
-      <p class="sample" id="sampleLabel" hidden>
-        <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.8v3.6M8 10.8v.4"/></svg>
-        <span>Reconstructed sample session</span>
-      </p>
-    </div>
+    <button type="submit" class="gate__submit" id="portalSubmit">
+      <span>Enter</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
 
-    <div class="grid">
-      <!-- Left: per-target timeline (replay slot) + trend -->
-      <section class="panel panel--timeline" aria-labelledby="tlTitle">
-        <div class="panel__head">
-          <h2 class="panel__title" id="tlTitle">Per-target timeline</h2>
-          <p class="panel__note">When each target unlocked, when it was first looked at, and how much help was given.</p>
-        </div>
-        <div id="timeline" class="timeline" data-slot="replay"></div>
-        <ul class="legend" aria-label="Timeline key">
-          <li><span class="lg lg--unlock"></span>Unlocked</li>
-          <li><span class="lg lg--look"></span>First look, observed</li>
-          <li><span class="lg lg--miss"></span>First look, not observed</li>
-          <li><span class="lg lg--tunnel"></span>Tunnel flag</li>
-        </ul>
-      </section>
-
-      <section class="panel panel--trend" aria-labelledby="trendTitle">
-        <div class="panel__head">
-          <h2 class="panel__title" id="trendTitle">Trend over time</h2>
-        </div>
-        <div class="empty empty--trend">
-          <svg class="empty__axes" viewBox="0 0 320 120" preserveAspectRatio="none" aria-hidden="true">
-            <path d="M24 8v96h288"/>
-            <path class="empty__grid" d="M24 40h288M24 72h288"/>
-          </svg>
-          <p class="empty__title">One session so far.</p>
-          <p>Progress over time appears here once this trainee has more sessions.</p>
-        </div>
-      </section>
-
-      <!-- Center: cross-session summary -->
-      <section class="panel panel--summary" aria-labelledby="sumTitle">
-        <div class="panel__head">
-          <h2 class="panel__title" id="sumTitle">Sessions</h2>
-        </div>
-        <div class="empty">
-          <p class="empty__title">No session history yet.</p>
-          <p>Summaries for each session collect here as sessions are recorded.</p>
-        </div>
-        <div class="sub">
-          <h3 class="sub__title">Timestamps</h3>
-          <p class="sub__empty">Key moments across sessions appear here.</p>
-        </div>
-        <div class="sub">
-          <h3 class="sub__title">Next steps</h3>
-          <p class="sub__empty">Suggested next steps appear after more sessions.</p>
-        </div>
-      </section>
-
-      <!-- Right: verdict + scores -->
-      <div class="col-right">
-        <section class="verdict" id="verdict" aria-labelledby="verdictLabel"></section>
-        <section class="score" id="scoreObservation"></section>
-        <section class="score" id="scoreAwareness"></section>
-        <section class="assist" id="assist"></section>
-      </div>
-    </div>
-  </div>
+    <p class="gate__msg" id="portalMsg" aria-live="polite"></p>
+  </form>
 </main>
-
-<div class="sheet" id="settings" hidden></div>
 
 <script src="/portal/config.js"></script>
 <script src="/portal/vendor/supabase-2.109.0.js"></script>
 <script src="/portal/session.js"></script>
-<script src="/portal/labels.js"></script>
-<script src="/portal/timeline.js"></script>
-<script src="/portal/settings.js"></script>
-<script src="/portal/portal.js"></script>
+<script src="/portal/login.js"></script>
 </body>
 </html>

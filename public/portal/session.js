@@ -1,12 +1,13 @@
-// Portal session helper, shared by the gate (/) and the portal (/portal).
+// Portal session helper, shared by the portal login (/portal) and the
+// session page (/portal/session).
 //
-// Login: the gate posts the 5-digit code to the portal-login Edge Function.
+// Login: /portal posts the 5-digit code to the portal-login Edge Function.
 // The function checks the code server side and returns a Supabase session
 // plus session_hard_expires_at. We hand the tokens to supabase-js and keep
 // the hard expiry, tenant and role next to them.
 //
 // Expiry: at session_hard_expires_at the browser signs out locally and
-// returns to the gate with "Your session ended. Enter your code again."
+// returns to /portal with "Your session ended. Enter your code again."
 // The database enforces the same limit (scoring.portal_session_ok), so this
 // timer is a courtesy, not the control.
 (function () {
@@ -87,8 +88,8 @@
 
   function expired (m) { return !m || Date.parse(m.expires_at) <= Date.now(); }
 
-  // End the portal session and go back to the gate. reason 'ended' shows
-  // "Your session ended" on the gate; 'signout' shows nothing.
+  // End the portal session and go back to /portal. reason 'ended' shows
+  // "Your session ended. Enter your code again."; 'signout' shows nothing.
   // scope 'local' revokes only this browser's session: several viewers can
   // share one code (one auth user), so a global sign-out would end theirs.
   var ending = false;
@@ -102,7 +103,7 @@
     if (t && reason === 'ended') t.setItem(ENDED_KEY, '1');
     var done = function () {
       if (s) s.removeItem(AUTH_KEY);
-      window.location.replace('/');
+      window.location.replace('/portal');
     };
     var p;
     try { p = getClient().auth.signOut({ scope: 'local' }); }
@@ -130,7 +131,7 @@
     window.addEventListener('focus', armExpiry);
   }
 
-  // Gate side: read and clear the "session ended" flag.
+  // Login side: read and clear the "session ended" flag.
   function takeEndedFlag () {
     var t = tab();
     if (!t) return false;

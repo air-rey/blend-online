@@ -52,11 +52,17 @@
   to     = "/.netlify/functions/download-url/:splat"
   status = 200
 
-# Client portal. Static page; data comes from Supabase as the signed-in
+# Client portal: /portal is its own code login (portal-login only, separate
+# from the deal-room gate); /portal/session is the session page. Data comes from Supabase as the signed-in
 # portal user, under RLS. No server code and no service role key here.
 [[redirects]]
   from   = "/portal"
   to     = "/portal/index.html"
+  status = 200
+
+[[redirects]]
+  from   = "/portal/session"
+  to     = "/portal/session.html"
   status = 200
 
 # Scheduled jobs. Netlify fires the function at `schedule` (UTC cron)
