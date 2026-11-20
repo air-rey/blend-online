@@ -161,6 +161,31 @@ values (
   single-shot cap is ~5 GiB per file; Day 14 project zips may exceed that
   and need TUS resumable (we have `tus-js-client` on the roadmap).
 
+## Client portal (/portal)
+Static page in `public/portal/`. The data is read in the browser with
+supabase-js and the publishable key, as the signed-in portal user, under RLS.
+There is no server code here and no service role key.
+
+- Gate: deal-room codes and the email path go through `enter.js` as before.
+  Only when `enter.js` rejects a well-formed 5-digit code does the gate post
+  it to the Supabase Edge Function `portal-login`. That function checks the
+  code. On a match the gate stores the session and opens `/portal`.
+- Expiry: login returns `session_hard_expires_at`. The page signs out at that
+  time and the gate shows "Your session ended. Enter your code again." The
+  database enforces the same limit.
+- Zero rows for a session that exists means the code expired or was revoked:
+  the page signs out and returns to the gate. It never shows this as "no data".
+- Scores: `public.client_scores`. Columns are listed explicitly and attention
+  is never requested. Labels: `public.client_labels`. Writes go only through
+  `public.set_tenant_label` / `public.reset_tenant_label`, which allow
+  managers only.
+- Colors are CSS variables in `public/portal/portal.css`. Extension tokens:
+  `--color-data #EFE3B0` (data) and `--color-attention #FF5F52` (alarm and
+  tunnel flags only, never on the verdict).
+- Local preview: `node scripts/portal-dev-server.js` serves `public/` on
+  :8766 with the `/portal` rewrite and headers. It stubs `enter.js`, which
+  needs the service role key, so a code is answered "not a deal-room code".
+
 ## Working rules (do not change without a note)
 - Never use em dashes in UI copy, comments, or docs. Use periods, commas or colons.
 - Legal entity: BlendXR.
