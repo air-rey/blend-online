@@ -32,7 +32,6 @@
   function pct (r) { return Math.round(r * 100) + '%'; }
   // Formats a data value (not a label), e.g. 'ladder' -> 'Ladder'.
   function cap (s) { s = String(s || '').replace(/[_-]+/g, ' ').trim().toLowerCase(); return s.charAt(0).toUpperCase() + s.slice(1); }
-  function signed (v) { return (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(2); }
 
   function show (which) {
     $('loading').hidden   = which !== 'loading';
@@ -77,6 +76,17 @@
     document.title = 'Session ' + row.session_id + (isSample(row) ? ' (reconstructed sample)' : '');
   }
 
+  // "Help needed: same as reference" (or more / less), from the assistance
+  // index against the reference assistance index.
+  function helpLine (row) {
+    var ai = n(row.assistance_index), ref = n(row.reference_assistance_index);
+    if (ai == null) return '';
+    var words = ref == null ? 'no reference yet'
+      : Math.abs(ai - ref) < 0.005 ? 'same as reference'
+      : ai > ref ? 'more than reference' : 'less than reference';
+    return '<p class="verdict__help">Help needed: ' + words + '</p>';
+  }
+
   function renderVerdict (row) {
     var code  = row.verdict_code || 'UNSCORABLE';
     var label = state.labels.get(code);
@@ -91,84 +101,39 @@
       '<dl class="verdict__facts">' +
         '<div><dt>Ending</dt><dd>' + esc(row.ending ? cap(row.ending) : 'Not recorded') + '</dd></div>' +
         '<div class="verdict__ratio"><dt>Against reference</dt><dd>' + bar + '</dd></div>' +
-      '</dl>';
+      '</dl>' + helpLine(row);
   }
 
-  // 270 degree ring: fill is the trainee value on the metric scale, the
-  // tick is the reference value. The gap between them is the shortfall.
-  function ring (value, ref) {
-    var R = 48, CX = 60, CY = 60, SWEEP = 270, START = 135;
-    var circ = 2 * Math.PI * R, arc = circ * SWEEP / 360;
-    var max = Math.max(1, value || 0, ref || 0);
-    var fill = Math.max(0, Math.min(1, (value || 0) / max)) * arc;
-    var tick = '';
-    if (ref != null) {
-      var a = (START + SWEEP * Math.min(1, ref / max)) * Math.PI / 180;
-      var x1 = CX + Math.cos(a) * (R - 9), y1 = CY + Math.sin(a) * (R - 9);
-      var x2 = CX + Math.cos(a) * (R + 9), y2 = CY + Math.sin(a) * (R + 9);
-      tick = '<line class="ring__ref" x1="' + x1.toFixed(2) + '" y1="' + y1.toFixed(2) +
-             '" x2="' + x2.toFixed(2) + '" y2="' + y2.toFixed(2) + '"/>';
-    }
-    var rot = 'rotate(' + START + ' ' + CX + ' ' + CY + ')';
+  // Full ring = the reference. The arc is the trainee's share of the
+  // reference, so it matches the percentage. Capped at 100% for now.
+  function ring (ratio) {
+    var R = 48, circ = 2 * Math.PI * R;
+    var fill = ratio == null ? 0 : Math.max(0, Math.min(1, ratio)) * circ;
     return '<svg class="ring" viewBox="0 0 120 120" aria-hidden="true">' +
-      '<circle class="ring__track" cx="60" cy="60" r="' + R + '" transform="' + rot +
-        '" stroke-dasharray="' + arc.toFixed(2) + ' ' + circ.toFixed(2) + '"/>' +
-      '<circle class="ring__fill" cx="60" cy="60" r="' + R + '" transform="' + rot +
-        '" stroke-dasharray="' + fill.toFixed(2) + ' ' + circ.toFixed(2) + '"/>' +
-      tick + '</svg>';
+      '<circle class="ring__track" cx="60" cy="60" r="' + R + '"/>' +
+      '<circle class="ring__fill" cx="60" cy="60" r="' + R + '" transform="rotate(-90 60 60)"' +
+        ' stroke-dasharray="' + fill.toFixed(2) + ' ' + circ.toFixed(2) + '"/>' +
+      '</svg>';
   }
 
   function renderScore (el, key, value, ratio) {
     var name = state.labels.get(key);
     var ref  = value != null && ratio != null && ratio > 0 ? value / ratio : null;
-    var aria = name + ': trainee ' + f2(value) +
-      (ratio != null ? ', ' + pct(ratio) + ' of reference' : ', no reference yet') +
-      (ref != null ? ', reference ' + ref.toFixed(2) : '') + '.';
-    el.setAttribute('aria-label', aria);
+    el.setAttribute('aria-label', name + ': ' +
+      (ratio != null ? pct(ratio) + ' of reference' : 'no reference yet') +
+      '. Trainee ' + f2(value) + (ref != null ? ', reference ' + ref.toFixed(2) : '') + '.');
     el.innerHTML =
-      '<h2 class="score__name">' + esc(name) + '</h2>' +
-      '<div class="score__body">' +
-        '<div class="score__dial">' + ring(value, ref) +
-          '<div class="score__value"><span class="score__num">' + (value == null ? 'n/a' : value.toFixed(2)) + '</span>' +
-          '<span class="score__cap">Trainee</span></div>' +
+      '<div class="score__dial">' + ring(ratio) +
+        '<div class="score__value">' +
+          '<span class="score__num">' + (ratio != null ? pct(ratio) : 'n/a') + '</span>' +
+          '<span class="score__cap">' + (ratio != null ? 'of reference' : 'No reference yet') + '</span>' +
         '</div>' +
-        '<div class="score__side">' +
-          (ratio != null
-            ? '<p class="score__ratio">' + pct(ratio) + '</p><p class="score__ratio-cap">of reference</p>'
-            : '<p class="score__ratio-cap">No reference yet</p>') +
-          (ref != null
-            ? '<p class="score__ref"><span class="refkey" aria-hidden="true"></span>Reference ' + ref.toFixed(2) + '</p>' : '') +
-        '</div>' +
-      '</div>';
-  }
-
-  function renderAssist (row) {
-    var name = state.labels.get('assistance_index');
-    var ai   = n(row.assistance_index);
-    var ref  = n(row.reference_assistance_index);
-    var el   = $('assist');
-    if (ai == null || ref == null) {
-      el.innerHTML = '<h2 class="assist__name">' + esc(name) + '</h2>' +
-        '<p class="assist__na">' + (ai == null ? 'Not recorded for this session.' : 'No reference yet.') + '</p>';
-      return;
-    }
-    var diff = ai - ref;
-    var same = Math.abs(diff) < 0.005;
-    var span = Math.max(0.5, Math.abs(diff) * 1.25);
-    var x = 50 + Math.max(-50, Math.min(50, (diff / span) * 50));
-    var words = same ? 'Same as reference' : diff > 0 ? 'More help than reference' : 'Less help than reference';
-    el.setAttribute('aria-label', name + ': ' + signed(same ? 0 : diff) + ' against reference. ' + words +
-      '. Trainee ' + ai.toFixed(2) + ', reference ' + ref.toFixed(2) + '.');
-    el.innerHTML =
-      '<div class="assist__head"><h2 class="assist__name">' + esc(name) + '</h2>' +
-        '<p class="assist__diff">' + signed(same ? 0 : diff) + '</p></div>' +
-      '<div class="dbar" aria-hidden="true">' +
-        '<span class="dbar__mid"></span>' +
-        (same ? '' : '<span class="dbar__span" style="left:' + Math.min(50, x) + '%;width:' + Math.abs(x - 50) + '%"></span>') +
-        '<span class="dbar__dot" style="left:' + x + '%"></span>' +
       '</div>' +
-      '<div class="dbar__scale" aria-hidden="true"><span>Less help</span><span>Reference</span><span>More help</span></div>' +
-      '<p class="assist__words">' + words + '. Trainee ' + ai.toFixed(2) + ', reference ' + ref.toFixed(2) + '.</p>';
+      '<div class="score__side">' +
+        '<h2 class="score__name">' + esc(name) + '</h2>' +
+        '<p class="score__abs">Trainee ' + f2(value) + '</p>' +
+        (ref != null ? '<p class="score__abs">Reference ' + ref.toFixed(2) + '</p>' : '') +
+      '</div>';
   }
 
   function render () {
@@ -177,7 +142,6 @@
     renderVerdict(row);
     renderScore($('scoreObservation'), 'observation', n(row.observation), n(row.observation_ratio));
     renderScore($('scoreAwareness'),   'awareness',   n(row.awareness),   n(row.awareness_ratio));
-    renderAssist(row);
     window.BlendTimeline.render($('timeline'), row.per_target);
     show('content');
   }
@@ -204,7 +168,7 @@
   function clock () {
     var d = new Date(state.meta.expires_at);
     $('sessionClock').textContent = 'Session ends ' +
-      d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
   }
 
   function init () {

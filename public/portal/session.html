@@ -45,7 +45,7 @@
     </div>
 
     <div class="grid">
-      <!-- Left: per-target timeline (replay slot) + trend -->
+      <!-- Left: per-target timeline (replay slot), the largest element -->
       <section class="panel panel--timeline" aria-labelledby="tlTitle">
         <div class="panel__head">
           <h2 class="panel__title" id="tlTitle">Per-target timeline</h2>
@@ -60,6 +60,8 @@
         </ul>
       </section>
 
+      <!-- Under the timeline: cross-session blocks, sized to their content -->
+      <div class="lower">
       <section class="panel panel--trend" aria-labelledby="trendTitle">
         <div class="panel__head">
           <h2 class="panel__title" id="trendTitle">Trend over time</h2>
@@ -74,7 +76,6 @@
         </div>
       </section>
 
-      <!-- Center: cross-session summary -->
       <section class="panel panel--summary" aria-labelledby="sumTitle">
         <div class="panel__head">
           <h2 class="panel__title" id="sumTitle">Sessions</h2>
@@ -92,6 +93,7 @@
           <p class="sub__empty">Suggested next steps appear after more sessions.</p>
         </div>
       </section>
+      </div>
 
       <!-- Right: verdict + scores -->
       <div class="col-right">
@@ -99,7 +101,6 @@
         <section class="score" id="scoreObservation"></section>
         <section class="score" id="scoreAwareness"></section>
         <p class="footnote">Verdict bands are placeholders pending safety manager review.</p>
-        <section class="assist" id="assist"></section>
       </div>
     </div>
   </div>

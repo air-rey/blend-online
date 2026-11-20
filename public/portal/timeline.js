@@ -75,12 +75,15 @@
 
     var ticks = '';
     for (var t = 0; t <= d.max; t += d.step) {
-      ticks += '<span class="tl__tick" style="left:' + pct(t) + '%"><span>' + (t / 1000) + '</span></span>';
+      // The unit sits on the last tick, right-aligned, so no label spills
+      // into the neighbouring columns.
+      ticks += '<span class="tl__tick" style="left:' + pct(t) + '%"><span>' + (t / 1000) +
+               (t + d.step > d.max ? ' s' : '') + '</span></span>';
     }
 
     var html = '<div class="tl" role="table" aria-label="Per-target timeline">' +
       '<div class="tl__row tl__row--head" role="row">' +
-        '<span class="tl__name" role="columnheader">Target, seconds</span>' +
+        '<span class="tl__name" role="columnheader">Target</span>' +
         '<div class="tl__track tl__axis" role="columnheader" aria-label="Seconds from session start">' + ticks + '</div>' +
         '<span class="tl__assist" role="columnheader">Help</span>' +
         '<span class="tl__first" role="columnheader">First look</span>' +
