@@ -48,15 +48,18 @@
     return out;
   }
 
+  // Fixed 0 to 35 s axis for every session, so positions compare across
+  // the session switcher. Only a session with a marker past 35 s extends
+  // the axis (to the next 5 s step) rather than clipping it.
+  var AXIS_MS = 35000, AXIS_STEP = 5000;
   function niceDomain (rows) {
     var max = 0;
     rows.forEach(function (r) {
       if (r.unlock != null) max = Math.max(max, r.unlock);
       if (r.look   != null) max = Math.max(max, r.look);
     });
-    var step = max > 60000 ? 10000 : 5000;
-    var domain = Math.max(step * 2, Math.ceil((max + 1500) / step) * step);
-    return { max: domain, step: step };
+    var domain = max <= AXIS_MS ? AXIS_MS : Math.ceil(max / AXIS_STEP) * AXIS_STEP;
+    return { max: domain, step: AXIS_STEP };
   }
 
   function render (el, perTarget, opts) {
