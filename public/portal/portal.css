@@ -160,11 +160,6 @@ h1, h2, h3, p { margin: 0; }
 .vbar i { display: block; height: 100%; background: var(--color-on-inverted); }
 .verdict__num { font-variant-numeric: tabular-nums; }
 .verdict__na { font: 500 13px/1 var(--font-body); color: var(--color-on-inverted-soft); }
-.verdict__note {
-  margin-top: 18px; padding-top: 12px;
-  border-top: 1px solid var(--color-surface-inverted-soft);
-  font-size: 12px; color: var(--color-on-inverted-soft);
-}
 
 /* ------------------------------------------------------------ scores */
 .score, .assist {
@@ -199,6 +194,8 @@ h1, h2, h3, p { margin: 0; }
 .dbar__dot { position: absolute; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: var(--color-data); box-shadow: 0 0 0 3px var(--color-surface-card); }
 .dbar__scale { display: flex; justify-content: space-between; margin-top: 6px; font-size: 11px; color: var(--color-body); }
 .assist__words { margin-top: 12px; font-size: 13px; color: var(--color-body); }
+
+.footnote { margin: -4px 4px 0; font-size: 12px; color: var(--color-muted); }
 
 /* ----------------------------------------------------------- timeline */
 .timeline { --tl-cols: minmax(92px, 0.9fr) minmax(0, 3.6fr) 78px 62px; }
@@ -285,7 +282,6 @@ h1, h2, h3, p { margin: 0; }
 .field { padding: 14px 0; border-top: 1px solid var(--color-hairline-soft); }
 .field__top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
 .field__key { font-size: 12px; color: var(--color-muted); font-family: ui-monospace, 'JetBrains Mono', monospace; }
-.field__tag { font-size: 11px; color: var(--color-muted); }
 .field__row { display: flex; gap: 8px; }
 .field input {
   flex: 1; min-width: 0; min-height: 38px; padding: 0 12px;

@@ -91,10 +91,7 @@
       '<dl class="verdict__facts">' +
         '<div><dt>Ending</dt><dd>' + esc(row.ending ? cap(row.ending) : 'Not recorded') + '</dd></div>' +
         '<div class="verdict__ratio"><dt>Against reference</dt><dd>' + bar + '</dd></div>' +
-      '</dl>' +
-      // Every verdict label stays marked until the safety manager review is
-      // recorded; the schema has no reviewed flag yet.
-      '<p class="verdict__note">Placeholder label, pending safety manager review.</p>';
+      '</dl>';
   }
 
   // 270 degree ring: fill is the trainee value on the metric scale, the

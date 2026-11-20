@@ -16,11 +16,9 @@
   var sheet, opener, lastFocus;
 
   function field (key, labels) {
-    var tag = labels.isVerdictKey(key) ? 'Placeholder' : '';
     return '<div class="field" data-key="' + esc(key) + '">' +
       '<div class="field__top">' +
         '<label class="field__key" for="lbl-' + esc(key) + '">' + esc(key) + '</label>' +
-        '<span class="field__tag">' + tag + '</span>' +
       '</div>' +
       '<div class="field__row">' +
         '<input id="lbl-' + esc(key) + '" type="text" maxlength="' + MAX + '" autocomplete="off" spellcheck="true" value="' + esc(labels.get(key)) + '">' +
@@ -46,7 +44,7 @@
         '</section>' +
         '<section class="sheet__group">' +
           '<h3 class="sheet__group-title">Verdict labels</h3>' +
-          '<p class="sheet__group-note">Verdict labels are placeholders, pending safety manager review.</p>' +
+          '<p class="sheet__group-note">Verdict bands are placeholders pending safety manager review.</p>' +
           labels.verdictKeys().map(function (k) { return field(k, labels); }).join('') +
         '</section>' +
       '</div>';
